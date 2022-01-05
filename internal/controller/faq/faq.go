@@ -3,33 +3,144 @@ package faq
 import (
 	"context"
 	db "e-commerce-api/internal/database"
+	"e-commerce-api/internal/validate"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	_ "net/http"
 	"strconv"
 )
+
+type Faq struct {
+	Question string `json:"question" form:"question" validate:"required"`
+	Answer   string `json:"answer" form:"answer" validate:"required"`
+	Status   *bool  `json:"status" form:"status" validate:"required"`
+}
 
 var client = db.Client
 var contextt = context.Background()
 
+// ShowAccount godoc
+// @Summary      Create Data
+// @Description  create faqs
+// @Tags         Faqs
+// @Accept       json
+// @Produce      json
+// @Param        body body  Faq  false   "Faq form"
+// @Success      200  {object}  []Faq
+// @Router       /faq [post]
 func Store(ctx *fiber.Ctx) error {
 	db.PrismaConnection()
+	var faq Faq
 
-	createdFaq, err := client.Faq.CreateOne(db.Faq.Question.Set("Bu ilk sorudur"), db.Faq.Answer.Set("ilk sorunun cevabıdır"), db.Faq.Status.Set(true)).Exec(contextt)
-	if err != nil {
-		return ctx.JSON(fiber.Map{
-			"statusCode": 204,
-			"message":    "faq is not created",
+	parseError := ctx.BodyParser(&faq)
+	fmt.Println(faq)
+	if parseError != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"statusCode":   400,
+			"errorMessage": "Bad Request",
+		})
+	}
+	err := validate.ValidateStructToTurkish(&faq)
+	if err == nil {
+		createdFaq, err := client.Faq.CreateOne(db.Faq.Question.Set(faq.Question), db.Faq.Answer.Set(faq.Answer), db.Faq.Status.Set(*faq.Status)).Exec(contextt)
+		if err != nil {
+			return ctx.Status(204).JSON(fiber.Map{
+				"statusCode": 204,
+				"message":    "faq is not created",
+			})
+		}
+
+		return ctx.Status(200).JSON(fiber.Map{
+			"statusCode": 200,
+			"message":    "faq created",
+			"data":       createdFaq,
+		})
+	}
+	return ctx.JSON(fiber.Map{
+		"errors": err,
+	})
+
+}
+
+// ShowAccount godoc
+// @Summary      Update Data
+// @Description  update faq
+// @Tags         Faqs
+// @Accept       json
+// @Produce      json
+// @Param        id path  string  true   "Faq Id"
+// @Param        body body  Faq  false   "Faq update form"
+// @Success      200  {object}  Faq
+// @Router       /faq/{id} [put]
+func Update(ctx *fiber.Ctx) error {
+	db.PrismaConnection()
+	var faq Faq
+
+	id := ctx.Params("id")
+	idInt, convertError := strconv.Atoi(id)
+
+	if convertError != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"statusCode":   400,
+			"errorMessage": "Bad Request , Invalid type error. Type must int",
+		})
+	}
+	parseError := ctx.BodyParser(&faq)
+	fmt.Println(faq)
+	if parseError != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"statusCode":   400,
+			"errorMessage": "Bad Request",
 		})
 	}
 
-	return ctx.JSON(fiber.Map{
+	createdFaq, err := client.Faq.FindUnique(db.Faq.ID.Equals(idInt)).Update(db.Faq.Question.Set(faq.Question), db.Faq.Answer.Set(faq.Answer), db.Faq.Status.Set(*faq.Status)).Exec(contextt)
+	if err != nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"statusCode": 404,
+			"message":    "faq is not updated",
+		})
+	}
+
+	return ctx.Status(200).JSON(fiber.Map{
 		"statusCode": 200,
-		"message":    "faq created",
+		"message":    "faq updated",
 		"data":       createdFaq,
 	})
+
 }
+
+// ShowAccount godoc
+// @Summary      All  Data
+// @Description  get all faqs
+// @Tags         Faqs
+// @Accept       json
+// @Produce      json
+// @Param        offset  query  string  true   "Offset"
+// @Success      200  {object}  Faq
+// @Router       /faq [get]
 func Index(ctx *fiber.Ctx) error {
+	var offsetInt int
+	offset := ctx.Query("offset")
+	if offset == "" {
+		offsetInt = 0
+	} else {
+		offsetConvert, convertError := strconv.Atoi(offset)
+		if convertError != nil {
+			return ctx.Status(400).JSON(fiber.Map{
+				"statusCode":   400,
+				"errorMessage": "Bad Request , Invalid type error. Type must int",
+			})
+		}
+		if offsetConvert >= 0 {
+			offsetInt = offsetConvert
+		} else {
+			offsetInt = 0
+		}
+
+	}
 	db.PrismaConnection()
-	allFaq, err := client.Faq.FindMany().Exec(contextt)
+	allFaq, err := client.Faq.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
 	if err != nil {
 		return ctx.JSON(fiber.Map{
 			"statusCode": 404,
@@ -43,30 +154,63 @@ func Index(ctx *fiber.Ctx) error {
 	})
 }
 
+// ShowAccount godoc
+// @Summary      Delete Data
+// @Description  delete faqs
+// @Tags         Faqs
+// @Accept       json
+// @Produce      json
+// @Param        id  path  string  true   "Faq ID"
+// @Success      200  {object}  []Faq
+// @Router       /faq/{id} [delete]
 func Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	idInt, _ := strconv.Atoi(id)
+	idInt, convertError := strconv.Atoi(id)
+
+	if convertError != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"statusCode":   400,
+			"errorMessage": "Bad Request , Invalid type error. Type must int",
+		})
+	}
 	db.PrismaConnection()
 	deletedFaq, err := client.Faq.FindUnique(db.Faq.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
-		return ctx.JSON(fiber.Map{
+		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
 			"message":    "faq is not deleted",
 		})
 	}
-	return ctx.JSON(fiber.Map{
+	return ctx.Status(200).JSON(fiber.Map{
 		"statusCode": 200,
 		"message":    "faq deleted",
 		"data":       deletedFaq,
 	})
 }
+
+// Show ShowAccount godoc
+// @Summary      Show Data
+// @Description  get string by ID
+// @Tags         Faqs
+// @Accept       json
+// @Produce      json
+// @Param        id  path  string  true   "Faq ID"
+// @Success      200  {object}  Faq
+// @Router       /faq/{id} [get]
 func Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	idInt, _ := strconv.Atoi(id)
+	idInt, convertError := strconv.Atoi(id)
+
+	if convertError != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"statusCode":   400,
+			"errorMessage": "Bad Request , Invalid type error. Type must int",
+		})
+	}
 	db.PrismaConnection()
 	singleFaq, err := client.Faq.FindFirst(db.Faq.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
-		return ctx.JSON(fiber.Map{
+		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
 			"message":    "faq is not finding",
 		})

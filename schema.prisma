@@ -30,4 +30,15 @@ model User {
     email String @unique
     password String
     status Boolean
+    profile Profile?
+}
+model Profile {
+    id Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    image String
+    address String
+    phone String
+    user User @relation(fields: [userId],references: [id])
+    userId Int 
 }

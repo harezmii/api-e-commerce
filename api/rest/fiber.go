@@ -1,18 +1,19 @@
 package rest
 
 import (
+	_ "e-commerce-api/docs"
 	db "e-commerce-api/internal/database"
 	"e-commerce-api/internal/handle"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
+	"github.com/swaggo/fiber-swagger"
 )
 
 func RestRun(port string) {
@@ -32,13 +33,12 @@ func RestRun(port string) {
 	app.Use(cors.New())
 	app.Use(compress.New())
 	app.Use(limiter.New(limiter.Config{
-		Max: 100,
+		Max: 10,
 		LimitReached: func(ctx *fiber.Ctx) error {
 			return ctx.Status(429).JSON("Too Many Request")
 		},
 	}))
 	app.Use(requestid.New())
-	app.Use(etag.New())
 	app.Use(recover2.New())
 	app.Use(favicon.New())
 
@@ -59,6 +59,7 @@ func RestRun(port string) {
 
 	// Api ping End
 
+	app.Get("swagger/*", fiberSwagger.WrapHandler)
 	api := app.Group("/api")
 	version1 := api.Group("/v1")
 
