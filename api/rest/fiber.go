@@ -2,8 +2,9 @@ package rest
 
 import (
 	_ "e-commerce-api/docs"
-	db "e-commerce-api/internal/database"
 	"e-commerce-api/internal/handle"
+	"e-commerce-api/internal/infraStructure/database"
+	"e-commerce-api/internal/middleware/firabaseAuth"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -49,6 +50,7 @@ func RestRun(port string) {
 
 	// Helmet End
 
+	app.Use(firabaseAuth.FirebaseMiddleWare)
 	// Api ping
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.JSON(fiber.Map{
@@ -60,12 +62,13 @@ func RestRun(port string) {
 	// Api ping End
 
 	app.Get("swagger/*", fiberSwagger.WrapHandler)
+
 	api := app.Group("/api")
 	version1 := api.Group("/v1")
 
 	handle.SetupRoutes(version1)
 
-	serverError := app.Listen(":" + port)
+	serverError := app.Listen("0.0.0.0:" + port)
 	if serverError != nil {
 		_ = fmt.Sprintf("Server Error")
 	}

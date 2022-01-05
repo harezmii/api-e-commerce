@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	db "e-commerce-api/internal/database"
+	db2 "e-commerce-api/internal/infraStructure/database"
 	"e-commerce-api/internal/validate"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -20,7 +20,7 @@ type User struct {
 	Status   *bool  `json:"status" form:"status" validate:"required"`
 }
 
-var client = db.Client
+var client = db2.Client
 var contextt = context.Background()
 
 // ShowAccount godoc
@@ -33,7 +33,7 @@ var contextt = context.Background()
 // @Success      200  {object}  []User
 // @Router       /user [post]
 func Store(ctx *fiber.Ctx) error {
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	var user User
 
 	parseError := ctx.BodyParser(&user)
@@ -45,7 +45,7 @@ func Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&user)
 	if err == nil {
-		createdUser, err := client.User.CreateOne(db.User.Name.Set(user.Name), db.User.Surname.Set(user.Surname), db.User.Email.Set(user.Email), db.User.Password.Set(user.Password), db.User.Status.Set(*user.Status)).Exec(contextt)
+		createdUser, err := client.User.CreateOne(db2.User.Name.Set(user.Name), db2.User.Surname.Set(user.Surname), db2.User.Email.Set(user.Email), db2.User.Password.Set(user.Password), db2.User.Status.Set(*user.Status)).Exec(contextt)
 		if err != nil {
 			return ctx.Status(204).JSON(fiber.Map{
 				"statusCode": 204,
@@ -76,7 +76,7 @@ func Store(ctx *fiber.Ctx) error {
 // @Success      200  {object}  User
 // @Router       /user/{id} [put]
 func Update(ctx *fiber.Ctx) error {
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	var user User
 
 	id := ctx.Params("id")
@@ -97,7 +97,7 @@ func Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	updatedUser, err := client.User.FindUnique(db.User.ID.Equals(idInt)).Update(db.User.Name.Set(user.Name), db.User.Surname.Set(user.Surname), db.User.Email.Set(user.Email), db.User.Password.Set(user.Password), db.User.Status.Set(*user.Status)).Exec(contextt)
+	updatedUser, err := client.User.FindUnique(db2.User.ID.Equals(idInt)).Update(db2.User.Name.Set(user.Name), db2.User.Surname.Set(user.Surname), db2.User.Email.Set(user.Email), db2.User.Password.Set(user.Password), db2.User.Status.Set(*user.Status)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
@@ -142,7 +142,7 @@ func Index(ctx *fiber.Ctx) error {
 		}
 
 	}
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	allUser, err := client.User.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
 	if err != nil {
 		return ctx.JSON(fiber.Map{
@@ -176,8 +176,8 @@ func Destroy(ctx *fiber.Ctx) error {
 			"errorMessage": "Bad Request , Invalid type error. Type must int",
 		})
 	}
-	db.PrismaConnection()
-	deletedUser, err := client.User.FindUnique(db.User.ID.Equals(idInt)).Delete().Exec(contextt)
+	db2.PrismaConnection()
+	deletedUser, err := client.User.FindUnique(db2.User.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
@@ -210,8 +210,8 @@ func Show(ctx *fiber.Ctx) error {
 			"errorMessage": "Bad Request , Invalid type error. Type must int",
 		})
 	}
-	db.PrismaConnection()
-	singleUser, err := client.User.FindFirst(db.User.ID.Equals(idInt)).Exec(contextt)
+	db2.PrismaConnection()
+	singleUser, err := client.User.FindFirst(db2.User.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,

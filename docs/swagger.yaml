@@ -48,17 +48,17 @@ definitions:
     - status
     - surname
     type: object
-host: localhost:3200
+host: e-ticaret-api.herokuapp.com
 info:
   contact:
     email: suatcnby06@gmail.com
     name: Api Support
-    url: http://localhost:3200/support
+    url: https://e-ticaret-api.herokuapp.com/support
   description: This is e-commerce server.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://localhost:3200/api/v1/
+  termsOfService: https://e-ticaret-api.herokuapp.com/api/v1/
   title: E Commerce API
   version: "1.0"
 paths:

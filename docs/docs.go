@@ -17,10 +17,10 @@ var doc = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://localhost:3200/api/v1/",
+        "termsOfService": "https://e-ticaret-api.herokuapp.com/api/v1/",
         "contact": {
             "name": "Api Support",
-            "url": "http://localhost:3200/support",
+            "url": "https://e-ticaret-api.herokuapp.com/support",
             "email": "suatcnby06@gmail.com"
         },
         "license": {
@@ -591,7 +591,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "localhost:3200",
+	Host:        "e-ticaret-api.herokuapp.com",
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "E Commerce API",

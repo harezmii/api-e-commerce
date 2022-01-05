@@ -2,7 +2,7 @@ package profile
 
 import (
 	"context"
-	db "e-commerce-api/internal/database"
+	db2 "e-commerce-api/internal/infraStructure/database"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -15,7 +15,7 @@ type Profile struct {
 	Phone   string `json:"phone" form:"phone" validate:"required"`
 }
 
-var client = db.Client
+var client = db2.Client
 var contextt = context.Background()
 
 //// ShowAccount godoc
@@ -71,7 +71,7 @@ var contextt = context.Background()
 // @Success      200  {object}  Profile
 // @Router       /profile/{id} [put]
 func Update(ctx *fiber.Ctx) error {
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	var profile Profile
 
 	id := ctx.Params("id")
@@ -92,7 +92,7 @@ func Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	updatedProfile, err := client.Profile.FindUnique(db.Profile.ID.Equals(idInt)).Update(db.Profile.Image.Set(profile.Image), db.Profile.Address.Set(profile.Address), db.Profile.Phone.Set(profile.Phone)).Exec(contextt)
+	updatedProfile, err := client.Profile.FindUnique(db2.Profile.ID.Equals(idInt)).Update(db2.Profile.Image.Set(profile.Image), db2.Profile.Address.Set(profile.Address), db2.Profile.Phone.Set(profile.Phone)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
@@ -137,7 +137,7 @@ func Index(ctx *fiber.Ctx) error {
 		}
 
 	}
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	allProfile, err := client.Profile.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
 	if err != nil {
 		return ctx.JSON(fiber.Map{
@@ -171,8 +171,8 @@ func Destroy(ctx *fiber.Ctx) error {
 			"errorMessage": "Bad Request , Invalid type error. Type must int",
 		})
 	}
-	db.PrismaConnection()
-	deletedProfile, err := client.Profile.FindUnique(db.Profile.ID.Equals(idInt)).Delete().Exec(contextt)
+	db2.PrismaConnection()
+	deletedProfile, err := client.Profile.FindUnique(db2.Profile.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
@@ -205,8 +205,8 @@ func Show(ctx *fiber.Ctx) error {
 			"errorMessage": "Bad Request , Invalid type error. Type must int",
 		})
 	}
-	db.PrismaConnection()
-	singleProfile, err := client.Profile.FindFirst(db.Profile.ID.Equals(idInt)).Exec(contextt)
+	db2.PrismaConnection()
+	singleProfile, err := client.Profile.FindFirst(db2.Profile.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,

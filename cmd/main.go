@@ -8,17 +8,17 @@ import (
 // @title E Commerce API
 // @version 1.0
 // @description This is e-commerce server.
-// @termsOfService http://localhost:3200/api/v1/
+// @termsOfService https://e-ticaret-api.herokuapp.com/api/v1/
 
 // @contact.name Api Support
-// @contact.url http://localhost:3200/support
+// @contact.url https://e-ticaret-api.herokuapp.com/support
 // @contact.email suatcnby06@gmail.com
 
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:3200
+// @host e-ticaret-api.herokuapp.com
 // @BasePath /api/v1
 func main() {
-	rest.RestRun(config.GetEnvironment("SERVER_PORT", ".env"))
+	rest.RestRun(config.GetEnvironment("PORT", ".env"))
 }

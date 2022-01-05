@@ -2,7 +2,7 @@ package faq
 
 import (
 	"context"
-	db "e-commerce-api/internal/database"
+	db2 "e-commerce-api/internal/infraStructure/database"
 	"e-commerce-api/internal/validate"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -16,7 +16,7 @@ type Faq struct {
 	Status   *bool  `json:"status" form:"status" validate:"required"`
 }
 
-var client = db.Client
+var client = db2.Client
 var contextt = context.Background()
 
 // ShowAccount godoc
@@ -29,7 +29,7 @@ var contextt = context.Background()
 // @Success      200  {object}  []Faq
 // @Router       /faq [post]
 func Store(ctx *fiber.Ctx) error {
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	var faq Faq
 
 	parseError := ctx.BodyParser(&faq)
@@ -42,7 +42,7 @@ func Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&faq)
 	if err == nil {
-		createdFaq, err := client.Faq.CreateOne(db.Faq.Question.Set(faq.Question), db.Faq.Answer.Set(faq.Answer), db.Faq.Status.Set(*faq.Status)).Exec(contextt)
+		createdFaq, err := client.Faq.CreateOne(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
 		if err != nil {
 			return ctx.Status(204).JSON(fiber.Map{
 				"statusCode": 204,
@@ -73,7 +73,7 @@ func Store(ctx *fiber.Ctx) error {
 // @Success      200  {object}  Faq
 // @Router       /faq/{id} [put]
 func Update(ctx *fiber.Ctx) error {
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	var faq Faq
 
 	id := ctx.Params("id")
@@ -94,7 +94,7 @@ func Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	createdFaq, err := client.Faq.FindUnique(db.Faq.ID.Equals(idInt)).Update(db.Faq.Question.Set(faq.Question), db.Faq.Answer.Set(faq.Answer), db.Faq.Status.Set(*faq.Status)).Exec(contextt)
+	createdFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Update(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
@@ -139,7 +139,7 @@ func Index(ctx *fiber.Ctx) error {
 		}
 
 	}
-	db.PrismaConnection()
+	db2.PrismaConnection()
 	allFaq, err := client.Faq.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
 	if err != nil {
 		return ctx.JSON(fiber.Map{
@@ -173,8 +173,8 @@ func Destroy(ctx *fiber.Ctx) error {
 			"errorMessage": "Bad Request , Invalid type error. Type must int",
 		})
 	}
-	db.PrismaConnection()
-	deletedFaq, err := client.Faq.FindUnique(db.Faq.ID.Equals(idInt)).Delete().Exec(contextt)
+	db2.PrismaConnection()
+	deletedFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,
@@ -207,8 +207,8 @@ func Show(ctx *fiber.Ctx) error {
 			"errorMessage": "Bad Request , Invalid type error. Type must int",
 		})
 	}
-	db.PrismaConnection()
-	singleFaq, err := client.Faq.FindFirst(db.Faq.ID.Equals(idInt)).Exec(contextt)
+	db2.PrismaConnection()
+	singleFaq, err := client.Faq.FindFirst(db2.Faq.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(404).JSON(fiber.Map{
 			"statusCode": 404,

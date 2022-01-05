@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine
+FROM golang:1.17-alpine as builder
 ENV GO111MODULE=on
 
 RUN mkdir /app
@@ -13,6 +13,6 @@ RUN go mod verify
 
 
 RUN go build -o ecommerceapi /app/cmd/main.go
-EXPOSE  3200
+CMD gunicorn --bind 0.0.0.0:$PORT wsgi
 
 CMD ["./ecommerceapi"]
