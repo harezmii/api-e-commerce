@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+//CMD gunicorn --bind 0.0.0.0:$SERVER_PORT wsgi
 func SetupRoutes(app fiber.Router) {
 
 	// Faq Routes
