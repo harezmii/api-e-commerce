@@ -71,7 +71,7 @@ func Store(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id path  string  true   "Profile Id"
-// @Param        body body  Profile  false   "Profile update form"
+// @Param        body body  Profile  false   "Profile update fom"
 // @Success      200  {object}  Profile
 // @Router       /profile/{id} [put]
 func Update(ctx *fiber.Ctx) error {
