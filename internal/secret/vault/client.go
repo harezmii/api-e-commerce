@@ -7,47 +7,35 @@ import (
 	"time"
 )
 
+/*
+token := "s.Cz26eGSOO8O854IyCzlVPGtN"
+	vaultAddr := "http://127.0.0.1:8200"
+*/
 var httpClient = &http.Client{
 	Timeout: 10 * time.Second,
 }
 
-func VaultSecretWrite() bool {
-	token := "s.Cz26eGSOO8O854IyCzlVPGtN"
-	vaultAddr := "http://127.0.0.1:8200"
-
-	client, clientError := api.NewClient(&api.Config{Address: vaultAddr, HttpClient: httpClient})
-	if clientError != nil {
-		return false
-	}
-	client.SetToken(token)
-
-	inputData := map[string]interface{}{
-		"data": map[string]interface{}{
-			"first": "ankit",
-		},
-	}
-	output, err := client.Logical().Write("secret/data/abd", inputData)
-	fmt.Println(output)
-	if err != nil {
-		return false
-	}
-	return true
+type Provider struct {
+	path   string
+	client *api.Logical
+	result map[string]interface{}
 }
 
-func VaultSecretRead() map[string]interface{} {
-	token := "s.Cz26eGSOO8O854IyCzlVPGtN"
-	vaultAddr := "http://127.0.0.1:8200"
-
-	client, clientError := api.NewClient(&api.Config{Address: vaultAddr, HttpClient: httpClient})
+func New(token, addr, path string) (*Provider, error) {
+	client, clientError := api.NewClient(&api.Config{Address: addr})
 	if clientError != nil {
-		return nil
+		return nil, fmt.Errorf("Vault client error")
 	}
 	client.SetToken(token)
-
-	output, err := client.Logical().Read("secret/data/abd")
-	fmt.Println(output.Data)
-	if err != nil {
-		return nil
+	return &Provider{
+		path:   path,
+		client: client.Logical(),
+		result: map[string]interface{}{},
+	}, nil
+}
+func (p Provider) VaultSecretWrite(path string, data map[string]interface{}) error {
+	if _, err := p.client.Write(p.path+"/"+path, data); err != nil {
+		return err
 	}
-	return output.Data
+	return nil
 }
