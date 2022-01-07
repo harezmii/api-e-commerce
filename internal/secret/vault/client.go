@@ -22,7 +22,7 @@ type Provider struct {
 }
 
 func New(token, addr, path string) (*Provider, error) {
-	client, clientError := api.NewClient(&api.Config{Address: addr})
+	client, clientError := api.NewClient(&api.Config{Address: addr, HttpClient: httpClient})
 	if clientError != nil {
 		return nil, fmt.Errorf("Vault client error")
 	}

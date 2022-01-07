@@ -21,12 +21,15 @@ definitions:
         type: string
       phone:
         type: string
+      user:
+        $ref: '#/definitions/user.User'
       userId:
         type: integer
     required:
     - address
     - image
     - phone
+    - user
     - userId
     type: object
   user.User:
@@ -62,6 +65,29 @@ info:
   title: E Commerce API
   version: "1.0"
 paths:
+  /Profile:
+    post:
+      consumes:
+      - application/json
+      description: create Profiles
+      parameters:
+      - description: Profile form
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/profile.Profile'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/profile.Profile'
+            type: array
+      summary: Create Data
+      tags:
+      - Profiles
   /faq:
     get:
       consumes:
@@ -96,8 +122,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             items:
               $ref: '#/definitions/faq.Faq'
@@ -173,27 +199,6 @@ paths:
       summary: Update Data
       tags:
       - Faqs
-  /profile:
-    get:
-      consumes:
-      - application/json
-      description: get all Profiles
-      parameters:
-      - description: Offset
-        in: query
-        name: offset
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/profile.Profile'
-      summary: All  Data
-      tags:
-      - Profiles
   /profile/{id}:
     delete:
       consumes:
@@ -296,8 +301,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             items:
               $ref: '#/definitions/user.User'

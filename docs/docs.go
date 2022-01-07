@@ -32,6 +32,42 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/Profile": {
+            "post": {
+                "description": "create Profiles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profiles"
+                ],
+                "summary": "Create Data",
+                "parameters": [
+                    {
+                        "description": "Profile form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/profile.Profile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/profile.Profile"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/faq": {
             "get": {
                 "description": "get all faqs",
@@ -86,8 +122,8 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -196,38 +232,6 @@ var doc = `{
                             "items": {
                                 "$ref": "#/definitions/faq.Faq"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/profile": {
-            "get": {
-                "description": "get all Profiles",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Profiles"
-                ],
-                "summary": "All  Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Offset",
-                        "name": "offset",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/profile.Profile"
                         }
                     }
                 }
@@ -390,8 +394,8 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -532,6 +536,7 @@ var doc = `{
                 "address",
                 "image",
                 "phone",
+                "user",
                 "userId"
             ],
             "properties": {
@@ -543,6 +548,9 @@ var doc = `{
                 },
                 "phone": {
                     "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/user.User"
                 },
                 "userId": {
                     "type": "integer"

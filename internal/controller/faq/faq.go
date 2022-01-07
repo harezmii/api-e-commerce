@@ -26,7 +26,7 @@ var contextt = context.Background()
 // @Accept       json
 // @Produce      json
 // @Param        body body  Faq  false   "Faq form"
-// @Success      200  {object}  []Faq
+// @Success      201  {object}  []Faq
 // @Router       /faq [post]
 func Store(ctx *fiber.Ctx) error {
 	db2.PrismaConnection()
@@ -36,8 +36,8 @@ func Store(ctx *fiber.Ctx) error {
 	fmt.Println(faq)
 	if parseError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request",
+			"statusCode": 400,
+			"message":    "Bad Request , parse error.",
 		})
 	}
 	err := validate.ValidateStructToTurkish(&faq)
@@ -50,14 +50,15 @@ func Store(ctx *fiber.Ctx) error {
 			})
 		}
 
-		return ctx.Status(200).JSON(fiber.Map{
-			"statusCode": 200,
+		return ctx.Status(201).JSON(fiber.Map{
+			"statusCode": 201,
 			"message":    "faq created",
 			"data":       createdFaq,
 		})
 	}
-	return ctx.JSON(fiber.Map{
-		"errors": err,
+	return ctx.Status(fiber.ErrUnprocessableEntity.Code).JSON(fiber.Map{
+		"statusCode": 422,
+		"errors":     err,
 	})
 
 }
@@ -81,16 +82,16 @@ func Update(ctx *fiber.Ctx) error {
 
 	if convertError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
+			"statusCode": 400,
+			"message":    "Bad Request , Invalid type error. Type must int",
 		})
 	}
 	parseError := ctx.BodyParser(&faq)
 	fmt.Println(faq)
 	if parseError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request",
+			"statusCode": 400,
+			"message":    "Bad Request",
 		})
 	}
 
@@ -128,8 +129,8 @@ func Index(ctx *fiber.Ctx) error {
 		offsetConvert, convertError := strconv.Atoi(offset)
 		if convertError != nil {
 			return ctx.Status(400).JSON(fiber.Map{
-				"statusCode":   400,
-				"errorMessage": "Bad Request , Invalid type error. Type must int",
+				"statusCode": 400,
+				"message":    "Bad Request , Invalid type error. Type must int",
 			})
 		}
 		if offsetConvert >= 0 {
@@ -169,8 +170,8 @@ func Destroy(ctx *fiber.Ctx) error {
 
 	if convertError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
+			"statusCode": 400,
+			"message":    "Bad Request , Invalid type error. Type must int",
 		})
 	}
 	db2.PrismaConnection()
@@ -203,8 +204,8 @@ func Show(ctx *fiber.Ctx) error {
 
 	if convertError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
+			"statusCode": 400,
+			"message":    "Bad Request , Invalid type error. Type must int",
 		})
 	}
 	db2.PrismaConnection()

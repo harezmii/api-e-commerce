@@ -18,6 +18,42 @@
     "host": "e-ticaret-api.herokuapp.com",
     "basePath": "/api/v1",
     "paths": {
+        "/Profile": {
+            "post": {
+                "description": "create Profiles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profiles"
+                ],
+                "summary": "Create Data",
+                "parameters": [
+                    {
+                        "description": "Profile form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/profile.Profile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/profile.Profile"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/faq": {
             "get": {
                 "description": "get all faqs",
@@ -72,8 +108,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -182,38 +218,6 @@
                             "items": {
                                 "$ref": "#/definitions/faq.Faq"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/profile": {
-            "get": {
-                "description": "get all Profiles",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Profiles"
-                ],
-                "summary": "All  Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Offset",
-                        "name": "offset",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/profile.Profile"
                         }
                     }
                 }
@@ -376,8 +380,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -518,6 +522,7 @@
                 "address",
                 "image",
                 "phone",
+                "user",
                 "userId"
             ],
             "properties": {
@@ -529,6 +534,9 @@
                 },
                 "phone": {
                     "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/user.User"
                 },
                 "userId": {
                     "type": "integer"

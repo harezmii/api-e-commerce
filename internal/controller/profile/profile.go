@@ -2,63 +2,67 @@ package profile
 
 import (
 	"context"
+	"e-commerce-api/internal/controller/user"
 	db2 "e-commerce-api/internal/infraStructure/database"
+	"e-commerce-api/internal/validate"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
 
 type Profile struct {
-	UserId  int    `json:"userId" validate:"required"`
-	Image   string `json:"image" form:"image" validate:"required"`
-	Address string `json:"address" form:"address" validate:"required"`
-	Phone   string `json:"phone" form:"phone" validate:"required"`
+	UserId  int       `json:"userId" validate:"required"`
+	Image   string    `json:"image" form:"image" validate:"required"`
+	Address string    `json:"address" form:"address" validate:"required"`
+	Phone   string    `json:"phone" form:"phone" validate:"required"`
+	User    user.User `json:"user" form:"user" validate:"required"`
 }
 
 var client = db2.Client
 var contextt = context.Background()
 
-//// ShowAccount godoc
-//// @Summary      Create Data
-//// @Description  create Profiles
-//// @Tags         Profiles
-//// @Accept       json
-//// @Produce      json
-//// @Param        body body  Profile  false   "Profile form"
-//// @Success      200  {object}  []Profile
-//// @Router       /Profile [post]
-//func Store(ctx *fiber.Ctx) error {
-//	db.PrismaConnection()
-//	var profile Profile
-//
-//	parseError := ctx.BodyParser(&profile)
-//	if parseError != nil {
-//		return ctx.Status(400).JSON(fiber.Map{
-//			"statusCode":   400,
-//			"errorMessage": "Bad Request",
-//		})
-//	}
-//	err := validate.ValidateStructToTurkish(&profile)
-//	if err == nil {
-//		createdProfile, err := client.Profile.CreateOne(db.Profile.UserID.Set(profile.UserId), db.Profile.Image.Set(profile.Image), db.Profile.Address.Set(profile.Address), db.Profile.Phone.Set(profile.Phone)).Exec(contextt)
-//		if err != nil {
-//			return ctx.Status(204).JSON(fiber.Map{
-//				"statusCode": 204,
-//				"message":    "profile is not created",
-//			})
-//		}
-//
-//		return ctx.Status(200).JSON(fiber.Map{
-//			"statusCode": 200,
-//			"message":    "profile created",
-//			"data":       createdProfile,
-//		})
-//	}
-//	return ctx.JSON(fiber.Map{
-//		"errors": err,
-//	})
-//
-//}
+// ShowAccount godoc
+// @Summary      Create Data
+// @Description  create Profiles
+// @Tags         Profiles
+// @Accept       json
+// @Produce      json
+// @Param        body body  Profile  false   "Profile form"
+// @Success      201  {object}  []Profile
+// @Router       /Profile [post]
+func Store(ctx *fiber.Ctx) error {
+	db2.PrismaConnection()
+	var profile Profile
+
+	parseError := ctx.BodyParser(&profile)
+	if parseError != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"statusCode": 400,
+			"message":    "Bad Request , parse error.",
+		})
+	}
+	err := validate.ValidateStructToTurkish(&profile)
+	if err == nil {
+		createdProfile, err := client.Profile.CreateOne(db2.Profile.Image.Set(profile.Image), db2.Profile.Address.Set(profile.Address), db2.Profile.Phone.Set(profile.Phone), db2.Profile.User.Link(db2.User.ID.Equals(profile.UserId)), db2.Profile.UserID.Set(profile.UserId)).Exec(contextt)
+		if err != nil {
+			return ctx.Status(204).JSON(fiber.Map{
+				"statusCode": 204,
+				"message":    "profile is not created",
+			})
+		}
+
+		return ctx.Status(201).JSON(fiber.Map{
+			"statusCode": 201,
+			"message":    "profile created",
+			"data":       createdProfile,
+		})
+	}
+	return ctx.Status(fiber.ErrUnprocessableEntity.Code).JSON(fiber.Map{
+		"statusCode": 422,
+		"errors":     err,
+	})
+
+}
 
 // ShowAccount godoc
 // @Summary      Profile Update Data
@@ -79,16 +83,16 @@ func Update(ctx *fiber.Ctx) error {
 
 	if convertError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
+			"statusCode": 400,
+			"message":    "Bad Request , Invalid type error. Type must int",
 		})
 	}
 	parseError := ctx.BodyParser(&profile)
 	fmt.Println(profile)
 	if parseError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request",
+			"statusCode": 400,
+			"message":    "Bad Request",
 		})
 	}
 
@@ -109,50 +113,6 @@ func Update(ctx *fiber.Ctx) error {
 }
 
 // ShowAccount godoc
-// @Summary      All  Data
-// @Description  get all Profiles
-// @Tags         Profiles
-// @Accept       json
-// @Produce      json
-// @Param        offset  query  string  true   "Offset"
-// @Success      200  {object}  Profile
-// @Router       /profile [get]
-func Index(ctx *fiber.Ctx) error {
-	var offsetInt int
-	offset := ctx.Query("offset")
-	if offset == "" {
-		offsetInt = 0
-	} else {
-		offsetConvert, convertError := strconv.Atoi(offset)
-		if convertError != nil {
-			return ctx.Status(400).JSON(fiber.Map{
-				"statusCode":   400,
-				"errorMessage": "Bad Request , Invalid type error. Type must int",
-			})
-		}
-		if offsetConvert >= 0 {
-			offsetInt = offsetConvert
-		} else {
-			offsetInt = 0
-		}
-
-	}
-	db2.PrismaConnection()
-	allProfile, err := client.Profile.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
-	if err != nil {
-		return ctx.JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "Profile is empty",
-		})
-	}
-	return ctx.JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "Profile created",
-		"data":       allProfile,
-	})
-}
-
-// ShowAccount godoc
 // @Summary      Delete Data
 // @Description  delete Profiles
 // @Tags         Profiles
@@ -167,8 +127,8 @@ func Destroy(ctx *fiber.Ctx) error {
 
 	if convertError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
+			"statusCode": 400,
+			"message":    "Bad Request , Invalid type error. Type must int",
 		})
 	}
 	db2.PrismaConnection()
@@ -201,8 +161,8 @@ func Show(ctx *fiber.Ctx) error {
 
 	if convertError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
+			"statusCode": 400,
+			"message":    "Bad Request , Invalid type error. Type must int",
 		})
 	}
 	db2.PrismaConnection()

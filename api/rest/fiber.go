@@ -3,25 +3,23 @@ package rest
 import (
 	_ "e-commerce-api/docs"
 	"e-commerce-api/internal/handle"
-	"e-commerce-api/internal/infraStructure/database"
-	"e-commerce-api/internal/secret/middleware/firabaseAuth"
-	"e-commerce-api/internal/secret/vault"
+	db "e-commerce-api/internal/infraStructure/database"
 	_ "e-commerce-api/internal/secret/vault"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
-	"github.com/swaggo/fiber-swagger"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 func RestRun(port string) {
 	app := fiber.New(fiber.Config{
-		ETag:      true,
 		AppName:   "E Commerce REST Api",
 		BodyLimit: 4096,
 	})
@@ -31,14 +29,18 @@ func RestRun(port string) {
 		db.PrismaDisConnection()
 	}()
 	// Database End
-	print(fmt.Sprintf("%v", vault.VaultSecretRead()))
+
 	// Fiber Internal Middleware
 	app.Use(cors.New())
+	app.Use(etag.New())
 	app.Use(compress.New())
 	app.Use(limiter.New(limiter.Config{
 		Max: 10,
 		LimitReached: func(ctx *fiber.Ctx) error {
-			return ctx.Status(429).JSON("Too Many Request")
+			return ctx.Status(429).JSON(fiber.Map{
+				"statusCode": 429,
+				"message":    "Too Many Request",
+			})
 		},
 	}))
 	app.Use(requestid.New())
@@ -52,12 +54,12 @@ func RestRun(port string) {
 
 	// Helmet End
 
-	app.Use(firabaseAuth.FirebaseMiddleWare)
+	//app.Use(firabaseAuth.FirebaseMiddleWare)
 	// Api ping
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.JSON(fiber.Map{
-			"StatusCode": 200,
-			"Message":    "Api is running",
+			"statusCode": 200,
+			"message":    "Api is running",
 		})
 	})
 

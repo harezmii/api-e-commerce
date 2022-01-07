@@ -30,7 +30,7 @@ var contextt = context.Background()
 // @Accept       json
 // @Produce      json
 // @Param        body body  User  false   "User form"
-// @Success      200  {object}  []User
+// @Success      201  {object}  []User
 // @Router       /user [post]
 func Store(ctx *fiber.Ctx) error {
 	db2.PrismaConnection()
@@ -39,8 +39,8 @@ func Store(ctx *fiber.Ctx) error {
 	parseError := ctx.BodyParser(&user)
 	if parseError != nil {
 		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request",
+			"statusCode": 400,
+			"message":    "Bad Request , parse error.",
 		})
 	}
 	err := validate.ValidateStructToTurkish(&user)
@@ -53,14 +53,15 @@ func Store(ctx *fiber.Ctx) error {
 			})
 		}
 
-		return ctx.Status(200).JSON(fiber.Map{
-			"statusCode": 200,
+		return ctx.Status(201).JSON(fiber.Map{
+			"statusCode": 201,
 			"message":    "user created",
 			"data":       createdUser,
 		})
 	}
-	return ctx.JSON(fiber.Map{
-		"errors": err,
+	return ctx.Status(fiber.ErrUnprocessableEntity.Code).JSON(fiber.Map{
+		"statusCode": 422,
+		"message":    err,
 	})
 
 }

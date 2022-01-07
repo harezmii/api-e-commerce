@@ -2,6 +2,7 @@ package handle
 
 import (
 	"e-commerce-api/internal/controller/faq"
+	"e-commerce-api/internal/controller/profile"
 	"e-commerce-api/internal/controller/user"
 	"github.com/gofiber/fiber/v2"
 )
@@ -25,4 +26,10 @@ func SetupRoutes(app fiber.Router) {
 	app.Put("/user/:id", user.Update)
 	// User Routes End
 
+	// User Routes
+	app.Post("/profile", profile.Store)
+	app.Get("/profile/:id", profile.Show)
+	app.Delete("/profile/:id", profile.Destroy)
+	app.Put("/profile/:id", profile.Update)
+	// User Routes End
 }
