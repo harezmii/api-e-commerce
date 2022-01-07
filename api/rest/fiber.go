@@ -4,7 +4,9 @@ import (
 	_ "e-commerce-api/docs"
 	"e-commerce-api/internal/handle"
 	"e-commerce-api/internal/infraStructure/database"
-	"e-commerce-api/internal/middleware/firabaseAuth"
+	"e-commerce-api/internal/secret/middleware/firabaseAuth"
+	"e-commerce-api/internal/secret/vault"
+	_ "e-commerce-api/internal/secret/vault"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -29,7 +31,7 @@ func RestRun(port string) {
 		db.PrismaDisConnection()
 	}()
 	// Database End
-
+	print(fmt.Sprintf("%v", vault.VaultSecretRead()))
 	// Fiber Internal Middleware
 	app.Use(cors.New())
 	app.Use(compress.New())
