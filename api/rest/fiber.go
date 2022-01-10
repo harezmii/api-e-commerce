@@ -1,21 +1,26 @@
 package rest
 
 import (
-	_ "e-commerce-api/docs"
-	"e-commerce-api/internal/handle"
-	db "e-commerce-api/internal/infraStructure/database"
-	_ "e-commerce-api/internal/secret/vault"
+	_ "api/docs"
+	"api/internal/entity/response"
+	"api/internal/handle"
+	db "api/internal/infraStructure/database"
+	_ "api/internal/secret/vault"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
+	"github.com/gofiber/storage/mysql"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
+	"time"
 )
 
 func RestRun(port string) {
@@ -23,6 +28,36 @@ func RestRun(port string) {
 		AppName:   "E Commerce REST Api",
 		BodyLimit: 4096,
 	})
+
+	// Storage
+	store := mysql.New(mysql.Config{
+		Host:       "127.0.0.1",
+		Port:       3306,
+		Database:   "storage",
+		Username:   "root",
+		Password:   "",
+		Table:      "store",
+		Reset:      false,
+		GCInterval: 3 * time.Second,
+	})
+	// Storage End
+
+	// Cache
+	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return c.Query("refresh") == "true"
+		},
+		CacheControl: true,
+		Storage:      store,
+		CacheHeader:  "Cache-Time",
+	}))
+
+	// Cache End
+
+	// Logger
+
+	app.Use(logger.New(logger.Config{}))
+	// Logger End
 
 	// Database
 	defer func() {
@@ -37,10 +72,7 @@ func RestRun(port string) {
 	app.Use(limiter.New(limiter.Config{
 		Max: 10,
 		LimitReached: func(ctx *fiber.Ctx) error {
-			return ctx.Status(429).JSON(fiber.Map{
-				"statusCode": 429,
-				"message":    "Too Many Request",
-			})
+			return ctx.Status(429).JSON(response.ErrorResponse{StatusCode: 429, Message: "Too many Request"})
 		},
 	}))
 	app.Use(requestid.New())
@@ -55,12 +87,10 @@ func RestRun(port string) {
 	// Helmet End
 
 	//app.Use(firabaseAuth.FirebaseMiddleWare)
+
 	// Api ping
 	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.JSON(fiber.Map{
-			"statusCode": 200,
-			"message":    "Api is running",
-		})
+		return ctx.Status(200).JSON(response.SuccessResponse{Message: "Api is Running", StatusCode: 200})
 	})
 
 	// Api ping End
@@ -72,6 +102,13 @@ func RestRun(port string) {
 
 	handle.SetupRoutes(version1)
 
+	// Match Any Request
+	app.Use(func(ctx *fiber.Ctx) error {
+		return ctx.Status(404).JSON(response.ErrorResponse{
+			StatusCode: 404,
+			Message:    "The page you are looking for could not be found.",
+		})
+	})
 	serverError := app.Listen("0.0.0.0:" + port)
 	if serverError != nil {
 		_ = fmt.Sprintf("Server Error")

@@ -289,7 +289,7 @@ var doc = `{
                         "required": true
                     },
                     {
-                        "description": "Profile update form",
+                        "description": "Profile update fom",
                         "name": "body",
                         "in": "body",
                         "schema": {
@@ -599,7 +599,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "e-ticaret-api.herokuapp.com",
+	Host:        "127.0.0.1:3200",
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "E Commerce API",

@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "e-ticaret-api.herokuapp.com",
+    "host": "127.0.0.1:3200",
     "basePath": "/api/v1",
     "paths": {
         "/Profile": {
@@ -275,7 +275,7 @@
                         "required": true
                     },
                     {
-                        "description": "Profile update form",
+                        "description": "Profile update fom",
                         "name": "body",
                         "in": "body",
                         "schema": {

@@ -51,7 +51,7 @@ definitions:
     - status
     - surname
     type: object
-host: e-ticaret-api.herokuapp.com
+host: 127.0.0.1:3200
 info:
   contact:
     email: suatcnby06@gmail.com
@@ -252,7 +252,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: Profile update form
+      - description: Profile update fom
         in: body
         name: body
         schema:

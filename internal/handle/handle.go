@@ -1,35 +1,35 @@
 package handle
 
 import (
-	"e-commerce-api/internal/controller/faq"
-	"e-commerce-api/internal/controller/profile"
-	"e-commerce-api/internal/controller/user"
+	"api/internal/controller/faq"
+	"api/internal/controller/profile"
+	"api/internal/controller/user"
 	"github.com/gofiber/fiber/v2"
 )
 
 //CMD gunicorn --bind 0.0.0.0:$SERVER_PORT wsgi
 func SetupRoutes(app fiber.Router) {
 
-	// Faq Routes
-	app.Post("/faq", faq.Store)
-	app.Get("/faq", faq.Index)
-	app.Get("/faq/:id", faq.Show)
-	app.Delete("/faq/:id", faq.Destroy)
-	app.Put("/faq/:id", faq.Update)
-	// Faq Routes End
+	// faqs Routes
+	app.Post("/faqs", faq.Store)
+	app.Get("/faqs", faq.Index)
+	app.Get("/faqs/:id", faq.Show)
+	app.Delete("/faqs/:id", faq.Destroy)
+	app.Put("/faqs/:id", faq.Update)
+	// faqs Routes End
 
 	// User Routes
-	app.Post("/user", user.Store)
-	app.Get("/user", user.Index)
-	app.Get("/user/:id", user.Show)
-	app.Delete("/user/:id", user.Destroy)
-	app.Put("/user/:id", user.Update)
+	app.Post("/users", user.Store)
+	app.Get("/users", user.Index)
+	app.Get("/users/:id", user.Show)
+	app.Delete("/users/:id", user.Destroy)
+	app.Put("/users/:id", user.Update)
 	// User Routes End
 
 	// User Routes
-	app.Post("/profile", profile.Store)
-	app.Get("/profile/:id", profile.Show)
-	app.Delete("/profile/:id", profile.Destroy)
-	app.Put("/profile/:id", profile.Update)
+	app.Post("/profiles", profile.Store)
+	app.Get("/profiles/:id", profile.Show)
+	app.Delete("/profiles/:id", profile.Destroy)
+	app.Put("/profiles/:id", profile.Update)
 	// User Routes End
 }

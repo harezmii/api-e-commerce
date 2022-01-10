@@ -1,8 +1,8 @@
 package main
 
 import (
-	"e-commerce-api/api/rest"
-	"e-commerce-api/pkg/config"
+	"api/api/rest"
+	"api/pkg/config"
 )
 
 // @title E Commerce API
@@ -17,8 +17,9 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host e-ticaret-api.herokuapp.com
+// @host 127.0.0.1:3200
 // @BasePath /api/v1
 func main() {
+	// e-ticaret-api.herokuapp.com
 	rest.RestRun(config.GetEnvironment("PORT", ".env"))
 }

@@ -1,9 +1,10 @@
 package user
 
 import (
+	"api/internal/entity/response"
+	db2 "api/internal/infraStructure/database"
+	"api/internal/validate"
 	"context"
-	db2 "e-commerce-api/internal/infraStructure/database"
-	"e-commerce-api/internal/validate"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -38,31 +39,18 @@ func Store(ctx *fiber.Ctx) error {
 
 	parseError := ctx.BodyParser(&user)
 	if parseError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , parse error.",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
 	err := validate.ValidateStructToTurkish(&user)
 	if err == nil {
 		createdUser, err := client.User.CreateOne(db2.User.Name.Set(user.Name), db2.User.Surname.Set(user.Surname), db2.User.Email.Set(user.Email), db2.User.Password.Set(user.Password), db2.User.Status.Set(*user.Status)).Exec(contextt)
 		if err != nil {
-			return ctx.Status(204).JSON(fiber.Map{
-				"statusCode": 204,
-				"message":    "user is not created",
-			})
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "User not created"})
 		}
 
-		return ctx.Status(201).JSON(fiber.Map{
-			"statusCode": 201,
-			"message":    "user created",
-			"data":       createdUser,
-		})
+		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "User created.", Data: createdUser})
 	}
-	return ctx.Status(fiber.ErrUnprocessableEntity.Code).JSON(fiber.Map{
-		"statusCode": 422,
-		"message":    err,
-	})
+	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.SuccessResponse{StatusCode: 422, Message: err})
 
 }
 
@@ -84,33 +72,20 @@ func Update(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	parseError := ctx.BodyParser(&user)
 	fmt.Println(user)
 	if parseError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request"})
 	}
 
 	updatedUser, err := client.User.FindUnique(db2.User.ID.Equals(idInt)).Update(db2.User.Name.Set(user.Name), db2.User.Surname.Set(user.Surname), db2.User.Email.Set(user.Email), db2.User.Password.Set(user.Password), db2.User.Status.Set(*user.Status)).Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "user is not updated",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not updated"})
 	}
 
-	return ctx.Status(200).JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "user updated",
-		"data":       updatedUser,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User updated", Data: updatedUser})
 
 }
 
@@ -131,10 +106,7 @@ func Index(ctx *fiber.Ctx) error {
 	} else {
 		offsetConvert, convertError := strconv.Atoi(offset)
 		if convertError != nil {
-			return ctx.Status(400).JSON(fiber.Map{
-				"statusCode":   400,
-				"errorMessage": "Bad Request , Invalid type error. Type must int",
-			})
+			return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 		}
 		if offsetConvert >= 0 {
 			offsetInt = offsetConvert
@@ -146,16 +118,9 @@ func Index(ctx *fiber.Ctx) error {
 	db2.PrismaConnection()
 	allUser, err := client.User.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
 	if err != nil {
-		return ctx.JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "user is empty",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User is empty"})
 	}
-	return ctx.JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "user created",
-		"data":       allUser,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User is all", Data: allUser})
 }
 
 // ShowAccount godoc
@@ -172,24 +137,14 @@ func Destroy(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	db2.PrismaConnection()
 	deletedUser, err := client.User.FindUnique(db2.User.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "user is not deleted",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not deleted"})
 	}
-	return ctx.Status(200).JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "user deleted",
-		"data":       deletedUser,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User deleted", Data: deletedUser})
 }
 
 // Show ShowAccount godoc
@@ -206,22 +161,12 @@ func Show(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode":   400,
-			"errorMessage": "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	db2.PrismaConnection()
 	singleUser, err := client.User.FindFirst(db2.User.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "user is not finding",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not finding"})
 	}
-	return ctx.JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "user is finding",
-		"data":       singleUser,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User is finding", Data: singleUser})
 }

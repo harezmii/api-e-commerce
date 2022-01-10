@@ -1,10 +1,11 @@
 package profile
 
 import (
+	"api/internal/controller/user"
+	"api/internal/entity/response"
+	db2 "api/internal/infraStructure/database"
+	"api/internal/validate"
 	"context"
-	"e-commerce-api/internal/controller/user"
-	db2 "e-commerce-api/internal/infraStructure/database"
-	"e-commerce-api/internal/validate"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -36,31 +37,18 @@ func Store(ctx *fiber.Ctx) error {
 
 	parseError := ctx.BodyParser(&profile)
 	if parseError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , parse error.",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
 	err := validate.ValidateStructToTurkish(&profile)
 	if err == nil {
 		createdProfile, err := client.Profile.CreateOne(db2.Profile.Image.Set(profile.Image), db2.Profile.Address.Set(profile.Address), db2.Profile.Phone.Set(profile.Phone), db2.Profile.User.Link(db2.User.ID.Equals(profile.UserId)), db2.Profile.UserID.Set(profile.UserId)).Exec(contextt)
 		if err != nil {
-			return ctx.Status(204).JSON(fiber.Map{
-				"statusCode": 204,
-				"message":    "profile is not created",
-			})
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Profile not created"})
 		}
 
-		return ctx.Status(201).JSON(fiber.Map{
-			"statusCode": 201,
-			"message":    "profile created",
-			"data":       createdProfile,
-		})
+		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Profile created", Data: createdProfile})
 	}
-	return ctx.Status(fiber.ErrUnprocessableEntity.Code).JSON(fiber.Map{
-		"statusCode": 422,
-		"errors":     err,
-	})
+	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: err})
 
 }
 
@@ -82,33 +70,20 @@ func Update(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request , Invalid type error. Type must int"})
 	}
 	parseError := ctx.BodyParser(&profile)
 	fmt.Println(profile)
 	if parseError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request"})
 	}
 
 	updatedProfile, err := client.Profile.FindUnique(db2.Profile.ID.Equals(idInt)).Update(db2.Profile.Image.Set(profile.Image), db2.Profile.Address.Set(profile.Address), db2.Profile.Phone.Set(profile.Phone)).Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "Profile is not updated",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile not updated"})
 	}
 
-	return ctx.Status(200).JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "Profile updated",
-		"data":       updatedProfile,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile updated", Data: updatedProfile})
 
 }
 
@@ -126,24 +101,14 @@ func Destroy(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	db2.PrismaConnection()
 	deletedProfile, err := client.Profile.FindUnique(db2.Profile.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "Profile is not deleted",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not deleted"})
 	}
-	return ctx.Status(200).JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "Profile deleted",
-		"data":       deletedProfile,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile deleted", Data: deletedProfile})
 }
 
 // Show ShowAccount godoc
@@ -160,22 +125,12 @@ func Show(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	db2.PrismaConnection()
 	singleProfile, err := client.Profile.FindFirst(db2.Profile.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "Profile is not finding",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not finding"})
 	}
-	return ctx.JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "Profile is finding",
-		"data":       singleProfile,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile is finding", Data: singleProfile})
 }

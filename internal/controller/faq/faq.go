@@ -1,9 +1,10 @@
 package faq
 
 import (
+	"api/internal/entity/response"
+	db2 "api/internal/infraStructure/database"
+	"api/internal/validate"
 	"context"
-	db2 "e-commerce-api/internal/infraStructure/database"
-	"e-commerce-api/internal/validate"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	_ "net/http"
@@ -35,32 +36,20 @@ func Store(ctx *fiber.Ctx) error {
 	parseError := ctx.BodyParser(&faq)
 	fmt.Println(faq)
 	if parseError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , parse error.",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
 	err := validate.ValidateStructToTurkish(&faq)
 	if err == nil {
 		createdFaq, err := client.Faq.CreateOne(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
 		if err != nil {
-			return ctx.Status(204).JSON(fiber.Map{
-				"statusCode": 204,
-				"message":    "faq is not created",
-			})
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Faq not created."})
 		}
 
-		return ctx.Status(201).JSON(fiber.Map{
-			"statusCode": 201,
-			"message":    "faq created",
-			"data":       createdFaq,
-		})
+		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Faq created", Data: createdFaq})
 	}
-	return ctx.Status(fiber.ErrUnprocessableEntity.Code).JSON(fiber.Map{
-		"statusCode": 422,
-		"errors":     err,
-	})
 
+	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: err})
 }
 
 // ShowAccount godoc
@@ -81,33 +70,22 @@ func Update(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	parseError := ctx.BodyParser(&faq)
-	fmt.Println(faq)
+
 	if parseError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request."})
 	}
 
 	createdFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Update(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "faq is not updated",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated"})
 	}
 
-	return ctx.Status(200).JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "faq updated",
-		"data":       createdFaq,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(
+		response.SuccessResponse{StatusCode: 200, Message: "Faq Updated.", Data: createdFaq},
+	)
 
 }
 
@@ -128,10 +106,7 @@ func Index(ctx *fiber.Ctx) error {
 	} else {
 		offsetConvert, convertError := strconv.Atoi(offset)
 		if convertError != nil {
-			return ctx.Status(400).JSON(fiber.Map{
-				"statusCode": 400,
-				"message":    "Bad Request , Invalid type error. Type must int",
-			})
+			return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 		}
 		if offsetConvert >= 0 {
 			offsetInt = offsetConvert
@@ -143,16 +118,9 @@ func Index(ctx *fiber.Ctx) error {
 	db2.PrismaConnection()
 	allFaq, err := client.Faq.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
 	if err != nil {
-		return ctx.JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "faq is empty",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq is empty"})
 	}
-	return ctx.JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "faq created",
-		"data":       allFaq,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is all", Data: allFaq})
 }
 
 // ShowAccount godoc
@@ -169,24 +137,14 @@ func Destroy(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	db2.PrismaConnection()
 	deletedFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "faq is not deleted",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not deleted"})
 	}
-	return ctx.Status(200).JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "faq deleted",
-		"data":       deletedFaq,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq deleted", Data: deletedFaq})
 }
 
 // Show ShowAccount godoc
@@ -203,22 +161,12 @@ func Show(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		return ctx.Status(400).JSON(fiber.Map{
-			"statusCode": 400,
-			"message":    "Bad Request , Invalid type error. Type must int",
-		})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	db2.PrismaConnection()
 	singleFaq, err := client.Faq.FindFirst(db2.Faq.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
-		return ctx.Status(404).JSON(fiber.Map{
-			"statusCode": 404,
-			"message":    "faq is not finding",
-		})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not finding"})
 	}
-	return ctx.JSON(fiber.Map{
-		"statusCode": 200,
-		"message":    "faq is finding",
-		"data":       singleFaq,
-	})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is finding", Data: singleFaq})
 }
