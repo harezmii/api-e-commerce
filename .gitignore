@@ -35,7 +35,7 @@ tmp/
 *.fasthttp.gz
 *.pprof
 *.workspace
-serviceAccount.json
+*.serviceAccount.json
 # Dependencies
 /vendor/
 vendor/
