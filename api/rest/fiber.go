@@ -56,7 +56,7 @@ func RestRun(port string) {
 
 	// Logger
 
-	app.Use(logger.New(logger.Config{}))
+	app.Use(logger.New())
 	// Logger End
 
 	// Database
@@ -109,6 +109,7 @@ func RestRun(port string) {
 			Message:    "The page you are looking for could not be found.",
 		})
 	})
+
 	serverError := app.Listen("0.0.0.0:" + port)
 	if serverError != nil {
 		_ = fmt.Sprintf("Server Error")
