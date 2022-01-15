@@ -1,11 +1,13 @@
 package user
 
 import (
+	"api/internal/entity"
 	"api/internal/entity/response"
-	db2 "api/internal/infraStructure/database"
+	db2 "api/internal/infraStructure/prismaClient"
+	prisma "api/internal/infraStructure/prismaClient"
+	"api/internal/secret/hash"
 	"api/internal/validate"
 	"context"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
@@ -13,15 +15,7 @@ import (
 // TODO
 // Index empty array
 
-type User struct {
-	Name     string `json:"name" form:"name" validate:"required"`
-	Surname  string `json:"surname" form:"surname" validate:"required"`
-	Email    string `json:"email" form:"email" validate:"required"`
-	Password string `json:"password" form:"password" validate:"required"`
-	Status   *bool  `json:"status" form:"status" validate:"required"`
-}
-
-var client = db2.Client
+var client = prisma.Client
 var contextt = context.Background()
 
 // ShowAccount godoc
@@ -30,12 +24,12 @@ var contextt = context.Background()
 // @Tags         Users
 // @Accept       json
 // @Produce      json
-// @Param        body body  User  false   "User form"
-// @Success      201  {object}  []User
-// @Router       /user [post]
+// @Param        body body  entity.User  false   "User form"
+// @Success      201  {object}  []entity.User
+// @Router       /users [post]
 func Store(ctx *fiber.Ctx) error {
-	db2.PrismaConnection()
-	var user User
+	prisma.PrismaConnection()
+	var user entity.User
 
 	parseError := ctx.BodyParser(&user)
 	if parseError != nil {
@@ -43,7 +37,12 @@ func Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&user)
 	if err == nil {
-		createdUser, err := client.User.CreateOne(db2.User.Name.Set(user.Name), db2.User.Surname.Set(user.Surname), db2.User.Email.Set(user.Email), db2.User.Password.Set(user.Password), db2.User.Status.Set(*user.Status)).Exec(contextt)
+		passwordHash, passwordHashError := hash.PasswordHash(user.Password)
+		if passwordHashError != nil {
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "User not created"})
+		}
+
+		createdUser, err := client.User.CreateOne(db2.User.Name.Set(user.Name), db2.User.Surname.Set(user.Surname), db2.User.Email.Set(user.Email), db2.User.Password.Set(passwordHash), db2.User.Status.Set(*user.Status)).Exec(contextt)
 		if err != nil {
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "User not created"})
 		}
@@ -61,12 +60,12 @@ func Store(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id path  string  true   "User Id"
-// @Param        body body  User  false   "User update form"
-// @Success      200  {object}  User
-// @Router       /user/{id} [put]
+// @Param        body body  entity.User  false   "User update form"
+// @Success      200  {object}  entity.User
+// @Router       /users/{id} [put]
 func Update(ctx *fiber.Ctx) error {
-	db2.PrismaConnection()
-	var user User
+	prisma.PrismaConnection()
+	var user entity.User
 
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -75,7 +74,7 @@ func Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	parseError := ctx.BodyParser(&user)
-	fmt.Println(user)
+
 	if parseError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request"})
 	}
@@ -89,39 +88,39 @@ func Update(ctx *fiber.Ctx) error {
 
 }
 
-// ShowAccount godoc
-// @Summary      All  Data
-// @Description  get all users
-// @Tags         Users
-// @Accept       json
-// @Produce      json
-// @Param        offset  query  string  true   "Offset"
-// @Success      200  {object}  User
-// @Router       /user [get]
-func Index(ctx *fiber.Ctx) error {
-	var offsetInt int
-	offset := ctx.Query("offset")
-	if offset == "" {
-		offsetInt = 0
-	} else {
-		offsetConvert, convertError := strconv.Atoi(offset)
-		if convertError != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
-		}
-		if offsetConvert >= 0 {
-			offsetInt = offsetConvert
-		} else {
-			offsetInt = 0
-		}
-
-	}
-	db2.PrismaConnection()
-	allUser, err := client.User.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
-	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User is empty"})
-	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User is all", Data: allUser})
-}
+//// ShowAccount godoc
+//// @Summary      All  Data
+//// @Description  get all users
+//// @Tags         Users
+//// @Accept       json
+//// @Produce      json
+//// @Param        offset  query  string  true   "Offset"
+//// @Success      200  {object}  entity.User
+//// @Router       /users [get]
+//func Index(ctx *fiber.Ctx) error {
+//	var offsetInt int
+//	offset := ctx.Query("offset")
+//	if offset == "" {
+//		offsetInt = 0
+//	} else {
+//		offsetConvert, convertError := strconv.Atoi(offset)
+//		if convertError != nil {
+//			return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
+//		}
+//		if offsetConvert >= 0 {
+//			offsetInt = offsetConvert
+//		} else {
+//			offsetInt = 0
+//		}
+//
+//	}
+//	prisma.PrismaConnection()
+//	allUser, err := client.User.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
+//	if err != nil {
+//		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User is empty"})
+//	}
+//	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User is all", Data: allUser})
+//}
 
 // ShowAccount godoc
 // @Summary      Delete Data
@@ -130,8 +129,8 @@ func Index(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "User ID"
-// @Success      200  {object}  []User
-// @Router       /user/{id} [delete]
+// @Success      200  {object}  []entity.User
+// @Router       /users/{id} [delete]
 func Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -139,7 +138,7 @@ func Destroy(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	db2.PrismaConnection()
+	prisma.PrismaConnection()
 	deletedUser, err := client.User.FindUnique(db2.User.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not deleted"})
@@ -154,8 +153,8 @@ func Destroy(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "User ID"
-// @Success      200  {object}  User
-// @Router       /user/{id} [get]
+// @Success      200  {object}  entity.User
+// @Router       /users/{id} [get]
 func Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -163,7 +162,7 @@ func Show(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	db2.PrismaConnection()
+	prisma.PrismaConnection()
 	singleUser, err := client.User.FindFirst(db2.User.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not finding"})

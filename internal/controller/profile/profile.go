@@ -1,9 +1,10 @@
 package profile
 
 import (
-	"api/internal/controller/user"
+	"api/internal/entity"
 	"api/internal/entity/response"
-	db2 "api/internal/infraStructure/database"
+	"api/internal/infraStructure/prismaClient"
+	db2 "api/internal/infraStructure/prismaClient"
 	"api/internal/validate"
 	"context"
 	"fmt"
@@ -11,15 +12,7 @@ import (
 	"strconv"
 )
 
-type Profile struct {
-	UserId  int       `json:"userId" validate:"required"`
-	Image   string    `json:"image" form:"image" validate:"required"`
-	Address string    `json:"address" form:"address" validate:"required"`
-	Phone   string    `json:"phone" form:"phone" validate:"required"`
-	User    user.User `json:"user" form:"user" validate:"required"`
-}
-
-var client = db2.Client
+var client = prisma.Client
 var contextt = context.Background()
 
 // ShowAccount godoc
@@ -28,12 +21,12 @@ var contextt = context.Background()
 // @Tags         Profiles
 // @Accept       json
 // @Produce      json
-// @Param        body body  Profile  false   "Profile form"
-// @Success      201  {object}  []Profile
-// @Router       /Profile [post]
+// @Param        body body  entity.Profile  false   "Profile form"
+// @Success      201  {object}  []entity.Profile
+// @Router       /profiles [post]
 func Store(ctx *fiber.Ctx) error {
-	db2.PrismaConnection()
-	var profile Profile
+	prisma.PrismaConnection()
+	var profile entity.Profile
 
 	parseError := ctx.BodyParser(&profile)
 	if parseError != nil {
@@ -59,12 +52,12 @@ func Store(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id path  string  true   "Profile Id"
-// @Param        body body  Profile  false   "Profile update fom"
-// @Success      200  {object}  Profile
-// @Router       /profile/{id} [put]
+// @Param        body body  entity.Profile  false   "Profile update fom"
+// @Success      200  {object}  entity.Profile
+// @Router       /profiles/{id} [put]
 func Update(ctx *fiber.Ctx) error {
-	db2.PrismaConnection()
-	var profile Profile
+	prisma.PrismaConnection()
+	var profile entity.Profile
 
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -94,8 +87,8 @@ func Update(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Profile ID"
-// @Success      200  {object}  []Profile
-// @Router       /profile/{id} [delete]
+// @Success      200  {object}  []entity.Profile
+// @Router       /profiles/{id} [delete]
 func Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -103,7 +96,7 @@ func Destroy(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	db2.PrismaConnection()
+	prisma.PrismaConnection()
 	deletedProfile, err := client.Profile.FindUnique(db2.Profile.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not deleted"})
@@ -118,8 +111,8 @@ func Destroy(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Profile ID"
-// @Success      200  {object}  Profile
-// @Router       /profile/{id} [get]
+// @Success      200  {object}  entity.Profile
+// @Router       /profiles/{id} [get]
 func Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -127,7 +120,7 @@ func Show(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	db2.PrismaConnection()
+	prisma.PrismaConnection()
 	singleProfile, err := client.Profile.FindFirst(db2.Profile.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not finding"})

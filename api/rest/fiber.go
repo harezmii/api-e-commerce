@@ -4,7 +4,7 @@ import (
 	_ "api/docs"
 	"api/internal/entity/response"
 	"api/internal/handle"
-	db "api/internal/infraStructure/database"
+	"api/internal/infraStructure/prismaClient"
 	_ "api/internal/secret/vault"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -61,7 +61,7 @@ func RestRun(port string) {
 
 	// Database
 	defer func() {
-		db.PrismaDisConnection()
+		prisma.PrismaDisConnection()
 	}()
 	// Database End
 

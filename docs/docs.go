@@ -32,43 +32,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/Profile": {
-            "post": {
-                "description": "create Profiles",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Profiles"
-                ],
-                "summary": "Create Data",
-                "parameters": [
-                    {
-                        "description": "Profile form",
-                        "name": "body",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/profile.Profile"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/profile.Profile"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/faq": {
+        "/faqs": {
             "get": {
                 "description": "get all faqs",
                 "consumes": [
@@ -94,7 +58,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/faq.Faq"
+                            "$ref": "#/definitions/entity.Faq"
                         }
                     }
                 }
@@ -117,7 +81,7 @@ var doc = `{
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/faq.Faq"
+                            "$ref": "#/definitions/entity.Faq"
                         }
                     }
                 ],
@@ -127,14 +91,14 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/faq.Faq"
+                                "$ref": "#/definitions/entity.Faq"
                             }
                         }
                     }
                 }
             }
         },
-        "/faq/{id}": {
+        "/faqs/{id}": {
             "get": {
                 "description": "get string by ID",
                 "consumes": [
@@ -160,7 +124,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/faq.Faq"
+                            "$ref": "#/definitions/entity.Faq"
                         }
                     }
                 }
@@ -190,7 +154,7 @@ var doc = `{
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/faq.Faq"
+                            "$ref": "#/definitions/entity.Faq"
                         }
                     }
                 ],
@@ -198,7 +162,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/faq.Faq"
+                            "$ref": "#/definitions/entity.Faq"
                         }
                     }
                 }
@@ -230,14 +194,50 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/faq.Faq"
+                                "$ref": "#/definitions/entity.Faq"
                             }
                         }
                     }
                 }
             }
         },
-        "/profile/{id}": {
+        "/profiles": {
+            "post": {
+                "description": "create Profiles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profiles"
+                ],
+                "summary": "Create Data",
+                "parameters": [
+                    {
+                        "description": "Profile form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Profile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Profile"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profiles/{id}": {
             "get": {
                 "description": "get string by ID",
                 "consumes": [
@@ -263,7 +263,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/profile.Profile"
+                            "$ref": "#/definitions/entity.Profile"
                         }
                     }
                 }
@@ -293,7 +293,7 @@ var doc = `{
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/profile.Profile"
+                            "$ref": "#/definitions/entity.Profile"
                         }
                     }
                 ],
@@ -301,7 +301,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/profile.Profile"
+                            "$ref": "#/definitions/entity.Profile"
                         }
                     }
                 }
@@ -333,44 +333,14 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/profile.Profile"
+                                "$ref": "#/definitions/entity.Profile"
                             }
                         }
                     }
                 }
             }
         },
-        "/user": {
-            "get": {
-                "description": "get all users",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "All  Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Offset",
-                        "name": "offset",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/user.User"
-                        }
-                    }
-                }
-            },
+        "/users": {
             "post": {
                 "description": "create users",
                 "consumes": [
@@ -389,7 +359,7 @@ var doc = `{
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/entity.User"
                         }
                     }
                 ],
@@ -399,14 +369,14 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/user.User"
+                                "$ref": "#/definitions/entity.User"
                             }
                         }
                     }
                 }
             }
         },
-        "/user/{id}": {
+        "/users/{id}": {
             "get": {
                 "description": "get string by ID",
                 "consumes": [
@@ -432,7 +402,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/entity.User"
                         }
                     }
                 }
@@ -462,7 +432,7 @@ var doc = `{
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/entity.User"
                         }
                     }
                 ],
@@ -470,7 +440,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/entity.User"
                         }
                     }
                 }
@@ -502,7 +472,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/user.User"
+                                "$ref": "#/definitions/entity.User"
                             }
                         }
                     }
@@ -511,7 +481,7 @@ var doc = `{
         }
     },
     "definitions": {
-        "faq.Faq": {
+        "entity.Faq": {
             "type": "object",
             "required": [
                 "answer",
@@ -530,7 +500,7 @@ var doc = `{
                 }
             }
         },
-        "profile.Profile": {
+        "entity.Profile": {
             "type": "object",
             "required": [
                 "address",
@@ -550,14 +520,14 @@ var doc = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/user.User"
+                    "$ref": "#/definitions/entity.User"
                 },
                 "userId": {
                     "type": "integer"
                 }
             }
         },
-        "user.User": {
+        "entity.User": {
             "type": "object",
             "required": [
                 "email",

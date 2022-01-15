@@ -1,8 +1,10 @@
 package faq
 
 import (
+	"api/internal/entity"
 	"api/internal/entity/response"
-	db2 "api/internal/infraStructure/database"
+	"api/internal/infraStructure/prismaClient"
+	db2 "api/internal/infraStructure/prismaClient"
 	"api/internal/validate"
 	"context"
 	"fmt"
@@ -11,13 +13,7 @@ import (
 	"strconv"
 )
 
-type Faq struct {
-	Question string `json:"question" form:"question" validate:"required"`
-	Answer   string `json:"answer" form:"answer" validate:"required"`
-	Status   *bool  `json:"status" form:"status" validate:"required"`
-}
-
-var client = db2.Client
+var client = prisma.Client
 var contextt = context.Background()
 
 // ShowAccount godoc
@@ -26,12 +22,12 @@ var contextt = context.Background()
 // @Tags         Faqs
 // @Accept       json
 // @Produce      json
-// @Param        body body  Faq  false   "Faq form"
-// @Success      201  {object}  []Faq
-// @Router       /faq [post]
+// @Param        body body  entity.Faq  false   "Faq form"
+// @Success      201  {object}  []entity.Faq
+// @Router       /faqs [post]
 func Store(ctx *fiber.Ctx) error {
-	db2.PrismaConnection()
-	var faq Faq
+	prisma.PrismaConnection()
+	var faq entity.Faq
 
 	parseError := ctx.BodyParser(&faq)
 	fmt.Println(faq)
@@ -50,6 +46,7 @@ func Store(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: err})
+
 }
 
 // ShowAccount godoc
@@ -59,12 +56,12 @@ func Store(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id path  string  true   "Faq Id"
-// @Param        body body  Faq  false   "Faq update form"
-// @Success      200  {object}  Faq
-// @Router       /faq/{id} [put]
+// @Param        body body  entity.Faq  false   "Faq update form"
+// @Success      200  {object}  entity.Faq
+// @Router       /faqs/{id} [put]
 func Update(ctx *fiber.Ctx) error {
-	db2.PrismaConnection()
-	var faq Faq
+	prisma.PrismaConnection()
+	var faq entity.Faq
 
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -96,8 +93,8 @@ func Update(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        offset  query  string  true   "Offset"
-// @Success      200  {object}  Faq
-// @Router       /faq [get]
+// @Success      200  {object}  entity.Faq
+// @Router       /faqs [get]
 func Index(ctx *fiber.Ctx) error {
 	var offsetInt int
 	offset := ctx.Query("offset")
@@ -115,7 +112,7 @@ func Index(ctx *fiber.Ctx) error {
 		}
 
 	}
-	db2.PrismaConnection()
+	prisma.PrismaConnection()
 	allFaq, err := client.Faq.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq is empty"})
@@ -130,8 +127,8 @@ func Index(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Faq ID"
-// @Success      200  {object}  []Faq
-// @Router       /faq/{id} [delete]
+// @Success      200  {object}  []entity.Faq
+// @Router       /faqs/{id} [delete]
 func Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -139,7 +136,7 @@ func Destroy(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	db2.PrismaConnection()
+	prisma.PrismaConnection()
 	deletedFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not deleted"})
@@ -154,8 +151,8 @@ func Destroy(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Faq ID"
-// @Success      200  {object}  Faq
-// @Router       /faq/{id} [get]
+// @Success      200  {object}  entity.Faq
+// @Router       /faqs/{id} [get]
 func Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -163,7 +160,7 @@ func Show(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	db2.PrismaConnection()
+	prisma.PrismaConnection()
 	singleFaq, err := client.Faq.FindFirst(db2.Faq.ID.Equals(idInt)).Exec(contextt)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not finding"})
