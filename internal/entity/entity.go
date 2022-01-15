@@ -22,3 +22,8 @@ type Profile struct {
 	Phone   string `json:"phone" form:"phone" validate:"required"`
 	User    User   `json:"user" form:"user" validate:"required"`
 }
+
+type Login struct {
+	Email    string `json:"email" form:"email" validate:"required"`
+	Password string `json:"password" form:"password" validate:"required"`
+}

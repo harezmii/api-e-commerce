@@ -23,6 +23,7 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/users/:id", user.Show)
 	app.Delete("/users/:id", user.Destroy)
 	app.Put("/users/:id", user.Update)
+	app.Post("/users/login", user.Login)
 	// User Routes End
 
 	// User Routes

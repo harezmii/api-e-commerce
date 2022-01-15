@@ -2,6 +2,7 @@ package user
 
 import (
 	"api/internal/entity"
+	"api/internal/entity/dto"
 	"api/internal/entity/response"
 	db2 "api/internal/infraStructure/prismaClient"
 	prisma "api/internal/infraStructure/prismaClient"
@@ -168,4 +169,28 @@ func Show(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not finding"})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User is finding", Data: singleUser})
+}
+
+func Login(ctx *fiber.Ctx) error {
+	prisma.PrismaConnection()
+	var login entity.Login
+
+	parseError := ctx.BodyParser(&login)
+	if parseError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
+	}
+	errr := validate.ValidateStructToTurkish(login)
+	if errr == nil {
+		singleUser, err := client.User.FindFirst(db2.User.Email.Equals(login.Email)).Exec(contextt)
+		if err != nil {
+			return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
+		}
+		isLoginSuccess := hash.PasswordHashCompare(login.Password, singleUser.Password)
+		if isLoginSuccess {
+
+			return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Login success", Data: dto.LoginUserDTO{UserID: singleUser.ID, Name: singleUser.Name, Surname: singleUser.Surname, Email: singleUser.Email, Status: &singleUser.Status}})
+		}
+
+	}
+	return nil
 }
