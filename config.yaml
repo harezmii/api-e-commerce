@@ -1,0 +1,20 @@
+# APP ENVİRONMENT
+APP_NAME: "E Commerce Rest Api"
+BODY_LIMIT: 4096
+
+# DATABASE ENVİRONMENT
+PORT: 3200
+DATABASE_URL: "postgres://kqpfvyojjneqjq:1f7fe4d0831b78b3f7ba197018e7e2039e45cd482e090f8660d5facb2d4be289@ec2-54-161-238-249.compute-1.amazonaws.com:5432/d37dfhj7du35a9"
+
+# KAFKA ENVİRONMENT
+topic: "fzb4lrgg-test"
+"config": {
+  "bootstrap.servers": "glider-01.srvs.cloudkafka.com:9094,glider-02.srvs.cloudkafka.com:9094,glider-03.srvs.cloudkafka.com:9094",
+  "security.protocol": "SASL_SSL",
+  "sasl.mechanisms": "SCRAM-SHA-256",
+  "sasl.username": "fzb4lrgg",
+  "sasl.password": "UlOeCHTz4pYCSG_w2FsH844Up4I1PUgb",
+  "client.id": "14",
+}
+
+

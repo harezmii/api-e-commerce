@@ -27,3 +27,14 @@ type Login struct {
 	Email    string `json:"email" form:"email" validate:"required"`
 	Password string `json:"password" form:"password" validate:"required"`
 }
+
+// KAFKA ENTITY
+
+type Kafka struct {
+	Topic  string
+	Config map[string]interface{}
+}
+type LogToKafka struct {
+	LogLevel   string
+	LogMessage string
+}

@@ -7,6 +7,7 @@ import (
 	"api/internal/infraStructure/prismaClient"
 	_ "api/internal/secret/vault"
 	"api/internal/storage"
+	"api/pkg/config"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -24,8 +25,8 @@ import (
 
 func RestRun(port string) {
 	app := fiber.New(fiber.Config{
-		AppName:   "E Commerce REST Api",
-		BodyLimit: 4096,
+		AppName:   config.GetEnvironment("APP_NAME", config.STRING).(string),
+		BodyLimit: config.GetEnvironment("BODY_LİMİT", config.INTEGER).(int),
 	})
 
 	// Storage

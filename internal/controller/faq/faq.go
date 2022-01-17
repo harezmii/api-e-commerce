@@ -28,11 +28,12 @@ var contextt = context.Background()
 func Store(ctx *fiber.Ctx) error {
 	prisma.PrismaConnection()
 	var faq entity.Faq
-	//kafka.Producer()
+
+	logs.Logger("Bad Request , parse error.", logs.ERROR, ctx.IP())
+
 	parseError := ctx.BodyParser(&faq)
 	if parseError != nil {
 
-		logs.Logger("Bad Request , parse error.", logs.ERROR, parseError)
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}

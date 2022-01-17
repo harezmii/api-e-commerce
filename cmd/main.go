@@ -20,6 +20,5 @@ import (
 // @host 127.0.0.1:3200
 // @BasePath /api/v1
 func main() {
-	// e-ticaret-api.herokuapp.com
-	rest.RestRun(config.GetEnvironment("PORT", ".env"))
+	rest.RestRun(config.GetEnvironment("PORT", config.STRING).(string))
 }

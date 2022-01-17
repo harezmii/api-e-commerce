@@ -2,6 +2,7 @@ package logs
 
 import (
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -12,8 +13,28 @@ const (
 	ERROR string = "ERROR"
 )
 
-func Logger(errorMessage string, logLevel string, err error) {
-	logger, loggerError := zap.NewProduction()
+func Logger(errorMessage string, logLevel string, ipAddress string) {
+
+	cfg := zap.Config{
+		Encoding:         "json",
+		Level:            zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stdout"},
+		EncoderConfig: zapcore.EncoderConfig{
+			MessageKey: "message",
+
+			LevelKey:    "level",
+			EncodeLevel: zapcore.CapitalLevelEncoder,
+
+			TimeKey:    "time",
+			EncodeTime: zapcore.ISO8601TimeEncoder,
+
+			CallerKey:    "caller",
+			EncodeCaller: zapcore.ShortCallerEncoder,
+		},
+	}
+
+	logger, loggerError := cfg.Build(zap.AddCaller(), zap.AddCallerSkip(1))
 
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
@@ -24,6 +45,7 @@ func Logger(errorMessage string, logLevel string, err error) {
 	if loggerError != nil {
 		return
 	}
+
 	switch logLevel {
 	case DEBUG:
 		{
@@ -37,7 +59,7 @@ func Logger(errorMessage string, logLevel string, err error) {
 		}
 	case ERROR:
 		{
-			logger.Error(errorMessage, zap.String("err", err.Error()))
+			logger.Error(errorMessage, zap.String("ipAddress", ipAddress))
 			break
 		}
 	case WARN:
@@ -51,4 +73,5 @@ func Logger(errorMessage string, logLevel string, err error) {
 			break
 		}
 	}
+
 }
