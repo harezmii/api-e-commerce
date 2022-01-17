@@ -6,6 +6,7 @@ import (
 	"api/internal/handle"
 	"api/internal/infraStructure/prismaClient"
 	_ "api/internal/secret/vault"
+	"api/internal/storage"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
@@ -18,9 +19,7 @@ import (
 	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
-	"github.com/gofiber/storage/mysql"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
-	"time"
 )
 
 func RestRun(port string) {
@@ -30,16 +29,7 @@ func RestRun(port string) {
 	})
 
 	// Storage
-	store := mysql.New(mysql.Config{
-		Host:       "127.0.0.1",
-		Port:       3306,
-		Database:   "storage",
-		Username:   "root",
-		Password:   "",
-		Table:      "store",
-		Reset:      false,
-		GCInterval: 3 * time.Second,
-	})
+	store := storage.Storage
 	// Storage End
 
 	// Cache

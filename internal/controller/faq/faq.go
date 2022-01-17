@@ -5,9 +5,9 @@ import (
 	"api/internal/entity/response"
 	"api/internal/infraStructure/prismaClient"
 	db2 "api/internal/infraStructure/prismaClient"
+	"api/internal/logs"
 	"api/internal/validate"
 	"context"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	_ "net/http"
 	"strconv"
@@ -28,10 +28,11 @@ var contextt = context.Background()
 func Store(ctx *fiber.Ctx) error {
 	prisma.PrismaConnection()
 	var faq entity.Faq
-
+	//kafka.Producer()
 	parseError := ctx.BodyParser(&faq)
-	fmt.Println(faq)
 	if parseError != nil {
+
+		logs.Logger("Bad Request , parse error.", logs.ERROR, parseError)
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
