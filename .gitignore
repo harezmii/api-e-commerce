@@ -37,7 +37,8 @@ tmp/
 *.workspace
 
 # Ignore serviceAccount.json
-*.serviceAccount.json
+# serviceAccount.json
+
 # Dependencies
 /vendor/
 vendor/
