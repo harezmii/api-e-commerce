@@ -1,0 +1,18 @@
+# APP ENVİRONMENT
+APP_NAME: "app"
+BODY_LIMIT: 4096
+
+# DATABASE ENVİRONMENT
+PORT: 3200
+DATABASE_URL: "postgres://"
+
+# KAFKA ENVİRONMENT
+topic: "topic"
+"config": {
+  "bootstrap.servers": "servers",
+  "security.protocol": "ssl",
+  "sasl.mechanisms": "sha",
+  "sasl.username": "username",
+  "sasl.password": "pass",
+  "client.id": "14",
+}
