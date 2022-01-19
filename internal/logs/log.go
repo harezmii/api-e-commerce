@@ -34,7 +34,7 @@ func Logger(errorMessage string, logLevel string, ipAddress string) {
 		},
 	}
 
-	logger, loggerError := cfg.Build(zap.AddCaller(), zap.AddCallerSkip(1))
+	logger, loggerError := cfg.Build()
 
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()

@@ -1,5 +1,7 @@
 # Ignore .env
 *.env
+config.yaml
+serviceAccount.json
 
 # macOS
 **/.DS_Store

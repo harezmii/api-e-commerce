@@ -30,7 +30,6 @@ func Store(ctx *fiber.Ctx) error {
 	var faq entity.Faq
 
 	logs.Logger("Bad Request , parse error.", logs.ERROR, ctx.IP())
-
 	parseError := ctx.BodyParser(&faq)
 	if parseError != nil {
 
