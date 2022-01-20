@@ -16,7 +16,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
@@ -47,7 +46,7 @@ func RestRun(port string) {
 
 	// Logger
 
-	app.Use(logger.New())
+	//app.Use(logger.New())
 	// Logger End
 
 	// Database

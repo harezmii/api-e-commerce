@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -13,65 +14,77 @@ const (
 	ERROR string = "ERROR"
 )
 
+type lumberjackSink struct {
+	*lumberjack.Logger
+}
+
+func (lumberjackSink) Sync() error {
+	return nil
+}
 func Logger(errorMessage string, logLevel string, ipAddress string) {
 
-	cfg := zap.Config{
-		Encoding:         "json",
-		Level:            zap.NewAtomicLevelAt(zapcore.DebugLevel),
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stdout"},
-		EncoderConfig: zapcore.EncoderConfig{
-			MessageKey: "message",
+	w := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   "logs.json",
+		MaxSize:    500, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28, // days
+		Compress:   true,
+	})
+	cfg := zapcore.EncoderConfig{
+		MessageKey: "message",
 
-			LevelKey:    "level",
-			EncodeLevel: zapcore.CapitalLevelEncoder,
+		LevelKey:    "level",
+		EncodeLevel: zapcore.CapitalLevelEncoder,
 
-			TimeKey:    "time",
-			EncodeTime: zapcore.ISO8601TimeEncoder,
+		TimeKey:    "@timestamp",
+		EncodeTime: zapcore.ISO8601TimeEncoder,
 
-			CallerKey:    "caller",
-			EncodeCaller: zapcore.ShortCallerEncoder,
-		},
+		CallerKey:    "caller",
+		EncodeCaller: zapcore.ShortCallerEncoder,
 	}
-
-	logger, loggerError := cfg.Build()
-
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(cfg),
+		w,
+		zap.DebugLevel,
+	)
+	logger := zap.New(core)
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
 		if err != nil {
 
 		}
 	}(logger)
-	if loggerError != nil {
-		return
-	}
+
+	// ECS Zap Log
+	//encoderConfig := ecszap.NewDefaultEncoderConfig()
+	//core := ecszap.NewCore(encoderConfig, os.Stdout, zap.DebugLevel)
+	//logger := zap.New(core, zap.AddCaller())
 
 	switch logLevel {
 	case DEBUG:
 		{
-			logger.Debug(errorMessage)
+			logger.Debug(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
 			break
 		}
 	case INFO:
 		{
-			logger.Info(errorMessage)
+			logger.Info(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
 			break
 		}
 	case ERROR:
 		{
-			logger.Error(errorMessage, zap.String("ipAddress", ipAddress))
+			logger.Error(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
 			break
 		}
 	case WARN:
 		{
-			logger.Warn(errorMessage)
+			logger.Warn(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
 			break
 		}
 	case FATAL:
 		{
-			logger.Fatal(errorMessage)
+			logger.Fatal(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
 			break
 		}
 	}
-
 }
