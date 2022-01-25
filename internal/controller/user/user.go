@@ -7,10 +7,8 @@ import (
 	db2 "api/internal/infraStructure/prismaClient"
 	prisma "api/internal/infraStructure/prismaClient"
 	"api/internal/secret/hash"
-	"api/internal/storage"
 	"api/internal/validate"
 	"context"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
@@ -189,13 +187,13 @@ func Login(ctx *fiber.Ctx) error {
 		}
 		isLoginSuccess := hash.PasswordHashCompare(login.Password, singleUser.Password)
 		if isLoginSuccess {
-			isSetSession := storage.SetSesion(ctx)
+			//isSetSession := storage.SetSesion(ctx)
 
-			if isSetSession {
-				get := storage.GetSession(ctx)
-				fmt.Println(get)
-				return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Login success", Data: dto.LoginUserDTO{UserID: singleUser.ID, Name: singleUser.Name, Surname: singleUser.Surname, Email: singleUser.Email, Status: &singleUser.Status}})
-			}
+			//if isSetSession {
+			//get := storage.GetSession(ctx)
+			//fmt.Println(get)
+			return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Login success", Data: dto.LoginUserDTO{UserID: singleUser.ID, Name: singleUser.Name, Surname: singleUser.Surname, Email: singleUser.Email, Status: &singleUser.Status}})
+			//}
 		}
 
 	}

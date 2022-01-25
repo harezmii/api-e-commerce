@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -21,13 +22,13 @@ type lumberjackSink struct {
 func (lumberjackSink) Sync() error {
 	return nil
 }
-func Logger(errorMessage string, logLevel string, ipAddress string) {
+func Logger(ctx *fiber.Ctx, errorMessage string, logLevel string) {
 
 	w := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   "logs.json",
 		MaxSize:    500, // megabytes
 		MaxBackups: 3,
-		MaxAge:     28, // days
+		MaxAge:     7, // days
 		Compress:   true,
 	})
 	cfg := zapcore.EncoderConfig{
@@ -47,7 +48,7 @@ func Logger(errorMessage string, logLevel string, ipAddress string) {
 		w,
 		zap.DebugLevel,
 	)
-	logger := zap.New(core)
+	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
 		if err != nil {
@@ -63,27 +64,28 @@ func Logger(errorMessage string, logLevel string, ipAddress string) {
 	switch logLevel {
 	case DEBUG:
 		{
-			logger.Debug(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
+			logger.Debug(errorMessage, zap.String("ipAddress", ctx.IP()), zap.String("responseHeader", ctx.Response().Header.String()))
 			break
 		}
 	case INFO:
 		{
-			logger.Info(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
+			logger.Info(errorMessage, zap.String("ipAddress", ctx.IP()), zap.String("responseHeader", ctx.Response().Header.String()))
 			break
 		}
+
 	case ERROR:
 		{
-			logger.Error(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
+			logger.Error(errorMessage, zap.String("ipAddress", ctx.IP()), zap.String("responseHeader", ctx.Response().Header.String()))
 			break
 		}
 	case WARN:
 		{
-			logger.Warn(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
+			logger.Warn(errorMessage, zap.String("ipAddress", ctx.IP()), zap.String("responseHeader", ctx.Response().Header.String()))
 			break
 		}
 	case FATAL:
 		{
-			logger.Fatal(errorMessage, zap.Stack("stack"), zap.String("ipAddress", ipAddress))
+			logger.Fatal(errorMessage, zap.String("ipAddress", ctx.IP()), zap.String("responseHeader", ctx.Response().Header.String()))
 			break
 		}
 	}

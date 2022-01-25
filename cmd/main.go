@@ -17,7 +17,7 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host 127.0.0.1:3200
+// @host e-ticaret-api.herokuapp.com
 // @BasePath /api/v1
 func main() {
 	rest.RestRun(config.GetEnvironment("PORT", config.STRING).(string))

@@ -5,12 +5,11 @@ import (
 	"api/internal/entity/response"
 	"api/internal/handle"
 	"api/internal/infraStructure/prismaClient"
+	"api/internal/logs"
 	_ "api/internal/secret/vault"
-	"api/internal/storage"
 	"api/pkg/config"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/etag"
@@ -20,6 +19,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/helmet/v2"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
+	"go.elastic.co/apm/module/apmfiber"
 )
 
 func RestRun(port string) {
@@ -29,23 +29,25 @@ func RestRun(port string) {
 	})
 
 	// Storage
-	store := storage.Storage
+	//store := storage.RedisStore()
 	// Storage End
 
 	// Cache
-	app.Use(cache.New(cache.Config{
-		Next: func(c *fiber.Ctx) bool {
-			return c.Query("refresh") == "true"
-		},
-		CacheControl: true,
-		Storage:      store,
-		CacheHeader:  "Cache-Time",
-	}))
-
+	//app.Use(cache.New(cache.Config{
+	//	Next: func(c *fiber.Ctx) bool {
+	//		return c.Query("refresh") == "true"
+	//	},
+	//	CacheControl: true,
+	//	Storage:      store,
+	//	CacheHeader:  "Cache-Time",
+	//}))
 	// Cache End
 
-	// Logger
+	// APM Middleware
+	app.Use(apmfiber.Middleware())
+	// APM Middleware END
 
+	// Logger
 	//app.Use(logger.New())
 	// Logger End
 
@@ -62,7 +64,7 @@ func RestRun(port string) {
 	app.Use(limiter.New(limiter.Config{
 		Max: 10,
 		LimitReached: func(ctx *fiber.Ctx) error {
-			return ctx.Status(429).JSON(response.ErrorResponse{StatusCode: 429, Message: "Too many Request"})
+			return ctx.Status(fiber.StatusTooManyRequests).JSON(response.ErrorResponse{StatusCode: 429, Message: "Too many Request"})
 		},
 	}))
 	app.Use(requestid.New())
@@ -94,12 +96,12 @@ func RestRun(port string) {
 
 	// Match Any Request
 	app.Use(func(ctx *fiber.Ctx) error {
+		logs.Logger(ctx, "Any Request!The page you are looking for could not be found.", logs.INFO)
 		return ctx.Status(404).JSON(response.ErrorResponse{
 			StatusCode: 404,
 			Message:    "The page you are looking for could not be found.",
 		})
 	})
-
 	serverError := app.Listen("0.0.0.0:" + port)
 	if serverError != nil {
 		_ = fmt.Sprintf("Server Error")

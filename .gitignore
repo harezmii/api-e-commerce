@@ -2,7 +2,7 @@
 *.env
 config.yaml
 serviceAccount.json
-
+logs.json
 # macOS
 **/.DS_Store
 

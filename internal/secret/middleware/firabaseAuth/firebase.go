@@ -19,7 +19,6 @@ func FirebaseAuthorize() (*auth.Client, error) {
 	if authError != nil {
 		return nil, authError
 	}
-
 	return auth, nil
 }
 
@@ -50,4 +49,9 @@ func FirebaseMiddleWare(ctx *fiber.Ctx) error {
 	}
 	ctx.Set("UUID", token.UID)
 	return ctx.Next()
+}
+
+func GetFirebaseUsersID(ctx *fiber.Ctx) string {
+	uuid := ctx.Get("UUID")
+	return uuid
 }

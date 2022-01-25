@@ -51,7 +51,7 @@ definitions:
     - status
     - surname
     type: object
-host: 127.0.0.1:3200
+host: e-ticaret-api.herokuapp.com
 info:
   contact:
     email: suatcnby06@gmail.com

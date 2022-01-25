@@ -11,8 +11,12 @@ COPY .  /app
 RUN go mod download
 RUN go mod verify
 
+ENV CGO_ENABLED=0
+#CMD gunicorn --bind 0.0.0.0:$3500 wsgi
+RUN  go build  -o ecommerceapi /app/cmd/main.go
 
-RUN go build -o ecommerceapi /app/cmd/main.go
-CMD gunicorn --bind 0.0.0.0:$PORT wsgi
 
+FROM alpine:latest AS production
+COPY --from=builder /app /application
+WORKDIR /application
 CMD ["./ecommerceapi"]
