@@ -33,20 +33,20 @@ func Store(ctx *fiber.Ctx) error {
 	if parseError != nil {
 		logs.Logger(ctx, "Store!Bad Request , parse error.", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(
-			response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
+			response.ErrorResponse{StatusCode: 400, Message: "Bad request , body parse error." + parseError.Error()})
 	}
 	err := validate.ValidateStructToTurkish(&faq)
 	if err == nil {
-		createdFaq, err := client.Faq.CreateOne(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
-		if err != nil {
-			logs.Logger(ctx, "Store!Faq not created.", logs.ERROR)
-			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Faq not created."})
+		createdFaq, dbError := client.Faq.CreateOne(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
+		if dbError != nil {
+			logs.Logger(ctx, "Store!Faq not created.Database error.", logs.ERROR)
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Faq not created.Database error."})
 		}
 
 		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Faq created", Data: createdFaq})
 	}
 
-	logs.Logger(ctx, "Store!Bad Request , parse error.422", logs.ERROR)
+	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
 
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: err})
 }
@@ -88,7 +88,6 @@ func Update(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(
 		response.SuccessResponse{StatusCode: 200, Message: "Faq Updated.", Data: createdFaq},
 	)
-
 }
 
 // ShowAccount godoc
@@ -108,7 +107,7 @@ func Index(ctx *fiber.Ctx) error {
 	} else {
 		offsetConvert, convertError := strconv.Atoi(offset)
 		if convertError != nil {
-			logs.Logger(ctx, "Index!Bad Request , Invalid type error. Type must int", logs.ERROR)
+			logs.Logger(ctx, "Index!Bad Request , Invalid type error. Offset type must int", logs.ERROR)
 			return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 		}
 		if offsetConvert >= 0 {
@@ -147,8 +146,8 @@ func Destroy(ctx *fiber.Ctx) error {
 	prisma.PrismaConnection()
 	deletedFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Delete().Exec(contextt)
 	if err != nil {
-		logs.Logger(ctx, "Delete!Faq not deleted", logs.ERROR)
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not deleted"})
+		logs.Logger(ctx, "Delete!Faq not find.Not deleted.", logs.ERROR)
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not find.Not deleted."})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq deleted", Data: deletedFaq})
 }

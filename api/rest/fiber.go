@@ -4,11 +4,12 @@ import (
 	_ "api/docs"
 	"api/internal/entity/response"
 	"api/internal/handle"
-	"api/internal/infraStructure/prismaClient"
+	prisma "api/internal/infraStructure/prismaClient"
 	"api/internal/logs"
 	_ "api/internal/secret/vault"
 	"api/pkg/config"
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"

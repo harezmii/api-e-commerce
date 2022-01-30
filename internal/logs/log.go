@@ -27,7 +27,7 @@ func Logger(ctx *fiber.Ctx, errorMessage string, logLevel string) {
 	w := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   "logs.json",
 		MaxSize:    500, // megabytes
-		MaxBackups: 3,
+		MaxBackups: 2,
 		MaxAge:     7, // days
 		Compress:   true,
 	})

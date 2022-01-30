@@ -30,16 +30,16 @@ func Store(ctx *fiber.Ctx) error {
 
 	parseError := ctx.BodyParser(&profile)
 	if parseError != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request ,body parse error."})
 	}
 	err := validate.ValidateStructToTurkish(&profile)
 	if err == nil {
-		createdProfile, err := client.Profile.CreateOne(db2.Profile.Image.Set(profile.Image), db2.Profile.Address.Set(profile.Address), db2.Profile.Phone.Set(profile.Phone), db2.Profile.User.Link(db2.User.ID.Equals(profile.UserId)), db2.Profile.UserID.Set(profile.UserId)).Exec(contextt)
-		if err != nil {
-			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Profile not created"})
+		createdProfile, dbError := client.Profile.CreateOne(db2.Profile.Image.Set(profile.Image), db2.Profile.Address.Set(profile.Address), db2.Profile.Phone.Set(profile.Phone), db2.Profile.User.Link(db2.User.ID.Equals(profile.UserId)), db2.Profile.UserID.Set(profile.UserId)).Exec(contextt)
+		if dbError != nil {
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Profile not created.Database error."})
 		}
 
-		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Profile created", Data: createdProfile})
+		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Profile created.", Data: createdProfile})
 	}
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: err})
 
