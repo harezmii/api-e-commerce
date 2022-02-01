@@ -5,7 +5,9 @@ package ent
 import (
 	"api/ent/message"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -16,6 +18,90 @@ type MessageCreate struct {
 	config
 	mutation *MessageMutation
 	hooks    []Hook
+}
+
+// SetName sets the "name" field.
+func (mc *MessageCreate) SetName(s string) *MessageCreate {
+	mc.mutation.SetName(s)
+	return mc
+}
+
+// SetEmail sets the "email" field.
+func (mc *MessageCreate) SetEmail(s string) *MessageCreate {
+	mc.mutation.SetEmail(s)
+	return mc
+}
+
+// SetPhone sets the "phone" field.
+func (mc *MessageCreate) SetPhone(s string) *MessageCreate {
+	mc.mutation.SetPhone(s)
+	return mc
+}
+
+// SetSubject sets the "subject" field.
+func (mc *MessageCreate) SetSubject(s string) *MessageCreate {
+	mc.mutation.SetSubject(s)
+	return mc
+}
+
+// SetMessage sets the "message" field.
+func (mc *MessageCreate) SetMessage(s string) *MessageCreate {
+	mc.mutation.SetMessage(s)
+	return mc
+}
+
+// SetIP sets the "ip" field.
+func (mc *MessageCreate) SetIP(s string) *MessageCreate {
+	mc.mutation.SetIP(s)
+	return mc
+}
+
+// SetStatus sets the "status" field.
+func (mc *MessageCreate) SetStatus(b bool) *MessageCreate {
+	mc.mutation.SetStatus(b)
+	return mc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (mc *MessageCreate) SetCreatedAt(t time.Time) *MessageCreate {
+	mc.mutation.SetCreatedAt(t)
+	return mc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (mc *MessageCreate) SetNillableCreatedAt(t *time.Time) *MessageCreate {
+	if t != nil {
+		mc.SetCreatedAt(*t)
+	}
+	return mc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (mc *MessageCreate) SetUpdatedAt(t time.Time) *MessageCreate {
+	mc.mutation.SetUpdatedAt(t)
+	return mc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (mc *MessageCreate) SetNillableUpdatedAt(t *time.Time) *MessageCreate {
+	if t != nil {
+		mc.SetUpdatedAt(*t)
+	}
+	return mc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (mc *MessageCreate) SetDeletedAt(t time.Time) *MessageCreate {
+	mc.mutation.SetDeletedAt(t)
+	return mc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mc *MessageCreate) SetNillableDeletedAt(t *time.Time) *MessageCreate {
+	if t != nil {
+		mc.SetDeletedAt(*t)
+	}
+	return mc
 }
 
 // Mutation returns the MessageMutation object of the builder.
@@ -29,6 +115,7 @@ func (mc *MessageCreate) Save(ctx context.Context) (*Message, error) {
 		err  error
 		node *Message
 	)
+	mc.defaults()
 	if len(mc.hooks) == 0 {
 		if err = mc.check(); err != nil {
 			return nil, err
@@ -86,8 +173,40 @@ func (mc *MessageCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (mc *MessageCreate) defaults() {
+	if _, ok := mc.mutation.CreatedAt(); !ok {
+		v := message.DefaultCreatedAt()
+		mc.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (mc *MessageCreate) check() error {
+	if _, ok := mc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Message.name"`)}
+	}
+	if _, ok := mc.mutation.Email(); !ok {
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Message.email"`)}
+	}
+	if _, ok := mc.mutation.Phone(); !ok {
+		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "Message.phone"`)}
+	}
+	if _, ok := mc.mutation.Subject(); !ok {
+		return &ValidationError{Name: "subject", err: errors.New(`ent: missing required field "Message.subject"`)}
+	}
+	if _, ok := mc.mutation.Message(); !ok {
+		return &ValidationError{Name: "message", err: errors.New(`ent: missing required field "Message.message"`)}
+	}
+	if _, ok := mc.mutation.IP(); !ok {
+		return &ValidationError{Name: "ip", err: errors.New(`ent: missing required field "Message.ip"`)}
+	}
+	if _, ok := mc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Message.status"`)}
+	}
+	if _, ok := mc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Message.created_at"`)}
+	}
 	return nil
 }
 
@@ -115,6 +234,86 @@ func (mc *MessageCreate) createSpec() (*Message, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := mc.mutation.Name(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldName,
+		})
+		_node.Name = value
+	}
+	if value, ok := mc.mutation.Email(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldEmail,
+		})
+		_node.Email = value
+	}
+	if value, ok := mc.mutation.Phone(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldPhone,
+		})
+		_node.Phone = value
+	}
+	if value, ok := mc.mutation.Subject(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldSubject,
+		})
+		_node.Subject = value
+	}
+	if value, ok := mc.mutation.Message(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldMessage,
+		})
+		_node.Message = value
+	}
+	if value, ok := mc.mutation.IP(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldIP,
+		})
+		_node.IP = value
+	}
+	if value, ok := mc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: message.FieldStatus,
+		})
+		_node.Status = value
+	}
+	if value, ok := mc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := mc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := mc.mutation.DeletedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldDeletedAt,
+		})
+		_node.DeletedAt = value
+	}
 	return _node, _spec
 }
 
@@ -132,6 +331,7 @@ func (mcb *MessageCreateBulk) Save(ctx context.Context) ([]*Message, error) {
 	for i := range mcb.builders {
 		func(i int, root context.Context) {
 			builder := mcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*MessageMutation)
 				if !ok {

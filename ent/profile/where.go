@@ -108,7 +108,7 @@ func Phone(v string) predicate.Profile {
 }
 
 // Image applies equality check predicate on the "image" field. It's identical to ImageEQ.
-func Image(v []byte) predicate.Profile {
+func Image(v string) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldImage), v))
 	})
@@ -125,6 +125,13 @@ func CreatedAt(v time.Time) predicate.Profile {
 func UpdatedAt(v time.Time) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDeletedAt), v))
 	})
 }
 
@@ -351,21 +358,21 @@ func PhoneContainsFold(v string) predicate.Profile {
 }
 
 // ImageEQ applies the EQ predicate on the "image" field.
-func ImageEQ(v []byte) predicate.Profile {
+func ImageEQ(v string) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldImage), v))
 	})
 }
 
 // ImageNEQ applies the NEQ predicate on the "image" field.
-func ImageNEQ(v []byte) predicate.Profile {
+func ImageNEQ(v string) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldImage), v))
 	})
 }
 
 // ImageIn applies the In predicate on the "image" field.
-func ImageIn(vs ...[]byte) predicate.Profile {
+func ImageIn(vs ...string) predicate.Profile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -382,7 +389,7 @@ func ImageIn(vs ...[]byte) predicate.Profile {
 }
 
 // ImageNotIn applies the NotIn predicate on the "image" field.
-func ImageNotIn(vs ...[]byte) predicate.Profile {
+func ImageNotIn(vs ...string) predicate.Profile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -399,30 +406,51 @@ func ImageNotIn(vs ...[]byte) predicate.Profile {
 }
 
 // ImageGT applies the GT predicate on the "image" field.
-func ImageGT(v []byte) predicate.Profile {
+func ImageGT(v string) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldImage), v))
 	})
 }
 
 // ImageGTE applies the GTE predicate on the "image" field.
-func ImageGTE(v []byte) predicate.Profile {
+func ImageGTE(v string) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldImage), v))
 	})
 }
 
 // ImageLT applies the LT predicate on the "image" field.
-func ImageLT(v []byte) predicate.Profile {
+func ImageLT(v string) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldImage), v))
 	})
 }
 
 // ImageLTE applies the LTE predicate on the "image" field.
-func ImageLTE(v []byte) predicate.Profile {
+func ImageLTE(v string) predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldImage), v))
+	})
+}
+
+// ImageContains applies the Contains predicate on the "image" field.
+func ImageContains(v string) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldImage), v))
+	})
+}
+
+// ImageHasPrefix applies the HasPrefix predicate on the "image" field.
+func ImageHasPrefix(v string) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldImage), v))
+	})
+}
+
+// ImageHasSuffix applies the HasSuffix predicate on the "image" field.
+func ImageHasSuffix(v string) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldImage), v))
 	})
 }
 
@@ -437,6 +465,20 @@ func ImageIsNil() predicate.Profile {
 func ImageNotNil() predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldImage)))
+	})
+}
+
+// ImageEqualFold applies the EqualFold predicate on the "image" field.
+func ImageEqualFold(v string) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldImage), v))
+	})
+}
+
+// ImageContainsFold applies the ContainsFold predicate on the "image" field.
+func ImageContainsFold(v string) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldImage), v))
 	})
 }
 
@@ -603,6 +645,96 @@ func UpdatedAtIsNil() predicate.Profile {
 func UpdatedAtNotNil() predicate.Profile {
 	return predicate.Profile(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldUpdatedAt)))
+	})
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDeletedAt), v))
+	})
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldDeletedAt), v))
+	})
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.Profile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Profile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldDeletedAt), v...))
+	})
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.Profile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Profile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldDeletedAt), v...))
+	})
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldDeletedAt), v))
+	})
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldDeletedAt), v))
+	})
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldDeletedAt), v))
+	})
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldDeletedAt), v))
+	})
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldDeletedAt)))
+	})
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.Profile {
+	return predicate.Profile(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldDeletedAt)))
 	})
 }
 

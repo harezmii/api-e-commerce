@@ -34,8 +34,16 @@ func (pc *ProfileCreate) SetPhone(s string) *ProfileCreate {
 }
 
 // SetImage sets the "image" field.
-func (pc *ProfileCreate) SetImage(b []byte) *ProfileCreate {
-	pc.mutation.SetImage(b)
+func (pc *ProfileCreate) SetImage(s string) *ProfileCreate {
+	pc.mutation.SetImage(s)
+	return pc
+}
+
+// SetNillableImage sets the "image" field if the given value is not nil.
+func (pc *ProfileCreate) SetNillableImage(s *string) *ProfileCreate {
+	if s != nil {
+		pc.SetImage(*s)
+	}
 	return pc
 }
 
@@ -63,6 +71,20 @@ func (pc *ProfileCreate) SetUpdatedAt(t time.Time) *ProfileCreate {
 func (pc *ProfileCreate) SetNillableUpdatedAt(t *time.Time) *ProfileCreate {
 	if t != nil {
 		pc.SetUpdatedAt(*t)
+	}
+	return pc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (pc *ProfileCreate) SetDeletedAt(t time.Time) *ProfileCreate {
+	pc.mutation.SetDeletedAt(t)
+	return pc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (pc *ProfileCreate) SetNillableDeletedAt(t *time.Time) *ProfileCreate {
+	if t != nil {
+		pc.SetDeletedAt(*t)
 	}
 	return pc
 }
@@ -219,7 +241,7 @@ func (pc *ProfileCreate) createSpec() (*Profile, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := pc.mutation.Image(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: profile.FieldImage,
 		})
@@ -240,6 +262,14 @@ func (pc *ProfileCreate) createSpec() (*Profile, *sqlgraph.CreateSpec) {
 			Column: profile.FieldUpdatedAt,
 		})
 		_node.UpdatedAt = value
+	}
+	if value, ok := pc.mutation.DeletedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: profile.FieldDeletedAt,
+		})
+		_node.DeletedAt = value
 	}
 	if nodes := pc.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

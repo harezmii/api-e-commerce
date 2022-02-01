@@ -21,15 +21,12 @@ definitions:
         type: string
       phone:
         type: string
-      user:
-        $ref: '#/definitions/entity.User'
       userId:
         type: integer
     required:
     - address
     - image
     - phone
-    - user
     - userId
     type: object
   entity.User:
@@ -51,7 +48,7 @@ definitions:
     - status
     - surname
     type: object
-host: e-ticaret-api.herokuapp.com
+host: localhost:3500
 info:
   contact:
     email: suatcnby06@gmail.com

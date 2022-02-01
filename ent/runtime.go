@@ -4,6 +4,7 @@ package ent
 
 import (
 	"api/ent/faq"
+	"api/ent/message"
 	"api/ent/profile"
 	"api/ent/schema"
 	"api/ent/user"
@@ -28,6 +29,12 @@ func init() {
 	faqDescCreatedAt := faqFields[3].Descriptor()
 	// faq.DefaultCreatedAt holds the default value on creation for the created_at field.
 	faq.DefaultCreatedAt = faqDescCreatedAt.Default.(func() time.Time)
+	messageFields := schema.Message{}.Fields()
+	_ = messageFields
+	// messageDescCreatedAt is the schema descriptor for created_at field.
+	messageDescCreatedAt := messageFields[7].Descriptor()
+	// message.DefaultCreatedAt holds the default value on creation for the created_at field.
+	message.DefaultCreatedAt = messageDescCreatedAt.Default.(func() time.Time)
 	profileFields := schema.Profile{}.Fields()
 	_ = profileFields
 	// profileDescCreatedAt is the schema descriptor for created_at field.

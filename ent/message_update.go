@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,102 @@ type MessageUpdate struct {
 // Where appends a list predicates to the MessageUpdate builder.
 func (mu *MessageUpdate) Where(ps ...predicate.Message) *MessageUpdate {
 	mu.mutation.Where(ps...)
+	return mu
+}
+
+// SetName sets the "name" field.
+func (mu *MessageUpdate) SetName(s string) *MessageUpdate {
+	mu.mutation.SetName(s)
+	return mu
+}
+
+// SetEmail sets the "email" field.
+func (mu *MessageUpdate) SetEmail(s string) *MessageUpdate {
+	mu.mutation.SetEmail(s)
+	return mu
+}
+
+// SetPhone sets the "phone" field.
+func (mu *MessageUpdate) SetPhone(s string) *MessageUpdate {
+	mu.mutation.SetPhone(s)
+	return mu
+}
+
+// SetSubject sets the "subject" field.
+func (mu *MessageUpdate) SetSubject(s string) *MessageUpdate {
+	mu.mutation.SetSubject(s)
+	return mu
+}
+
+// SetMessage sets the "message" field.
+func (mu *MessageUpdate) SetMessage(s string) *MessageUpdate {
+	mu.mutation.SetMessage(s)
+	return mu
+}
+
+// SetIP sets the "ip" field.
+func (mu *MessageUpdate) SetIP(s string) *MessageUpdate {
+	mu.mutation.SetIP(s)
+	return mu
+}
+
+// SetStatus sets the "status" field.
+func (mu *MessageUpdate) SetStatus(b bool) *MessageUpdate {
+	mu.mutation.SetStatus(b)
+	return mu
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (mu *MessageUpdate) SetCreatedAt(t time.Time) *MessageUpdate {
+	mu.mutation.SetCreatedAt(t)
+	return mu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (mu *MessageUpdate) SetNillableCreatedAt(t *time.Time) *MessageUpdate {
+	if t != nil {
+		mu.SetCreatedAt(*t)
+	}
+	return mu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (mu *MessageUpdate) SetUpdatedAt(t time.Time) *MessageUpdate {
+	mu.mutation.SetUpdatedAt(t)
+	return mu
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (mu *MessageUpdate) SetNillableUpdatedAt(t *time.Time) *MessageUpdate {
+	if t != nil {
+		mu.SetUpdatedAt(*t)
+	}
+	return mu
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (mu *MessageUpdate) ClearUpdatedAt() *MessageUpdate {
+	mu.mutation.ClearUpdatedAt()
+	return mu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (mu *MessageUpdate) SetDeletedAt(t time.Time) *MessageUpdate {
+	mu.mutation.SetDeletedAt(t)
+	return mu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mu *MessageUpdate) SetNillableDeletedAt(t *time.Time) *MessageUpdate {
+	if t != nil {
+		mu.SetDeletedAt(*t)
+	}
+	return mu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (mu *MessageUpdate) ClearDeletedAt() *MessageUpdate {
+	mu.mutation.ClearDeletedAt()
 	return mu
 }
 
@@ -104,6 +201,88 @@ func (mu *MessageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := mu.mutation.Name(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldName,
+		})
+	}
+	if value, ok := mu.mutation.Email(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldEmail,
+		})
+	}
+	if value, ok := mu.mutation.Phone(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldPhone,
+		})
+	}
+	if value, ok := mu.mutation.Subject(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldSubject,
+		})
+	}
+	if value, ok := mu.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldMessage,
+		})
+	}
+	if value, ok := mu.mutation.IP(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldIP,
+		})
+	}
+	if value, ok := mu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: message.FieldStatus,
+		})
+	}
+	if value, ok := mu.mutation.CreatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldCreatedAt,
+		})
+	}
+	if value, ok := mu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldUpdatedAt,
+		})
+	}
+	if mu.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: message.FieldUpdatedAt,
+		})
+	}
+	if value, ok := mu.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldDeletedAt,
+		})
+	}
+	if mu.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: message.FieldDeletedAt,
+		})
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{message.Label}
@@ -121,6 +300,102 @@ type MessageUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *MessageMutation
+}
+
+// SetName sets the "name" field.
+func (muo *MessageUpdateOne) SetName(s string) *MessageUpdateOne {
+	muo.mutation.SetName(s)
+	return muo
+}
+
+// SetEmail sets the "email" field.
+func (muo *MessageUpdateOne) SetEmail(s string) *MessageUpdateOne {
+	muo.mutation.SetEmail(s)
+	return muo
+}
+
+// SetPhone sets the "phone" field.
+func (muo *MessageUpdateOne) SetPhone(s string) *MessageUpdateOne {
+	muo.mutation.SetPhone(s)
+	return muo
+}
+
+// SetSubject sets the "subject" field.
+func (muo *MessageUpdateOne) SetSubject(s string) *MessageUpdateOne {
+	muo.mutation.SetSubject(s)
+	return muo
+}
+
+// SetMessage sets the "message" field.
+func (muo *MessageUpdateOne) SetMessage(s string) *MessageUpdateOne {
+	muo.mutation.SetMessage(s)
+	return muo
+}
+
+// SetIP sets the "ip" field.
+func (muo *MessageUpdateOne) SetIP(s string) *MessageUpdateOne {
+	muo.mutation.SetIP(s)
+	return muo
+}
+
+// SetStatus sets the "status" field.
+func (muo *MessageUpdateOne) SetStatus(b bool) *MessageUpdateOne {
+	muo.mutation.SetStatus(b)
+	return muo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (muo *MessageUpdateOne) SetCreatedAt(t time.Time) *MessageUpdateOne {
+	muo.mutation.SetCreatedAt(t)
+	return muo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (muo *MessageUpdateOne) SetNillableCreatedAt(t *time.Time) *MessageUpdateOne {
+	if t != nil {
+		muo.SetCreatedAt(*t)
+	}
+	return muo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (muo *MessageUpdateOne) SetUpdatedAt(t time.Time) *MessageUpdateOne {
+	muo.mutation.SetUpdatedAt(t)
+	return muo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (muo *MessageUpdateOne) SetNillableUpdatedAt(t *time.Time) *MessageUpdateOne {
+	if t != nil {
+		muo.SetUpdatedAt(*t)
+	}
+	return muo
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (muo *MessageUpdateOne) ClearUpdatedAt() *MessageUpdateOne {
+	muo.mutation.ClearUpdatedAt()
+	return muo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (muo *MessageUpdateOne) SetDeletedAt(t time.Time) *MessageUpdateOne {
+	muo.mutation.SetDeletedAt(t)
+	return muo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (muo *MessageUpdateOne) SetNillableDeletedAt(t *time.Time) *MessageUpdateOne {
+	if t != nil {
+		muo.SetDeletedAt(*t)
+	}
+	return muo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (muo *MessageUpdateOne) ClearDeletedAt() *MessageUpdateOne {
+	muo.mutation.ClearDeletedAt()
+	return muo
 }
 
 // Mutation returns the MessageMutation object of the builder.
@@ -223,6 +498,88 @@ func (muo *MessageUpdateOne) sqlSave(ctx context.Context) (_node *Message, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := muo.mutation.Name(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldName,
+		})
+	}
+	if value, ok := muo.mutation.Email(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldEmail,
+		})
+	}
+	if value, ok := muo.mutation.Phone(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldPhone,
+		})
+	}
+	if value, ok := muo.mutation.Subject(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldSubject,
+		})
+	}
+	if value, ok := muo.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldMessage,
+		})
+	}
+	if value, ok := muo.mutation.IP(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: message.FieldIP,
+		})
+	}
+	if value, ok := muo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: message.FieldStatus,
+		})
+	}
+	if value, ok := muo.mutation.CreatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldCreatedAt,
+		})
+	}
+	if value, ok := muo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldUpdatedAt,
+		})
+	}
+	if muo.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: message.FieldUpdatedAt,
+		})
+	}
+	if value, ok := muo.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: message.FieldDeletedAt,
+		})
+	}
+	if muo.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: message.FieldDeletedAt,
+		})
 	}
 	_node = &Message{config: muo.config}
 	_spec.Assign = _node.assignValues

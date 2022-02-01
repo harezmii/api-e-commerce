@@ -42,8 +42,16 @@ func (pu *ProfileUpdate) SetPhone(s string) *ProfileUpdate {
 }
 
 // SetImage sets the "image" field.
-func (pu *ProfileUpdate) SetImage(b []byte) *ProfileUpdate {
-	pu.mutation.SetImage(b)
+func (pu *ProfileUpdate) SetImage(s string) *ProfileUpdate {
+	pu.mutation.SetImage(s)
+	return pu
+}
+
+// SetNillableImage sets the "image" field if the given value is not nil.
+func (pu *ProfileUpdate) SetNillableImage(s *string) *ProfileUpdate {
+	if s != nil {
+		pu.SetImage(*s)
+	}
 	return pu
 }
 
@@ -84,6 +92,26 @@ func (pu *ProfileUpdate) SetNillableUpdatedAt(t *time.Time) *ProfileUpdate {
 // ClearUpdatedAt clears the value of the "updated_at" field.
 func (pu *ProfileUpdate) ClearUpdatedAt() *ProfileUpdate {
 	pu.mutation.ClearUpdatedAt()
+	return pu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (pu *ProfileUpdate) SetDeletedAt(t time.Time) *ProfileUpdate {
+	pu.mutation.SetDeletedAt(t)
+	return pu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (pu *ProfileUpdate) SetNillableDeletedAt(t *time.Time) *ProfileUpdate {
+	if t != nil {
+		pu.SetDeletedAt(*t)
+	}
+	return pu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (pu *ProfileUpdate) ClearDeletedAt() *ProfileUpdate {
+	pu.mutation.ClearDeletedAt()
 	return pu
 }
 
@@ -205,14 +233,14 @@ func (pu *ProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.Image(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: profile.FieldImage,
 		})
 	}
 	if pu.mutation.ImageCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
+			Type:   field.TypeString,
 			Column: profile.FieldImage,
 		})
 	}
@@ -234,6 +262,19 @@ func (pu *ProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Column: profile.FieldUpdatedAt,
+		})
+	}
+	if value, ok := pu.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: profile.FieldDeletedAt,
+		})
+	}
+	if pu.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: profile.FieldDeletedAt,
 		})
 	}
 	if pu.mutation.OwnerCleared() {
@@ -303,8 +344,16 @@ func (puo *ProfileUpdateOne) SetPhone(s string) *ProfileUpdateOne {
 }
 
 // SetImage sets the "image" field.
-func (puo *ProfileUpdateOne) SetImage(b []byte) *ProfileUpdateOne {
-	puo.mutation.SetImage(b)
+func (puo *ProfileUpdateOne) SetImage(s string) *ProfileUpdateOne {
+	puo.mutation.SetImage(s)
+	return puo
+}
+
+// SetNillableImage sets the "image" field if the given value is not nil.
+func (puo *ProfileUpdateOne) SetNillableImage(s *string) *ProfileUpdateOne {
+	if s != nil {
+		puo.SetImage(*s)
+	}
 	return puo
 }
 
@@ -345,6 +394,26 @@ func (puo *ProfileUpdateOne) SetNillableUpdatedAt(t *time.Time) *ProfileUpdateOn
 // ClearUpdatedAt clears the value of the "updated_at" field.
 func (puo *ProfileUpdateOne) ClearUpdatedAt() *ProfileUpdateOne {
 	puo.mutation.ClearUpdatedAt()
+	return puo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (puo *ProfileUpdateOne) SetDeletedAt(t time.Time) *ProfileUpdateOne {
+	puo.mutation.SetDeletedAt(t)
+	return puo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (puo *ProfileUpdateOne) SetNillableDeletedAt(t *time.Time) *ProfileUpdateOne {
+	if t != nil {
+		puo.SetDeletedAt(*t)
+	}
+	return puo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (puo *ProfileUpdateOne) ClearDeletedAt() *ProfileUpdateOne {
+	puo.mutation.ClearDeletedAt()
 	return puo
 }
 
@@ -490,14 +559,14 @@ func (puo *ProfileUpdateOne) sqlSave(ctx context.Context) (_node *Profile, err e
 	}
 	if value, ok := puo.mutation.Image(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: profile.FieldImage,
 		})
 	}
 	if puo.mutation.ImageCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
+			Type:   field.TypeString,
 			Column: profile.FieldImage,
 		})
 	}
@@ -519,6 +588,19 @@ func (puo *ProfileUpdateOne) sqlSave(ctx context.Context) (_node *Profile, err e
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Column: profile.FieldUpdatedAt,
+		})
+	}
+	if value, ok := puo.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: profile.FieldDeletedAt,
+		})
+	}
+	if puo.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: profile.FieldDeletedAt,
 		})
 	}
 	if puo.mutation.OwnerCleared() {

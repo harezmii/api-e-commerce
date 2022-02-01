@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "e-ticaret-api.herokuapp.com",
+    "host": "localhost:3500",
     "basePath": "/api/v1",
     "paths": {
         "/faqs": {
@@ -492,7 +492,6 @@
                 "address",
                 "image",
                 "phone",
-                "user",
                 "userId"
             ],
             "properties": {
@@ -504,9 +503,6 @@
                 },
                 "phone": {
                     "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/entity.User"
                 },
                 "userId": {
                     "type": "integer"

@@ -4,7 +4,6 @@ import (
 	_ "api/docs"
 	"api/internal/entity/response"
 	"api/internal/handle"
-	prisma "api/internal/infraStructure/prismaClient"
 	"api/internal/logs"
 	_ "api/internal/secret/vault"
 	"api/pkg/config"
@@ -52,13 +51,8 @@ func RestRun(port string) {
 	//app.Use(logger.New())
 	// Logger End
 
-	// Database
-	defer func() {
-		prisma.PrismaDisConnection()
-	}()
-	// Database End
-
 	// Fiber Internal Middleware
+	app.Use(recover2.New())
 	app.Use(cors.New())
 	app.Use(etag.New())
 	app.Use(compress.New())

@@ -22,11 +22,13 @@ type Profile struct {
 	// Phone holds the value of the "phone" field.
 	Phone string `json:"phone,omitempty"`
 	// Image holds the value of the "image" field.
-	Image []byte `json:"image,omitempty"`
+	Image string `json:"image,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProfileQuery when eager-loading is set.
 	Edges         ProfileEdges `json:"edges"`
@@ -61,13 +63,11 @@ func (*Profile) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case profile.FieldImage:
-			values[i] = new([]byte)
 		case profile.FieldID:
 			values[i] = new(sql.NullInt64)
-		case profile.FieldAddress, profile.FieldPhone:
+		case profile.FieldAddress, profile.FieldPhone, profile.FieldImage:
 			values[i] = new(sql.NullString)
-		case profile.FieldCreatedAt, profile.FieldUpdatedAt:
+		case profile.FieldCreatedAt, profile.FieldUpdatedAt, profile.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case profile.ForeignKeys[0]: // user_profiles
 			values[i] = new(sql.NullInt64)
@@ -105,10 +105,10 @@ func (pr *Profile) assignValues(columns []string, values []interface{}) error {
 				pr.Phone = value.String
 			}
 		case profile.FieldImage:
-			if value, ok := values[i].(*[]byte); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field image", values[i])
-			} else if value != nil {
-				pr.Image = *value
+			} else if value.Valid {
+				pr.Image = value.String
 			}
 		case profile.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -121,6 +121,12 @@ func (pr *Profile) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				pr.UpdatedAt = value.Time
+			}
+		case profile.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				pr.DeletedAt = value.Time
 			}
 		case profile.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -167,11 +173,13 @@ func (pr *Profile) String() string {
 	builder.WriteString(", phone=")
 	builder.WriteString(pr.Phone)
 	builder.WriteString(", image=")
-	builder.WriteString(fmt.Sprintf("%v", pr.Image))
+	builder.WriteString(pr.Image)
 	builder.WriteString(", created_at=")
 	builder.WriteString(pr.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")
 	builder.WriteString(pr.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", deleted_at=")
+	builder.WriteString(pr.DeletedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

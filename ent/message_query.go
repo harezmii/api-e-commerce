@@ -249,6 +249,19 @@ func (mq *MessageQuery) Clone() *MessageQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Message.Query().
+//		GroupBy(message.FieldName).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (mq *MessageQuery) GroupBy(field string, fields ...string) *MessageGroupBy {
 	group := &MessageGroupBy{config: mq.config}
 	group.fields = append([]string{field}, fields...)
@@ -263,6 +276,17 @@ func (mq *MessageQuery) GroupBy(field string, fields ...string) *MessageGroupBy 
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//	}
+//
+//	client.Message.Query().
+//		Select(message.FieldName).
+//		Scan(ctx, &v)
+//
 func (mq *MessageQuery) Select(fields ...string) *MessageSelect {
 	mq.fields = append(mq.fields, fields...)
 	return &MessageSelect{MessageQuery: mq}

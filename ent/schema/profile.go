@@ -17,9 +17,10 @@ func (Profile) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("address"),
 		field.String("phone"),
-		field.Bytes("image").Optional(),
+		field.String("image").Optional(),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Optional(),
+		field.Time("deleted_at").Optional(),
 	}
 }
 

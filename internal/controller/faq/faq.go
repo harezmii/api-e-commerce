@@ -1,20 +1,19 @@
 package faq
 
 import (
+	"api/internal/controller"
 	"api/internal/entity"
 	"api/internal/entity/response"
-	"api/internal/infraStructure/prismaClient"
-	db2 "api/internal/infraStructure/prismaClient"
 	"api/internal/logs"
 	"api/internal/validate"
-	"context"
 	"github.com/gofiber/fiber/v2"
 	_ "net/http"
 	"strconv"
 )
 
-var client = prisma.Client
-var contextt = context.Background()
+type ControllerFaq struct {
+	controller.Controller
+}
 
 // ShowAccount godoc
 // @Summary      Create Data
@@ -25,9 +24,8 @@ var contextt = context.Background()
 // @Param        body body  entity.Faq  false   "Faq form"
 // @Success      201  {object}  []entity.Faq
 // @Router       /faqs [post]
-func Store(ctx *fiber.Ctx) error {
-	prisma.PrismaConnection()
-	var faq entity.Faq
+func (f ControllerFaq) Store(ctx *fiber.Ctx) error {
+	faq := f.Entity.(entity.Faq)
 
 	parseError := ctx.BodyParser(&faq)
 	if parseError != nil {
@@ -37,13 +35,13 @@ func Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&faq)
 	if err == nil {
-		createdFaq, dbError := client.Faq.CreateOne(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
+		dbError := f.Client.Faq.Create().SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).Exec(f.Context)
 		if dbError != nil {
 			logs.Logger(ctx, "Store!Faq not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Faq not created.Database error."})
 		}
 
-		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Faq created", Data: createdFaq})
+		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Faq created", Data: faq})
 	}
 
 	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
@@ -61,9 +59,8 @@ func Store(ctx *fiber.Ctx) error {
 // @Param        body body  entity.Faq  false   "Faq update form"
 // @Success      200  {object}  entity.Faq
 // @Router       /faqs/{id} [put]
-func Update(ctx *fiber.Ctx) error {
-	prisma.PrismaConnection()
-	var faq entity.Faq
+func (f ControllerFaq) Update(ctx *fiber.Ctx) error {
+	faq := f.Entity.(entity.Faq)
 
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
@@ -79,14 +76,14 @@ func Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
 
-	createdFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Update(db2.Faq.Question.Set(faq.Question), db2.Faq.Answer.Set(faq.Answer), db2.Faq.Status.Set(*faq.Status)).Exec(contextt)
+	err := f.Client.Faq.UpdateOneID(idInt).SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).Exec(f.Context)
 	if err != nil {
 		logs.Logger(ctx, "Update!Faq not updated.", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated"})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(
-		response.SuccessResponse{StatusCode: 200, Message: "Faq Updated.", Data: createdFaq},
+		response.SuccessResponse{StatusCode: 200, Message: "Faq Updated.", Data: faq},
 	)
 }
 
@@ -99,7 +96,7 @@ func Update(ctx *fiber.Ctx) error {
 // @Param        offset  query  string  true   "Offset"
 // @Success      200  {object}  entity.Faq
 // @Router       /faqs [get]
-func Index(ctx *fiber.Ctx) error {
+func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 	var offsetInt int
 	offset := ctx.Query("offset")
 	if offset == "" {
@@ -117,8 +114,8 @@ func Index(ctx *fiber.Ctx) error {
 		}
 
 	}
-	prisma.PrismaConnection()
-	allFaq, err := client.Faq.FindMany().Take(10).Skip(offsetInt).Exec(contextt)
+
+	allFaq, err := f.Client.Faq.Query().Limit(10).Offset(offsetInt).All(f.Context)
 	if err != nil {
 		logs.Logger(ctx, "Index!Faq is empty", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq is empty"})
@@ -135,7 +132,7 @@ func Index(ctx *fiber.Ctx) error {
 // @Param        id  path  string  true   "Faq ID"
 // @Success      200  {object}  []entity.Faq
 // @Router       /faqs/{id} [delete]
-func Destroy(ctx *fiber.Ctx) error {
+func (f ControllerFaq) Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
 
@@ -143,13 +140,13 @@ func Destroy(ctx *fiber.Ctx) error {
 		logs.Logger(ctx, "Delete!Bad Request , Invalid type error. Type must int", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	prisma.PrismaConnection()
-	deletedFaq, err := client.Faq.FindUnique(db2.Faq.ID.Equals(idInt)).Delete().Exec(contextt)
+
+	err := f.Client.Faq.DeleteOneID(idInt).Exec(f.Context)
 	if err != nil {
 		logs.Logger(ctx, "Delete!Faq not find.Not deleted.", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not find.Not deleted."})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq deleted", Data: deletedFaq})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq deleted", Data: "deletedFaq"})
 }
 
 // Show ShowAccount godoc
@@ -161,7 +158,7 @@ func Destroy(ctx *fiber.Ctx) error {
 // @Param        id  path  string  true   "Faq ID"
 // @Success      200  {object}  entity.Faq
 // @Router       /faqs/{id} [get]
-func Show(ctx *fiber.Ctx) error {
+func (f ControllerFaq) Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
 
@@ -169,8 +166,8 @@ func Show(ctx *fiber.Ctx) error {
 		logs.Logger(ctx, "Show!Bad Request , Invalid type error. Type must int", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	prisma.PrismaConnection()
-	singleFaq, err := client.Faq.FindFirst(db2.Faq.ID.Equals(idInt)).Exec(contextt)
+
+	singleFaq, err := f.Client.Faq.Get(f.Context, idInt)
 	if err != nil {
 		logs.Logger(ctx, "Show!Faq not finding", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not finding"})

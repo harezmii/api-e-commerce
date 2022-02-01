@@ -2,11 +2,35 @@
 
 package message
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the message type in the database.
 	Label = "message"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldPhone holds the string denoting the phone field in the database.
+	FieldPhone = "phone"
+	// FieldSubject holds the string denoting the subject field in the database.
+	FieldSubject = "subject"
+	// FieldMessage holds the string denoting the message field in the database.
+	FieldMessage = "message"
+	// FieldIP holds the string denoting the ip field in the database.
+	FieldIP = "ip"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// Table holds the table name of the message in the database.
 	Table = "messages"
 )
@@ -14,6 +38,16 @@ const (
 // Columns holds all SQL columns for message fields.
 var Columns = []string{
 	FieldID,
+	FieldName,
+	FieldEmail,
+	FieldPhone,
+	FieldSubject,
+	FieldMessage,
+	FieldIP,
+	FieldStatus,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -25,3 +59,8 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+)

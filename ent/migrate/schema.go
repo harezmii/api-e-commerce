@@ -57,6 +57,16 @@ var (
 	// MessagesColumns holds the columns for the "messages" table.
 	MessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString},
+		{Name: "phone", Type: field.TypeString},
+		{Name: "subject", Type: field.TypeString},
+		{Name: "message", Type: field.TypeString},
+		{Name: "ip", Type: field.TypeString},
+		{Name: "status", Type: field.TypeBool},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// MessagesTable holds the schema information for the "messages" table.
 	MessagesTable = &schema.Table{
@@ -79,9 +89,10 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "address", Type: field.TypeString},
 		{Name: "phone", Type: field.TypeString},
-		{Name: "image", Type: field.TypeBytes, Nullable: true},
+		{Name: "image", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "user_profiles", Type: field.TypeInt, Nullable: true},
 	}
 	// ProfilesTable holds the schema information for the "profiles" table.
@@ -92,7 +103,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "profiles_users_profiles",
-				Columns:    []*schema.Column{ProfilesColumns[6]},
+				Columns:    []*schema.Column{ProfilesColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

@@ -506,7 +506,6 @@ var doc = `{
                 "address",
                 "image",
                 "phone",
-                "user",
                 "userId"
             ],
             "properties": {
@@ -518,9 +517,6 @@ var doc = `{
                 },
                 "phone": {
                     "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/entity.User"
                 },
                 "userId": {
                     "type": "integer"
@@ -569,7 +565,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "e-ticaret-api.herokuapp.com",
+	Host:        "localhost:3500",
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "E Commerce API",
