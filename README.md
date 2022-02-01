@@ -1,4 +1,4 @@
-# Golang fiber e commerce template
+# Golang Fiber E Commerce Template
 
 # Stack
 
@@ -9,7 +9,7 @@
 - <font color="cyan">Godot Env v1.4.0</font>
 - <font color="cyan">Swaggo Swag v1.7.8</font>
 - <font color="cyan">Fiber Swagger v1.0.3</font>
-- <font color="cyan">Prisma Client Go v0.12.2</font>
+- <font color="cyan">Ent Entity v0.10.0</font>
 - <font color="cyan">Zap Log v1.20.0 </font>
 - <font color="cyan">Kafka v0.4.26</font>
 - <font color="cyan">Gorm v1.22.5</font>
