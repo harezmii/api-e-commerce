@@ -3,8 +3,12 @@ definitions:
   entity.Faq:
     properties:
       answer:
+        maxLength: 250
+        minLength: 3
         type: string
       question:
+        maxLength: 40
+        minLength: 3
         type: string
       status:
         type: boolean
@@ -20,6 +24,8 @@ definitions:
       image:
         type: string
       phone:
+        maxLength: 15
+        minLength: 10
         type: string
       userId:
         type: integer

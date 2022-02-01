@@ -490,10 +490,14 @@ var doc = `{
             ],
             "properties": {
                 "answer": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 250,
+                    "minLength": 3
                 },
                 "question": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 40,
+                    "minLength": 3
                 },
                 "status": {
                     "type": "boolean"
@@ -516,7 +520,9 @@ var doc = `{
                     "type": "string"
                 },
                 "phone": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 10
                 },
                 "userId": {
                     "type": "integer"

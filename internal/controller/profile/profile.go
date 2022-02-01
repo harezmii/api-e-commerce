@@ -3,18 +3,21 @@ package profile
 import (
 	"api/internal/controller"
 	"api/internal/entity"
+	"api/internal/entity/dto"
 	"api/internal/entity/response"
 	"api/internal/validate"
+	"entgo.io/ent/dialect/sql"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
+	"time"
 )
 
 type ControllerProfile struct {
 	controller.Controller
 }
 
-// ShowAccount godoc
+// Store ShowAccount godoc
 // @Summary      Create Data
 // @Description  create Profiles
 // @Tags         Profiles
@@ -43,7 +46,7 @@ func (p ControllerProfile) Store(ctx *fiber.Ctx) error {
 
 }
 
-// ShowAccount godoc
+// Update ShowAccount godoc
 // @Summary      Profile Update Data
 // @Description  update Profile
 // @Tags         Profiles
@@ -68,16 +71,24 @@ func (p ControllerProfile) Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request"})
 	}
 
-	err := p.Client.Profile.UpdateOneID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).Exec(p.Context)
+	// Not delete record finding
+	selectId, err := p.Client.Profile.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.IsNull("deleted_at"))
+		s.Where(sql.EQ("id", idInt))
+	}).FirstID(p.Context)
+	if selectId != 0 {
+		errt := p.Client.Profile.UpdateOneID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).SetUpdatedAt(time.Now()).Exec(p.Context)
+		if errt != nil {
+			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile not updated"})
+		}
+	}
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile not updated"})
 	}
-
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile updated", Data: profile})
-
 }
 
-// ShowAccount godoc
+// Destroy ShowAccount godoc
 // @Summary      Delete Data
 // @Description  delete Profiles
 // @Tags         Profiles
@@ -93,11 +104,17 @@ func (p ControllerProfile) Destroy(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	err := p.Client.Profile.DeleteOneID(idInt).Exec(p.Context)
+	selectId, err := p.Client.Profile.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.IsNull("deleted_at"))
+		s.Where(sql.EQ("id", idInt))
+	}).FirstID(p.Context)
+	if selectId != 0 {
+		p.Client.Profile.UpdateOneID(idInt).SetDeletedAt(time.Now()).Exec(p.Context)
+	}
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not deleted"})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile deleted", Data: "deletedProfile"})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile deleted", Data: "Profile deleted id:"})
 }
 
 // Show ShowAccount godoc
@@ -116,10 +133,19 @@ func (p ControllerProfile) Show(ctx *fiber.Ctx) error {
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
+	var responseDto []dto.ProfileDto
+	err := p.Client.Profile.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.IsNull("deleted_at"))
+		s.Where(sql.EQ("id", idInt))
+	}).Select("id", "address", "phone", "image").Scan(p.Context, &responseDto)
+	fmt.Println(err)
+	fmt.Println(responseDto)
+	if len(responseDto) == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not finding"})
 
-	singleProfile, err := p.Client.Profile.Get(p.Context, idInt)
+	}
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not finding"})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile is finding", Data: singleProfile})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile is finding", Data: responseDto})
 }

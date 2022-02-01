@@ -55,9 +55,9 @@ func SetupRoutes(app fiber.Router) {
 
 	//// Profile Routes
 	app.Post("/profiles", p.Store)
-	//app.Get("/profiles/:id", profile.Show)
-	//app.Delete("/profiles/:id", profile.Destroy)
-	//app.Put("/profiles/:id", profile.Update)
+	app.Get("/profiles/:id", p.Show)
+	app.Delete("/profiles/:id", p.Destroy)
+	app.Put("/profiles/:id", p.Update)
 	// User Routes End
 
 	//m := message.ControllerMessage{
@@ -65,7 +65,7 @@ func SetupRoutes(app fiber.Router) {
 	//		Client  *ent.Client
 	//		Context context.Context
 	//		Entity  interface{}
-	//	}{Client: connection, Context: backContext, Entity: entity.Message{}}}
+	//	}{Client: Connection, Context: backContext, Entity: entity.Message{}}}
 	//// Message Routes
 	//app.Post("/messages", m.Store)
 	//app.Get("/messages", m.Index)

@@ -29,6 +29,14 @@ func init() {
 	faqDescCreatedAt := faqFields[3].Descriptor()
 	// faq.DefaultCreatedAt holds the default value on creation for the created_at field.
 	faq.DefaultCreatedAt = faqDescCreatedAt.Default.(func() time.Time)
+	// faqDescUpdatedAt is the schema descriptor for updated_at field.
+	faqDescUpdatedAt := faqFields[4].Descriptor()
+	// faq.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	faq.DefaultUpdatedAt = faqDescUpdatedAt.Default.(func() time.Time)
+	// faqDescDeletedAt is the schema descriptor for deleted_at field.
+	faqDescDeletedAt := faqFields[5].Descriptor()
+	// faq.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	faq.DefaultDeletedAt = faqDescDeletedAt.Default.(func() time.Time)
 	messageFields := schema.Message{}.Fields()
 	_ = messageFields
 	// messageDescCreatedAt is the schema descriptor for created_at field.
@@ -41,6 +49,14 @@ func init() {
 	profileDescCreatedAt := profileFields[3].Descriptor()
 	// profile.DefaultCreatedAt holds the default value on creation for the created_at field.
 	profile.DefaultCreatedAt = profileDescCreatedAt.Default.(func() time.Time)
+	// profileDescUpdatedAt is the schema descriptor for updated_at field.
+	profileDescUpdatedAt := profileFields[4].Descriptor()
+	// profile.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	profile.DefaultUpdatedAt = profileDescUpdatedAt.Default.(func() time.Time)
+	// profileDescDeletedAt is the schema descriptor for deleted_at field.
+	profileDescDeletedAt := profileFields[5].Descriptor()
+	// profile.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	profile.DefaultDeletedAt = profileDescDeletedAt.Default.(func() time.Time)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.

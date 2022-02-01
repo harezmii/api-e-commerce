@@ -167,6 +167,14 @@ func (fc *FaqCreate) defaults() {
 		v := faq.DefaultCreatedAt()
 		fc.mutation.SetCreatedAt(v)
 	}
+	if _, ok := fc.mutation.UpdatedAt(); !ok {
+		v := faq.DefaultUpdatedAt()
+		fc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := fc.mutation.DeletedAt(); !ok {
+		v := faq.DefaultDeletedAt()
+		fc.mutation.SetDeletedAt(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.

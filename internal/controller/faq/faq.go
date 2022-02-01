@@ -3,19 +3,29 @@ package faq
 import (
 	"api/internal/controller"
 	"api/internal/entity"
+	"api/internal/entity/dto"
 	"api/internal/entity/response"
 	"api/internal/logs"
 	"api/internal/validate"
+	"entgo.io/ent/dialect/sql"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	_ "net/http"
 	"strconv"
+	"strings"
+	"time"
 )
+
+// TODO
+//3 Error split'i kontrol et.
+//2 Test Yazılacak.
+//1 Controller'da dto ve test yapılacak.
 
 type ControllerFaq struct {
 	controller.Controller
 }
 
-// ShowAccount godoc
+// Store ShowAccount godoc
 // @Summary      Create Data
 // @Description  create faqs
 // @Tags         Faqs
@@ -36,6 +46,7 @@ func (f ControllerFaq) Store(ctx *fiber.Ctx) error {
 	err := validate.ValidateStructToTurkish(&faq)
 	if err == nil {
 		dbError := f.Client.Faq.Create().SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).Exec(f.Context)
+		fmt.Println("Db ERrror")
 		if dbError != nil {
 			logs.Logger(ctx, "Store!Faq not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Faq not created.Database error."})
@@ -48,7 +59,7 @@ func (f ControllerFaq) Store(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: err})
 }
 
-// ShowAccount godoc
+// Update ShowAccount godoc
 // @Summary      Update Data
 // @Description  update faq
 // @Tags         Faqs
@@ -75,18 +86,29 @@ func (f ControllerFaq) Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
 
-	err := f.Client.Faq.UpdateOneID(idInt).SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).Exec(f.Context)
+	// Not delete record finding
+	selectId, err := f.Client.Faq.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.IsNull("deleted_at"))
+		s.Where(sql.EQ("id", idInt))
+	}).FirstID(f.Context)
+
+	// Not deleting record
+	if selectId != 0 {
+		errt := f.Client.Faq.UpdateOneID(idInt).SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).SetUpdatedAt(time.Now()).Exec(f.Context)
+		if errt != nil {
+			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated, " + strings.Split(errt.Error(), ":")[3]})
+		}
+	}
 	if err != nil {
 		logs.Logger(ctx, "Update!Faq not updated.", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated"})
 	}
-
 	return ctx.Status(fiber.StatusOK).JSON(
 		response.SuccessResponse{StatusCode: 200, Message: "Faq Updated.", Data: faq},
 	)
 }
 
-// ShowAccount godoc
+// Index ShowAccount godoc
 // @Summary      All  Data
 // @Description  get all faqs
 // @Tags         Faqs
@@ -113,16 +135,18 @@ func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 		}
 
 	}
-
-	allFaq, err := f.Client.Faq.Query().Limit(10).Offset(offsetInt).All(f.Context)
+	var responseDto []dto.FaqDto
+	err := f.Client.Faq.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.IsNull("deleted_at"))
+	}).Limit(10).Offset(offsetInt).Select("id", "question", "answer", "status").Scan(f.Context, &responseDto)
 	if err != nil {
 		logs.Logger(ctx, "Index!Faq is empty", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq is empty"})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is all", Data: allFaq})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is all", Data: responseDto})
 }
 
-// ShowAccount godoc
+// Destroy ShowAccount godoc
 // @Summary      Delete Data
 // @Description  delete faqs
 // @Tags         Faqs
@@ -139,13 +163,21 @@ func (f ControllerFaq) Destroy(ctx *fiber.Ctx) error {
 		logs.Logger(ctx, "Delete!Bad Request , Invalid type error. Type must int", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
+	// Not delete record finding
+	selectId, err := f.Client.Faq.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.IsNull("deleted_at"))
+		s.Where(sql.EQ("id", idInt))
+	}).FirstID(f.Context)
 
-	err := f.Client.Faq.DeleteOneID(idInt).Exec(f.Context)
+	// Not deleting record
+	if selectId != 0 {
+		f.Client.Faq.UpdateOneID(idInt).SetDeletedAt(time.Now()).Exec(f.Context)
+	}
 	if err != nil {
 		logs.Logger(ctx, "Delete!Faq not find.Not deleted.", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not find.Not deleted."})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq deleted", Data: "deletedFaq"})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq deleted", Data: "Faq deleted id:"})
 }
 
 // Show ShowAccount godoc
@@ -161,15 +193,26 @@ func (f ControllerFaq) Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
 
+	// Id convert error
 	if convertError != nil {
 		logs.Logger(ctx, "Show!Bad Request , Invalid type error. Type must int", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
+	var responseDto []dto.FaqDto
+	err := f.Client.Faq.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.IsNull("deleted_at"))
+		s.Where(sql.EQ("id", idInt))
+	}).Select("id", "question", "answer", "status").Scan(f.Context, &responseDto)
 
-	singleFaq, err := f.Client.Faq.Get(f.Context, idInt)
+	// Database query error
 	if err != nil {
 		logs.Logger(ctx, "Show!Faq not finding", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not finding"})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is finding", Data: singleFaq})
+
+	// Deleted record find
+	if len(responseDto) == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not finding"})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is finding", Data: responseDto})
 }
