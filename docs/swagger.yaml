@@ -34,12 +34,15 @@ definitions:
       email:
         type: string
       name:
+        minLength: 3
         type: string
       password:
+        minLength: 8
         type: string
       status:
         type: boolean
       surname:
+        minLength: 3
         type: string
     required:
     - email

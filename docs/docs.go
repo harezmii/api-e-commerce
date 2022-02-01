@@ -537,16 +537,19 @@ var doc = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 3
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 8
                 },
                 "status": {
                     "type": "boolean"
                 },
                 "surname": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 3
                 }
             }
         }

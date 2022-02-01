@@ -43,7 +43,6 @@ func (f ControllerFaq) Store(ctx *fiber.Ctx) error {
 
 		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Faq created", Data: faq})
 	}
-
 	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
 
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: err})
