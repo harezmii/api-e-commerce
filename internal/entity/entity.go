@@ -28,7 +28,7 @@ type Message struct {
 	Phone   string `json:"phone" form:"phone" validate:"required,min=10,max=15"`
 	Subject string `json:"subject" form:"subject" validate:"required,min=3,max=20"`
 	Message string `json:"message" form:"message" validate:"required,min=5,max=250"`
-	IP      string `json:"ip" form:"ip" validate:"required,ip"`
+	IP      string `json:"ip" form:"ip" validate:"required"`
 	Status  *bool  `json:"status" form:"status" validate:"required"`
 }
 type Login struct {

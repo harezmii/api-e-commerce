@@ -17,7 +17,7 @@ import (
 
 // TODO
 //3 Error split'i kontrol et.
-//2 Test Yazılacak.
+// update validate
 
 type ControllerMessage struct {
 	controller.Controller
@@ -82,27 +82,32 @@ func (m ControllerMessage) Update(ctx *fiber.Ctx) error {
 		logs.Logger(ctx, "Update!Bad Request , parse error."+parseError.Error(), logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
+	validateError := validate.ValidateStructToTurkish(&message)
+	if validateError == nil {
+		// Not delete record finding
+		selectId, err := m.Client.Message.Query().Where(func(s *sql.Selector) {
+			s.Where(sql.IsNull("deleted_at"))
+			s.Where(sql.EQ("id", idInt))
+		}).FirstID(m.Context)
 
-	// Not delete record finding
-	selectId, err := m.Client.Message.Query().Where(func(s *sql.Selector) {
-		s.Where(sql.IsNull("deleted_at"))
-		s.Where(sql.EQ("id", idInt))
-	}).FirstID(m.Context)
-
-	// Not deleting record
-	if selectId != 0 {
-		errt := m.Client.Message.UpdateOneID(idInt).SetName(message.Name).SetEmail(message.Email).SetIP(message.IP).SetMessage(message.Message).SetStatus(*message.Status).SetPhone(message.Phone).SetSubject(message.Subject).SetUpdatedAt(time.Now()).Exec(m.Context)
-		if errt != nil {
-			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Message not updated, " + strings.Split(errt.Error(), ":")[3]})
+		// Not deleting record
+		if selectId != 0 {
+			errt := m.Client.Message.UpdateOneID(idInt).SetName(message.Name).SetEmail(message.Email).SetIP(message.IP).SetMessage(message.Message).SetStatus(*message.Status).SetPhone(message.Phone).SetSubject(message.Subject).SetUpdatedAt(time.Now()).Exec(m.Context)
+			if errt != nil {
+				return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Message not updated, " + strings.Split(errt.Error(), ":")[3]})
+			}
 		}
+		if err != nil {
+			logs.Logger(ctx, "Update!Message not updated.", logs.ERROR)
+			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Message not updated"})
+		}
+		return ctx.Status(fiber.StatusOK).JSON(
+			response.SuccessResponse{StatusCode: 200, Message: "Message Updated.", Data: message},
+		)
 	}
-	if err != nil {
-		logs.Logger(ctx, "Update!Message not updated.", logs.ERROR)
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Message not updated"})
-	}
-	return ctx.Status(fiber.StatusOK).JSON(
-		response.SuccessResponse{StatusCode: 200, Message: "Message Updated.", Data: message},
-	)
+	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
+
+	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
 
 // Index ShowAccount godoc
@@ -164,6 +169,7 @@ func (m ControllerMessage) Destroy(ctx *fiber.Ctx) error {
 		logs.Logger(ctx, "Delete!Bad Request , Invalid type error. Type must int", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
+
 	// Not delete record finding
 	selectId, err := m.Client.Message.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))

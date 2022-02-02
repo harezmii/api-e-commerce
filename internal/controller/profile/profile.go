@@ -5,9 +5,9 @@ import (
 	"api/internal/entity"
 	"api/internal/entity/dto"
 	"api/internal/entity/response"
+	"api/internal/logs"
 	"api/internal/validate"
 	"entgo.io/ent/dialect/sql"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 	"time"
@@ -66,26 +66,29 @@ func (p ControllerProfile) Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request , Invalid type error. Type must int"})
 	}
 	parseError := ctx.BodyParser(&profile)
-	fmt.Println(profile)
 	if parseError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request"})
 	}
-
-	// Not delete record finding
-	selectId, err := p.Client.Profile.Query().Where(func(s *sql.Selector) {
-		s.Where(sql.IsNull("deleted_at"))
-		s.Where(sql.EQ("id", idInt))
-	}).FirstID(p.Context)
-	if selectId != 0 {
-		errt := p.Client.Profile.UpdateOneID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).SetUpdatedAt(time.Now()).Exec(p.Context)
-		if errt != nil {
+	validateError := validate.ValidateStructToTurkish(&profile)
+	if validateError == nil {
+		// Not delete record finding
+		selectId, err := p.Client.Profile.Query().Where(func(s *sql.Selector) {
+			s.Where(sql.IsNull("deleted_at"))
+			s.Where(sql.EQ("id", idInt))
+		}).FirstID(p.Context)
+		if selectId != 0 {
+			errt := p.Client.Profile.UpdateOneID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).SetUpdatedAt(time.Now()).Exec(p.Context)
+			if errt != nil {
+				return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile not updated"})
+			}
+		}
+		if err != nil {
 			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile not updated"})
 		}
+		return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile updated", Data: profile})
 	}
-	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile not updated"})
-	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Profile updated", Data: profile})
+	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
+	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
 
 // Destroy ShowAccount godoc
@@ -138,8 +141,7 @@ func (p ControllerProfile) Show(ctx *fiber.Ctx) error {
 		s.Where(sql.IsNull("deleted_at"))
 		s.Where(sql.EQ("id", idInt))
 	}).Select("id", "address", "phone", "image").Scan(p.Context, &responseDto)
-	fmt.Println(err)
-	fmt.Println(responseDto)
+
 	if len(responseDto) == 0 {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Profile  not finding"})
 

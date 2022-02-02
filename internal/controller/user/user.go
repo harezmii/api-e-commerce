@@ -5,10 +5,10 @@ import (
 	"api/internal/entity"
 	"api/internal/entity/dto"
 	"api/internal/entity/response"
+	"api/internal/logs"
 	"api/internal/secret/hash"
 	"api/internal/validate"
 	"entgo.io/ent/dialect/sql"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 	"strings"
@@ -78,23 +78,29 @@ func (u ControllerUser) Update(ctx *fiber.Ctx) error {
 	if parseError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request"})
 	}
-	selectId, err := u.Client.User.Query().Where(func(s *sql.Selector) {
-		s.Where(sql.IsNull("deleted_at"))
-		s.Where(sql.EQ("id", idInt))
-	}).FirstID(u.Context)
-	if selectId != 0 {
-		errt := u.Client.User.UpdateOneID(idInt).SetName(user.Name).SetPassword(user.Password).SetEmail(user.Email).SetSurname(user.Surname).SetStatus(*user.Status).SetUpdatedAt(time.Now()).Exec(u.Context)
-		if errt != nil {
-			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "user not updated, " + strings.Split(errt.Error(), ":")[3]})
+	validateError := validate.ValidateStructToTurkish(&user)
+	if validateError == nil {
+		selectId, err := u.Client.User.Query().Where(func(s *sql.Selector) {
+			s.Where(sql.IsNull("deleted_at"))
+			s.Where(sql.EQ("id", idInt))
+		}).FirstID(u.Context)
+		if selectId != 0 {
+			errt := u.Client.User.UpdateOneID(idInt).SetName(user.Name).SetPassword(user.Password).SetEmail(user.Email).SetSurname(user.Surname).SetStatus(*user.Status).SetUpdatedAt(time.Now()).Exec(u.Context)
+			if errt != nil {
+				return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "user not updated, " + strings.Split(errt.Error(), ":")[3]})
+			}
 		}
+
+		if err != nil {
+			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not updated"})
+		}
+
+		return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User updated", Data: user})
 	}
 
-	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not updated"})
-	}
+	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
 
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User updated", Data: user})
-
+	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
 
 //// ShowAccount godoc
@@ -184,7 +190,7 @@ func (u ControllerUser) Show(ctx *fiber.Ctx) error {
 		s.Where(sql.IsNull("deleted_at"))
 		s.Where(sql.EQ("id", idInt))
 	}).Select("id", "name", "surname", "email", "status").Scan(u.Context, &responseDto)
-	fmt.Println(err)
+
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "User not finding"})
 	}

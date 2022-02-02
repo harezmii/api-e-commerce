@@ -8,17 +8,12 @@ import (
 	"api/internal/logs"
 	"api/internal/validate"
 	"entgo.io/ent/dialect/sql"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	_ "net/http"
 	"strconv"
 	"strings"
 	"time"
 )
-
-// TODO
-//3 Error split'i kontrol et.
-//2 Test Yazılacak.
 
 type ControllerFaq struct {
 	controller.Controller
@@ -45,7 +40,7 @@ func (f ControllerFaq) Store(ctx *fiber.Ctx) error {
 	err := validate.ValidateStructToTurkish(&faq)
 	if err == nil {
 		dbError := f.Client.Faq.Create().SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).Exec(f.Context)
-		fmt.Println(dbError)
+
 		if dbError != nil {
 			logs.Logger(ctx, "Store!Faq not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Faq not created.Database error."})
@@ -85,26 +80,32 @@ func (f ControllerFaq) Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
 	}
 
-	// Not delete record finding
-	selectId, err := f.Client.Faq.Query().Where(func(s *sql.Selector) {
-		s.Where(sql.IsNull("deleted_at"))
-		s.Where(sql.EQ("id", idInt))
-	}).FirstID(f.Context)
+	validateError := validate.ValidateStructToTurkish(&faq)
+	if validateError == nil {
+		// Not delete record finding
+		selectId, err := f.Client.Faq.Query().Where(func(s *sql.Selector) {
+			s.Where(sql.IsNull("deleted_at"))
+			s.Where(sql.EQ("id", idInt))
+		}).FirstID(f.Context)
 
-	// Not deleting record
-	if selectId != 0 {
-		errt := f.Client.Faq.UpdateOneID(idInt).SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).SetUpdatedAt(time.Now()).Exec(f.Context)
-		if errt != nil {
-			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated, " + strings.Split(errt.Error(), ":")[3]})
+		// Not deleting record
+		if selectId != 0 {
+			errt := f.Client.Faq.UpdateOneID(idInt).SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).SetUpdatedAt(time.Now()).Exec(f.Context)
+			if errt != nil {
+				return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated, " + strings.Split(errt.Error(), ":")[3]})
+			}
 		}
+		if err != nil {
+			logs.Logger(ctx, "Update!Faq not updated.", logs.ERROR)
+			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated"})
+		}
+		return ctx.Status(fiber.StatusOK).JSON(
+			response.SuccessResponse{StatusCode: 200, Message: "Faq Updated.", Data: faq},
+		)
 	}
-	if err != nil {
-		logs.Logger(ctx, "Update!Faq not updated.", logs.ERROR)
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "faq not updated"})
-	}
-	return ctx.Status(fiber.StatusOK).JSON(
-		response.SuccessResponse{StatusCode: 200, Message: "Faq Updated.", Data: faq},
-	)
+	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
+
+	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
 
 // Index ShowAccount godoc
@@ -160,7 +161,7 @@ func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 // @Router       /faqs/{id} [delete]
 func (f ControllerFaq) Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	fmt.Println(id)
+
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
