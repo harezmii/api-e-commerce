@@ -183,14 +183,6 @@ func (pc *ProfileCreate) defaults() {
 		v := profile.DefaultCreatedAt()
 		pc.mutation.SetCreatedAt(v)
 	}
-	if _, ok := pc.mutation.UpdatedAt(); !ok {
-		v := profile.DefaultUpdatedAt()
-		pc.mutation.SetUpdatedAt(v)
-	}
-	if _, ok := pc.mutation.DeletedAt(); !ok {
-		v := profile.DefaultDeletedAt()
-		pc.mutation.SetDeletedAt(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.

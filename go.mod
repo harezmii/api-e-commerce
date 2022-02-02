@@ -3,22 +3,21 @@ module api
 go 1.17
 
 require (
+	entgo.io/ent v0.10.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/confluentinc/confluent-kafka-go v1.8.2
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.10.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gofiber/fiber/v2 v2.25.0
 	github.com/gofiber/helmet/v2 v2.2.5
-	github.com/gofiber/storage/redis v0.0.0-20220121081204-5048d2480c82
 	github.com/hashicorp/vault/api v1.3.1
-	github.com/iancoleman/strcase v0.2.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/viper v1.10.1
+	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/swaggo/fiber-swagger v1.0.3
 	github.com/swaggo/swag v1.7.8
-	github.com/takuoki/gocase v1.0.0
 	go.elastic.co/apm/module/apmfiber v1.15.0
 	go.uber.org/zap v1.20.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
@@ -30,7 +29,6 @@ require (
 	cloud.google.com/go v0.99.0 // indirect
 	cloud.google.com/go/firestore v1.6.1 // indirect
 	cloud.google.com/go/storage v1.10.0 // indirect
-	entgo.io/ent v0.10.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
@@ -59,7 +57,7 @@ require (
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-redis/redis/v8 v8.11.4 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/gofiber/storage/redis v0.0.0-20220121081204-5048d2480c82 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -85,6 +83,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.10.0 // indirect
 	github.com/hashicorp/vault/sdk v0.3.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
+	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jcchavezs/porto v0.4.0 // indirect
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901 // indirect
@@ -111,6 +110,7 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/santhosh-tekuri/jsonschema v1.2.4 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/cobra v1.3.0 // indirect
@@ -119,6 +119,7 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
+	github.com/takuoki/gocase v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.32.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

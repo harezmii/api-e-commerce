@@ -57,7 +57,7 @@ func RestRun(port string) {
 	app.Use(etag.New())
 	app.Use(compress.New())
 	app.Use(limiter.New(limiter.Config{
-		Max: 20,
+		Max: 120,
 		LimitReached: func(ctx *fiber.Ctx) error {
 			return ctx.Status(fiber.StatusTooManyRequests).JSON(response.ErrorResponse{StatusCode: 429, Message: "Too many Request"})
 		},

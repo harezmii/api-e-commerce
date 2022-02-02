@@ -201,6 +201,175 @@ var doc = `{
                 }
             }
         },
+        "/messages": {
+            "get": {
+                "description": "Get all messages",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "All  Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Message"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create messages",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Create Data",
+                "parameters": [
+                    {
+                        "description": "Message form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Message"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/{id}": {
+            "get": {
+                "description": "get string by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Show Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Message"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Update Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Message update form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Message"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete messages",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Delete Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Message"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/profiles": {
             "post": {
                 "description": "create Profiles",
@@ -501,6 +670,49 @@ var doc = `{
                 },
                 "status": {
                     "type": "boolean"
+                }
+            }
+        },
+        "entity.Message": {
+            "type": "object",
+            "required": [
+                "email",
+                "ip",
+                "message",
+                "name",
+                "phone",
+                "status",
+                "subject"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string",
+                    "maxLength": 250,
+                    "minLength": 5
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 3
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 10
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "subject": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3
                 }
             }
         },

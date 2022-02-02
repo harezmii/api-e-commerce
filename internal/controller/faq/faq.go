@@ -19,7 +19,6 @@ import (
 // TODO
 //3 Error split'i kontrol et.
 //2 Test Yazılacak.
-//1 Controller'da dto ve test yapılacak.
 
 type ControllerFaq struct {
 	controller.Controller
@@ -46,7 +45,7 @@ func (f ControllerFaq) Store(ctx *fiber.Ctx) error {
 	err := validate.ValidateStructToTurkish(&faq)
 	if err == nil {
 		dbError := f.Client.Faq.Create().SetQuestion(faq.Question).SetAnswer(faq.Answer).SetStatus(*faq.Status).Exec(f.Context)
-		fmt.Println("Db ERrror")
+		fmt.Println(dbError)
 		if dbError != nil {
 			logs.Logger(ctx, "Store!Faq not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Faq not created.Database error."})
@@ -143,6 +142,10 @@ func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 		logs.Logger(ctx, "Index!Faq is empty", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq is empty"})
 	}
+	// Deleted record find
+	if len(responseDto) == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not finding"})
+	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is all", Data: responseDto})
 }
 
@@ -157,10 +160,11 @@ func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 // @Router       /faqs/{id} [delete]
 func (f ControllerFaq) Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
+	fmt.Println(id)
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
-		logs.Logger(ctx, "Delete!Bad Request , Invalid type error. Type must int", logs.ERROR)
+		//logs.Logger(ctx, "Delete!Bad Request , Invalid type error. Type must int", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	// Not delete record finding

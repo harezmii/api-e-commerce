@@ -19,8 +19,8 @@ func (Profile) Fields() []ent.Field {
 		field.String("phone"),
 		field.String("image").Optional(),
 		field.Time("created_at").Default(time.Now),
-		field.Time("updated_at").Optional().Default(nil),
-		field.Time("deleted_at").Optional().Default(nil),
+		field.Time("updated_at").Optional(),
+		field.Time("deleted_at").Optional(),
 	}
 }
 

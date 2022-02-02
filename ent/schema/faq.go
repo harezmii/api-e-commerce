@@ -18,8 +18,8 @@ func (Faq) Fields() []ent.Field {
 		field.String("answer"),
 		field.Bool("status").Default(false),
 		field.Time("created_at").Default(time.Now).Immutable(),
-		field.Time("updated_at").Optional().Default(nil),
-		field.Time("deleted_at").Optional().Default(nil),
+		field.Time("updated_at").Optional(),
+		field.Time("deleted_at").Optional(),
 	}
 }
 

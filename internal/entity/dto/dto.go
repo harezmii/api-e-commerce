@@ -21,7 +21,16 @@ type UserDto struct {
 	Email   string `json:"email"`
 	Status  *bool  `json:"status"`
 }
-
+type MessageDto struct {
+	Id      int    `json:"id"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Subject string `json:"subject"`
+	Message string `json:"message"`
+	IP      string `json:"ip"`
+	Status  *bool  `json:"status"`
+}
 type ProfileDto struct {
 	Id      int    `json:"id"`
 	Address string `json:"address"`

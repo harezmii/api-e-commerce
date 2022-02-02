@@ -3,6 +3,7 @@ package handle
 import (
 	"api/ent"
 	"api/internal/controller/faq"
+	"api/internal/controller/message"
 	"api/internal/controller/profile"
 	"api/internal/controller/user"
 	"api/internal/entity"
@@ -60,17 +61,17 @@ func SetupRoutes(app fiber.Router) {
 	app.Put("/profiles/:id", p.Update)
 	// User Routes End
 
-	//m := message.ControllerMessage{
-	//	Controller: struct {
-	//		Client  *ent.Client
-	//		Context context.Context
-	//		Entity  interface{}
-	//	}{Client: Connection, Context: backContext, Entity: entity.Message{}}}
-	//// Message Routes
-	//app.Post("/messages", m.Store)
-	//app.Get("/messages", m.Index)
-	//app.Get("/messages/:id", m.Show)
-	//app.Delete("/messages/:id", m.Destroy)
-	//app.Put("/messages/:id", m.Update)
+	m := message.ControllerMessage{
+		Controller: struct {
+			Client  *ent.Client
+			Context context.Context
+			Entity  interface{}
+		}{Client: connection, Context: backContext, Entity: entity.Message{}}}
+	// Message Routes
+	app.Post("/messages", m.Store)
+	app.Get("/messages", m.Index)
+	app.Get("/messages/:id", m.Show)
+	app.Delete("/messages/:id", m.Destroy)
+	app.Put("/messages/:id", m.Update)
 	// Message Routes End
 }
