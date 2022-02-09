@@ -2,11 +2,14 @@ package rest
 
 import (
 	_ "api/docs"
+	"api/ent"
 	"api/internal/entity/response"
+	"api/internal/entity/seed"
 	"api/internal/handle"
 	"api/internal/logs"
 	_ "api/internal/secret/vault"
 	"api/pkg/config"
+	"context"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -77,6 +80,12 @@ func RestRun(port string) {
 
 	// Api ping
 	app.Get("/", func(ctx *fiber.Ctx) error {
+		seeder := seed.Seeder{
+			Client:   ent.EntConnection(),
+			Context:  context.Background(),
+			SeedInt:  20,
+			Entities: []string{"Faq", "Message"}}
+		seeder.Seed()
 		return ctx.Status(200).JSON(response.SuccessResponse{Message: "Api is Running", StatusCode: 200})
 	})
 

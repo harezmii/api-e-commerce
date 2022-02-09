@@ -1,10 +1,20 @@
 package ent
 
 import (
-	_ "github.com/go-sql-driver/mysql"
+	config2 "api/pkg/config"
+	_ "github.com/lib/pq"
 )
 
+type Database struct {
+	DriverName     string
+	DataSourceName string
+}
+
 func EntConnection() *Client {
-	client, _ := Open("mysql", "root:@tcp(localhost:3306)/deneme?parseTime=True")
+	pg := Database{
+		DriverName:     config2.GetEnvironment("DRIVER_NAME", config2.STRING).(string),
+		DataSourceName: config2.GetEnvironment("DATA_SOURCE_NAME", config2.STRING).(string),
+	}
+	client, _ := Open(pg.DriverName, pg.DataSourceName)
 	return client
 }

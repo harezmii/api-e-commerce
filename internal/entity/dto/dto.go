@@ -9,31 +9,31 @@ type LoginUserDTO struct {
 }
 
 type FaqDto struct {
-	Id       int    `json:"id"`
-	Question string `json:"question"`
-	Answer   string `json:"answer"`
-	Status   *bool  `json:"status"`
+	Id       int    `json:"id,omitempty"`
+	Question string `json:"question,omitempty"`
+	Answer   string `json:"answer,omitempty"`
+	Status   *bool  `json:"status,omitempty"`
 }
 type UserDto struct {
-	Id      int    `json:"id"`
-	Name    string `json:"name"`
-	Surname string `json:"surname"`
-	Email   string `json:"email"`
-	Status  *bool  `json:"status"`
+	Id      int    `json:"id,omitempty"`
+	Name    string `json:"name,omitempty"`
+	Surname string `json:"surname,omitempty"`
+	Email   string `json:"email,omitempty"`
+	Status  *bool  `json:"status,omitempty"`
 }
 type MessageDto struct {
-	Id      int    `json:"id"`
-	Name    string `json:"name"`
-	Email   string `json:"email"`
-	Phone   string `json:"phone"`
-	Subject string `json:"subject"`
-	Message string `json:"message"`
-	IP      string `json:"ip"`
-	Status  *bool  `json:"status"`
+	Id      int    `json:"id,omitempty"`
+	Name    string `json:"name,omitempty"`
+	Email   string `json:"email,omitempty"`
+	Phone   string `json:"phone,omitempty"`
+	Subject string `json:"subject,omitempty"`
+	Message string `json:"message,omitempty"`
+	IP      string `json:"ip,omitempty"`
+	Status  *bool  `json:"status,omitempty"`
 }
 type ProfileDto struct {
-	Id      int    `json:"id"`
-	Address string `json:"address"`
-	Phone   string `json:"phone"`
-	Image   string `json:"image"`
+	Id      int    `json:"id,omitempty"`
+	Address string `json:"address,omitempty"`
+	Phone   string `json:"phone,omitempty"`
+	Image   string `json:"image,omitempty"`
 }

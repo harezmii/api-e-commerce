@@ -1,6 +1,7 @@
 package message
 
 import (
+	"api/ent"
 	"api/internal/controller"
 	"api/internal/entity"
 	"api/internal/entity/dto"
@@ -120,8 +121,41 @@ func (m ControllerMessage) Update(ctx *fiber.Ctx) error {
 // @Success      200  {object}  entity.Message
 // @Router       /messages [get]
 func (m ControllerMessage) Index(ctx *fiber.Ctx) error {
+	arg := controller.QueryArg{}
+	queryParseError := ctx.QueryParser(&arg)
+
+	if queryParseError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Query parse error"})
+	}
+	// Sort Field
+	var sortField string
+	if arg.SortField == "" {
+		sortField = "created_at"
+	} else {
+		sortField = arg.SortField
+	}
+	// SortField END
+
+	// SortControl
+	var sort ent.OrderFunc
+	if arg.Sort == "desc" {
+		sort = ent.Desc(sortField)
+	} else {
+		sort = ent.Asc(sortField)
+	}
+	// Sort Control END
+
+	// Search Field Control
+	var selectField []string
+	if arg.SelectFields == "" {
+		selectField = []string{"id", "name", "email", "phone", "subject", "message", "ip"}
+	} else {
+		selectField = strings.Split(arg.SelectFields, ",")
+	}
+	// Search Field Control End
+
 	var offsetInt int
-	offset := ctx.Query("offset")
+	offset := arg.Offset
 	if offset == "" {
 		offsetInt = 0
 	} else {
@@ -140,7 +174,7 @@ func (m ControllerMessage) Index(ctx *fiber.Ctx) error {
 	var responseDto []dto.MessageDto
 	err := m.Client.Message.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))
-	}).Limit(10).Offset(offsetInt).Select("id", "name", "email", "phone", "subject", "message", "ip").Scan(m.Context, &responseDto)
+	}).Limit(10).Offset(offsetInt).Order(sort).Select(selectField...).Scan(m.Context, &responseDto)
 	if err != nil {
 		logs.Logger(ctx, "Index!Message is empty", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Message is empty"})

@@ -1,6 +1,7 @@
 package faq
 
 import (
+	"api/ent"
 	"api/internal/controller"
 	"api/internal/entity"
 	"api/internal/entity/dto"
@@ -108,6 +109,11 @@ func (f ControllerFaq) Update(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
 
+// TODO
+/*
+	- selectFields için hatalı alan girildiğinde hata dön
+*/
+
 // Index ShowAccount godoc
 // @Summary      All  Data
 // @Description  get all faqs
@@ -118,8 +124,42 @@ func (f ControllerFaq) Update(ctx *fiber.Ctx) error {
 // @Success      200  {object}  entity.Faq
 // @Router       /faqs [get]
 func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
+	arg := controller.QueryArg{}
+	queryParseError := ctx.QueryParser(&arg)
+
+	if queryParseError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Query parse error"})
+	}
+	// Sort Field
+	var sortField string
+	if arg.SortField == "" {
+		sortField = "created_at"
+	} else {
+		sortField = arg.SortField
+	}
+	// SortField END
+
+	// SortControl
+	var sort ent.OrderFunc
+	if arg.Sort == "desc" {
+		sort = ent.Desc(sortField)
+	} else {
+		sort = ent.Asc(sortField)
+	}
+	// Sort Control END
+
+	// Search Field Control
+	var selectField []string
+	if arg.SelectFields == "" {
+		selectField = []string{"id", "question", "answer", "status"}
+	} else {
+		selectField = strings.Split(arg.SelectFields, ",")
+	}
+	// Search Field Control End
+
+	// Offset Control
 	var offsetInt int
-	offset := ctx.Query("offset")
+	offset := arg.Offset
 	if offset == "" {
 		offsetInt = 0
 	} else {
@@ -135,10 +175,13 @@ func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 		}
 
 	}
+	// Offset Control END
+
 	var responseDto []dto.FaqDto
 	err := f.Client.Faq.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))
-	}).Limit(10).Offset(offsetInt).Select("id", "question", "answer", "status").Scan(f.Context, &responseDto)
+	}).Limit(10).Offset(offsetInt).Order(sort).Select(selectField...).Scan(f.Context, &responseDto)
+
 	if err != nil {
 		logs.Logger(ctx, "Index!Faq is empty", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq is empty"})

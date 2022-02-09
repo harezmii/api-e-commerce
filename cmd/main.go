@@ -22,3 +22,8 @@ import (
 func main() {
 	rest.RestRun(config.GetEnvironment("PORT", config.STRING).(string))
 }
+
+/*
+TODO
+Jwt implementasyonu yapılacak.
+*/

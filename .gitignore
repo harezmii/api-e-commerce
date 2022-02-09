@@ -3,6 +3,7 @@
 config.yaml
 serviceAccount.json
 logs.json
+tmp
 # macOS
 **/.DS_Store
 
