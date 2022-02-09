@@ -20,7 +20,7 @@ import (
 // @host localhost:3500
 // @BasePath /api/v1
 func main() {
-	rest.RestRun(config.GetEnvironment("PORT", config.STRING).(string))
+	rest.RunRest(config.GetEnvironment("PORT", config.STRING).(string))
 }
 
 /*

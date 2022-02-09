@@ -7,74 +7,42 @@ import (
 	"api/internal/entity/seed"
 	"api/internal/handle"
 	"api/internal/logs"
+	"api/internal/secret/middleware"
 	_ "api/internal/secret/vault"
+	"api/internal/storage"
 	"api/pkg/config"
 	"context"
 	"fmt"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/etag"
-	"github.com/gofiber/fiber/v2/middleware/favicon"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
-	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"github.com/gofiber/helmet/v2"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
-	"go.elastic.co/apm/module/apmfiber"
 )
 
-func RestRun(port string) {
+func RunRest(port string) {
 	app := fiber.New(fiber.Config{
 		AppName:   config.GetEnvironment("APP_NAME", config.STRING).(string),
 		BodyLimit: config.GetEnvironment("BODY_LİMİT", config.INTEGER).(int),
 	})
 
 	// Storage
-	//store := storage.RedisStore()
+	store := storage.RedisStore()
 	// Storage End
 
 	// Cache
-	//app.Use(cache.New(cache.Config{
-	//	Next: func(c *fiber.Ctx) bool {
-	//		return c.Query("refresh") == "true"
-	//	},
-	//	CacheControl: true,
-	//	Storage:      store,
-	//	CacheHeader:  "Cache-Time",
-	//}))
+	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return c.Query("refresh") == "true"
+		},
+		CacheControl: true,
+		Storage:      store,
+		CacheHeader:  "Cache-Time",
+	}))
 	// Cache End
 
-	// APM Middleware
-	app.Use(apmfiber.Middleware())
-	// APM Middleware END
-
-	// Logger
-	//app.Use(logger.New())
-	// Logger End
-
 	// Fiber Internal Middleware
-	app.Use(recover2.New())
-	app.Use(cors.New())
-	app.Use(etag.New())
-	app.Use(compress.New())
-	app.Use(limiter.New(limiter.Config{
-		Max: 120,
-		LimitReached: func(ctx *fiber.Ctx) error {
-			return ctx.Status(fiber.StatusTooManyRequests).JSON(response.ErrorResponse{StatusCode: 429, Message: "Too many Request"})
-		},
-	}))
-	app.Use(requestid.New())
-	app.Use(recover2.New())
-	app.Use(favicon.New())
-
+	middleware.SetupMiddleware(app)
 	// Fiber Internal Middleware End
-
-	// Helmet
-	app.Use(helmet.New())
-
-	// Helmet End
 
 	//app.Use(firabaseAuth.FirebaseMiddleWare)
 

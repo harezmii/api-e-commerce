@@ -44,19 +44,21 @@ package storage
 //	return true
 //}
 import (
+	"api/pkg/config"
 	_ "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/storage/redis"
 )
 
-//func RedisStore() *redis.Storage {
-//	store := redis.New(redis.Config{
-//		Host:      config.GetEnvironment("REDIS_HOST", config.STRING).(string),
-//		Port:      config.GetEnvironment("REDIS_PORT", config.INTEGER).(int),
-//		Username:  config.GetEnvironment("REDIS_USER", config.STRING).(string),
-//		Password:  config.GetEnvironment("REDIS_PASS", config.STRING).(string),
-//		URL:       config.GetEnvironment("REDIS_URL", config.STRING).(string),
-//		Database:  config.GetEnvironment("REDIS_DATABASE", config.INTEGER).(int),
-//		Reset:     config.GetEnvironment("REDIS_RESET", config.BOOL).(bool),
-//		TLSConfig: nil,
-//	})
-//	return store
-//}
+func RedisStore() *redis.Storage {
+	store := redis.New(redis.Config{
+		Host:      config.GetEnvironment("REDIS_HOST", config.STRING).(string),
+		Port:      config.GetEnvironment("REDIS_PORT", config.INTEGER).(int),
+		Username:  config.GetEnvironment("REDIS_USER", config.STRING).(string),
+		Password:  config.GetEnvironment("REDIS_PASS", config.STRING).(string),
+		URL:       config.GetEnvironment("REDIS_URL", config.STRING).(string),
+		Database:  config.GetEnvironment("REDIS_DATABASE", config.INTEGER).(int),
+		Reset:     config.GetEnvironment("REDIS_RESET", config.BOOL).(bool),
+		TLSConfig: nil,
+	})
+	return store
+}
