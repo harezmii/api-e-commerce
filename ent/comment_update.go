@@ -5,9 +5,12 @@ package ent
 import (
 	"api/ent/comment"
 	"api/ent/predicate"
+	"api/ent/product"
+	"api/ent/user"
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,9 +30,149 @@ func (cu *CommentUpdate) Where(ps ...predicate.Comment) *CommentUpdate {
 	return cu
 }
 
+// SetComment sets the "comment" field.
+func (cu *CommentUpdate) SetComment(s string) *CommentUpdate {
+	cu.mutation.SetComment(s)
+	return cu
+}
+
+// SetRate sets the "rate" field.
+func (cu *CommentUpdate) SetRate(f float64) *CommentUpdate {
+	cu.mutation.ResetRate()
+	cu.mutation.SetRate(f)
+	return cu
+}
+
+// AddRate adds f to the "rate" field.
+func (cu *CommentUpdate) AddRate(f float64) *CommentUpdate {
+	cu.mutation.AddRate(f)
+	return cu
+}
+
+// SetIP sets the "ip" field.
+func (cu *CommentUpdate) SetIP(s string) *CommentUpdate {
+	cu.mutation.SetIP(s)
+	return cu
+}
+
+// SetStatus sets the "status" field.
+func (cu *CommentUpdate) SetStatus(b bool) *CommentUpdate {
+	cu.mutation.SetStatus(b)
+	return cu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cu *CommentUpdate) SetNillableStatus(b *bool) *CommentUpdate {
+	if b != nil {
+		cu.SetStatus(*b)
+	}
+	return cu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (cu *CommentUpdate) SetUpdatedAt(t time.Time) *CommentUpdate {
+	cu.mutation.SetUpdatedAt(t)
+	return cu
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (cu *CommentUpdate) SetNillableUpdatedAt(t *time.Time) *CommentUpdate {
+	if t != nil {
+		cu.SetUpdatedAt(*t)
+	}
+	return cu
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (cu *CommentUpdate) ClearUpdatedAt() *CommentUpdate {
+	cu.mutation.ClearUpdatedAt()
+	return cu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (cu *CommentUpdate) SetDeletedAt(t time.Time) *CommentUpdate {
+	cu.mutation.SetDeletedAt(t)
+	return cu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (cu *CommentUpdate) SetNillableDeletedAt(t *time.Time) *CommentUpdate {
+	if t != nil {
+		cu.SetDeletedAt(*t)
+	}
+	return cu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (cu *CommentUpdate) ClearDeletedAt() *CommentUpdate {
+	cu.mutation.ClearDeletedAt()
+	return cu
+}
+
+// SetOwnerID sets the "owner" edge to the Product entity by ID.
+func (cu *CommentUpdate) SetOwnerID(id int) *CommentUpdate {
+	cu.mutation.SetOwnerID(id)
+	return cu
+}
+
+// SetNillableOwnerID sets the "owner" edge to the Product entity by ID if the given value is not nil.
+func (cu *CommentUpdate) SetNillableOwnerID(id *int) *CommentUpdate {
+	if id != nil {
+		cu = cu.SetOwnerID(*id)
+	}
+	return cu
+}
+
+// SetOwner sets the "owner" edge to the Product entity.
+func (cu *CommentUpdate) SetOwner(p *Product) *CommentUpdate {
+	return cu.SetOwnerID(p.ID)
+}
+
+// AddOwnIDs adds the "own" edge to the User entity by IDs.
+func (cu *CommentUpdate) AddOwnIDs(ids ...int) *CommentUpdate {
+	cu.mutation.AddOwnIDs(ids...)
+	return cu
+}
+
+// AddOwn adds the "own" edges to the User entity.
+func (cu *CommentUpdate) AddOwn(u ...*User) *CommentUpdate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return cu.AddOwnIDs(ids...)
+}
+
 // Mutation returns the CommentMutation object of the builder.
 func (cu *CommentUpdate) Mutation() *CommentMutation {
 	return cu.mutation
+}
+
+// ClearOwner clears the "owner" edge to the Product entity.
+func (cu *CommentUpdate) ClearOwner() *CommentUpdate {
+	cu.mutation.ClearOwner()
+	return cu
+}
+
+// ClearOwn clears all "own" edges to the User entity.
+func (cu *CommentUpdate) ClearOwn() *CommentUpdate {
+	cu.mutation.ClearOwn()
+	return cu
+}
+
+// RemoveOwnIDs removes the "own" edge to User entities by IDs.
+func (cu *CommentUpdate) RemoveOwnIDs(ids ...int) *CommentUpdate {
+	cu.mutation.RemoveOwnIDs(ids...)
+	return cu
+}
+
+// RemoveOwn removes "own" edges to User entities.
+func (cu *CommentUpdate) RemoveOwn(u ...*User) *CommentUpdate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return cu.RemoveOwnIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -104,6 +247,156 @@ func (cu *CommentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := cu.mutation.Comment(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: comment.FieldComment,
+		})
+	}
+	if value, ok := cu.mutation.Rate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: comment.FieldRate,
+		})
+	}
+	if value, ok := cu.mutation.AddedRate(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: comment.FieldRate,
+		})
+	}
+	if value, ok := cu.mutation.IP(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: comment.FieldIP,
+		})
+	}
+	if value, ok := cu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: comment.FieldStatus,
+		})
+	}
+	if value, ok := cu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: comment.FieldUpdatedAt,
+		})
+	}
+	if cu.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: comment.FieldUpdatedAt,
+		})
+	}
+	if value, ok := cu.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: comment.FieldDeletedAt,
+		})
+	}
+	if cu.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: comment.FieldDeletedAt,
+		})
+	}
+	if cu.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   comment.OwnerTable,
+			Columns: []string{comment.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   comment.OwnerTable,
+			Columns: []string{comment.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.OwnCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   comment.OwnTable,
+			Columns: comment.OwnPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedOwnIDs(); len(nodes) > 0 && !cu.mutation.OwnCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   comment.OwnTable,
+			Columns: comment.OwnPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.OwnIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   comment.OwnTable,
+			Columns: comment.OwnPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{comment.Label}
@@ -123,9 +416,149 @@ type CommentUpdateOne struct {
 	mutation *CommentMutation
 }
 
+// SetComment sets the "comment" field.
+func (cuo *CommentUpdateOne) SetComment(s string) *CommentUpdateOne {
+	cuo.mutation.SetComment(s)
+	return cuo
+}
+
+// SetRate sets the "rate" field.
+func (cuo *CommentUpdateOne) SetRate(f float64) *CommentUpdateOne {
+	cuo.mutation.ResetRate()
+	cuo.mutation.SetRate(f)
+	return cuo
+}
+
+// AddRate adds f to the "rate" field.
+func (cuo *CommentUpdateOne) AddRate(f float64) *CommentUpdateOne {
+	cuo.mutation.AddRate(f)
+	return cuo
+}
+
+// SetIP sets the "ip" field.
+func (cuo *CommentUpdateOne) SetIP(s string) *CommentUpdateOne {
+	cuo.mutation.SetIP(s)
+	return cuo
+}
+
+// SetStatus sets the "status" field.
+func (cuo *CommentUpdateOne) SetStatus(b bool) *CommentUpdateOne {
+	cuo.mutation.SetStatus(b)
+	return cuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cuo *CommentUpdateOne) SetNillableStatus(b *bool) *CommentUpdateOne {
+	if b != nil {
+		cuo.SetStatus(*b)
+	}
+	return cuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (cuo *CommentUpdateOne) SetUpdatedAt(t time.Time) *CommentUpdateOne {
+	cuo.mutation.SetUpdatedAt(t)
+	return cuo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (cuo *CommentUpdateOne) SetNillableUpdatedAt(t *time.Time) *CommentUpdateOne {
+	if t != nil {
+		cuo.SetUpdatedAt(*t)
+	}
+	return cuo
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (cuo *CommentUpdateOne) ClearUpdatedAt() *CommentUpdateOne {
+	cuo.mutation.ClearUpdatedAt()
+	return cuo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (cuo *CommentUpdateOne) SetDeletedAt(t time.Time) *CommentUpdateOne {
+	cuo.mutation.SetDeletedAt(t)
+	return cuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (cuo *CommentUpdateOne) SetNillableDeletedAt(t *time.Time) *CommentUpdateOne {
+	if t != nil {
+		cuo.SetDeletedAt(*t)
+	}
+	return cuo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (cuo *CommentUpdateOne) ClearDeletedAt() *CommentUpdateOne {
+	cuo.mutation.ClearDeletedAt()
+	return cuo
+}
+
+// SetOwnerID sets the "owner" edge to the Product entity by ID.
+func (cuo *CommentUpdateOne) SetOwnerID(id int) *CommentUpdateOne {
+	cuo.mutation.SetOwnerID(id)
+	return cuo
+}
+
+// SetNillableOwnerID sets the "owner" edge to the Product entity by ID if the given value is not nil.
+func (cuo *CommentUpdateOne) SetNillableOwnerID(id *int) *CommentUpdateOne {
+	if id != nil {
+		cuo = cuo.SetOwnerID(*id)
+	}
+	return cuo
+}
+
+// SetOwner sets the "owner" edge to the Product entity.
+func (cuo *CommentUpdateOne) SetOwner(p *Product) *CommentUpdateOne {
+	return cuo.SetOwnerID(p.ID)
+}
+
+// AddOwnIDs adds the "own" edge to the User entity by IDs.
+func (cuo *CommentUpdateOne) AddOwnIDs(ids ...int) *CommentUpdateOne {
+	cuo.mutation.AddOwnIDs(ids...)
+	return cuo
+}
+
+// AddOwn adds the "own" edges to the User entity.
+func (cuo *CommentUpdateOne) AddOwn(u ...*User) *CommentUpdateOne {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return cuo.AddOwnIDs(ids...)
+}
+
 // Mutation returns the CommentMutation object of the builder.
 func (cuo *CommentUpdateOne) Mutation() *CommentMutation {
 	return cuo.mutation
+}
+
+// ClearOwner clears the "owner" edge to the Product entity.
+func (cuo *CommentUpdateOne) ClearOwner() *CommentUpdateOne {
+	cuo.mutation.ClearOwner()
+	return cuo
+}
+
+// ClearOwn clears all "own" edges to the User entity.
+func (cuo *CommentUpdateOne) ClearOwn() *CommentUpdateOne {
+	cuo.mutation.ClearOwn()
+	return cuo
+}
+
+// RemoveOwnIDs removes the "own" edge to User entities by IDs.
+func (cuo *CommentUpdateOne) RemoveOwnIDs(ids ...int) *CommentUpdateOne {
+	cuo.mutation.RemoveOwnIDs(ids...)
+	return cuo
+}
+
+// RemoveOwn removes "own" edges to User entities.
+func (cuo *CommentUpdateOne) RemoveOwn(u ...*User) *CommentUpdateOne {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return cuo.RemoveOwnIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -223,6 +656,156 @@ func (cuo *CommentUpdateOne) sqlSave(ctx context.Context) (_node *Comment, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cuo.mutation.Comment(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: comment.FieldComment,
+		})
+	}
+	if value, ok := cuo.mutation.Rate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: comment.FieldRate,
+		})
+	}
+	if value, ok := cuo.mutation.AddedRate(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: comment.FieldRate,
+		})
+	}
+	if value, ok := cuo.mutation.IP(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: comment.FieldIP,
+		})
+	}
+	if value, ok := cuo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: comment.FieldStatus,
+		})
+	}
+	if value, ok := cuo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: comment.FieldUpdatedAt,
+		})
+	}
+	if cuo.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: comment.FieldUpdatedAt,
+		})
+	}
+	if value, ok := cuo.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: comment.FieldDeletedAt,
+		})
+	}
+	if cuo.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: comment.FieldDeletedAt,
+		})
+	}
+	if cuo.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   comment.OwnerTable,
+			Columns: []string{comment.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   comment.OwnerTable,
+			Columns: []string{comment.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.OwnCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   comment.OwnTable,
+			Columns: comment.OwnPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedOwnIDs(); len(nodes) > 0 && !cuo.mutation.OwnCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   comment.OwnTable,
+			Columns: comment.OwnPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.OwnIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   comment.OwnTable,
+			Columns: comment.OwnPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Comment{config: cuo.config}
 	_spec.Assign = _node.assignValues

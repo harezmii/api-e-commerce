@@ -15,10 +15,11 @@ import (
 )
 
 func SetupMiddleware(app *fiber.App) {
+
 	app.Use(apmfiber.Middleware())
 	app.Use(helmet.New())
 	app.Use(recover2.New())
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{AllowCredentials: true, AllowOrigins: "*"}))
 	app.Use(etag.New())
 	app.Use(compress.New())
 	app.Use(limiter.New(limiter.Config{

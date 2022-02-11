@@ -3,9 +3,15 @@
 package ent
 
 import (
+	"api/ent/category"
+	"api/ent/comment"
+	"api/ent/image"
 	"api/ent/product"
+	"api/ent/user"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -16,6 +22,146 @@ type ProductCreate struct {
 	config
 	mutation *ProductMutation
 	hooks    []Hook
+}
+
+// SetTitle sets the "title" field.
+func (pc *ProductCreate) SetTitle(s string) *ProductCreate {
+	pc.mutation.SetTitle(s)
+	return pc
+}
+
+// SetKeywords sets the "keywords" field.
+func (pc *ProductCreate) SetKeywords(s string) *ProductCreate {
+	pc.mutation.SetKeywords(s)
+	return pc
+}
+
+// SetDescription sets the "description" field.
+func (pc *ProductCreate) SetDescription(s string) *ProductCreate {
+	pc.mutation.SetDescription(s)
+	return pc
+}
+
+// SetImage sets the "image" field.
+func (pc *ProductCreate) SetImage(s string) *ProductCreate {
+	pc.mutation.SetImage(s)
+	return pc
+}
+
+// SetStatus sets the "status" field.
+func (pc *ProductCreate) SetStatus(b bool) *ProductCreate {
+	pc.mutation.SetStatus(b)
+	return pc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (pc *ProductCreate) SetCreatedAt(t time.Time) *ProductCreate {
+	pc.mutation.SetCreatedAt(t)
+	return pc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableCreatedAt(t *time.Time) *ProductCreate {
+	if t != nil {
+		pc.SetCreatedAt(*t)
+	}
+	return pc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (pc *ProductCreate) SetUpdatedAt(t time.Time) *ProductCreate {
+	pc.mutation.SetUpdatedAt(t)
+	return pc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableUpdatedAt(t *time.Time) *ProductCreate {
+	if t != nil {
+		pc.SetUpdatedAt(*t)
+	}
+	return pc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (pc *ProductCreate) SetDeletedAt(t time.Time) *ProductCreate {
+	pc.mutation.SetDeletedAt(t)
+	return pc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableDeletedAt(t *time.Time) *ProductCreate {
+	if t != nil {
+		pc.SetDeletedAt(*t)
+	}
+	return pc
+}
+
+// AddPhotoIDs adds the "photos" edge to the Image entity by IDs.
+func (pc *ProductCreate) AddPhotoIDs(ids ...int) *ProductCreate {
+	pc.mutation.AddPhotoIDs(ids...)
+	return pc
+}
+
+// AddPhotos adds the "photos" edges to the Image entity.
+func (pc *ProductCreate) AddPhotos(i ...*Image) *ProductCreate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return pc.AddPhotoIDs(ids...)
+}
+
+// SetOwnerID sets the "owner" edge to the Category entity by ID.
+func (pc *ProductCreate) SetOwnerID(id int) *ProductCreate {
+	pc.mutation.SetOwnerID(id)
+	return pc
+}
+
+// SetNillableOwnerID sets the "owner" edge to the Category entity by ID if the given value is not nil.
+func (pc *ProductCreate) SetNillableOwnerID(id *int) *ProductCreate {
+	if id != nil {
+		pc = pc.SetOwnerID(*id)
+	}
+	return pc
+}
+
+// SetOwner sets the "owner" edge to the Category entity.
+func (pc *ProductCreate) SetOwner(c *Category) *ProductCreate {
+	return pc.SetOwnerID(c.ID)
+}
+
+// SetOwner1ID sets the "owner1" edge to the User entity by ID.
+func (pc *ProductCreate) SetOwner1ID(id int) *ProductCreate {
+	pc.mutation.SetOwner1ID(id)
+	return pc
+}
+
+// SetNillableOwner1ID sets the "owner1" edge to the User entity by ID if the given value is not nil.
+func (pc *ProductCreate) SetNillableOwner1ID(id *int) *ProductCreate {
+	if id != nil {
+		pc = pc.SetOwner1ID(*id)
+	}
+	return pc
+}
+
+// SetOwner1 sets the "owner1" edge to the User entity.
+func (pc *ProductCreate) SetOwner1(u *User) *ProductCreate {
+	return pc.SetOwner1ID(u.ID)
+}
+
+// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
+func (pc *ProductCreate) AddCommentIDs(ids ...int) *ProductCreate {
+	pc.mutation.AddCommentIDs(ids...)
+	return pc
+}
+
+// AddComments adds the "comments" edges to the Comment entity.
+func (pc *ProductCreate) AddComments(c ...*Comment) *ProductCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return pc.AddCommentIDs(ids...)
 }
 
 // Mutation returns the ProductMutation object of the builder.
@@ -29,6 +175,7 @@ func (pc *ProductCreate) Save(ctx context.Context) (*Product, error) {
 		err  error
 		node *Product
 	)
+	pc.defaults()
 	if len(pc.hooks) == 0 {
 		if err = pc.check(); err != nil {
 			return nil, err
@@ -86,8 +233,34 @@ func (pc *ProductCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pc *ProductCreate) defaults() {
+	if _, ok := pc.mutation.CreatedAt(); !ok {
+		v := product.DefaultCreatedAt()
+		pc.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (pc *ProductCreate) check() error {
+	if _, ok := pc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Product.title"`)}
+	}
+	if _, ok := pc.mutation.Keywords(); !ok {
+		return &ValidationError{Name: "keywords", err: errors.New(`ent: missing required field "Product.keywords"`)}
+	}
+	if _, ok := pc.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Product.description"`)}
+	}
+	if _, ok := pc.mutation.Image(); !ok {
+		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Product.image"`)}
+	}
+	if _, ok := pc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Product.status"`)}
+	}
+	if _, ok := pc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Product.created_at"`)}
+	}
 	return nil
 }
 
@@ -115,6 +288,148 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := pc.mutation.Title(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldTitle,
+		})
+		_node.Title = value
+	}
+	if value, ok := pc.mutation.Keywords(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldKeywords,
+		})
+		_node.Keywords = value
+	}
+	if value, ok := pc.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldDescription,
+		})
+		_node.Description = value
+	}
+	if value, ok := pc.mutation.Image(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldImage,
+		})
+		_node.Image = value
+	}
+	if value, ok := pc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: product.FieldStatus,
+		})
+		_node.Status = value
+	}
+	if value, ok := pc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: product.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := pc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: product.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := pc.mutation.DeletedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: product.FieldDeletedAt,
+		})
+		_node.DeletedAt = value
+	}
+	if nodes := pc.mutation.PhotosIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   product.PhotosTable,
+			Columns: product.PhotosPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.OwnerTable,
+			Columns: []string{product.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.category_products = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.Owner1IDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.Owner1Table,
+			Columns: []string{product.Owner1Column},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.user_products = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.CommentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.CommentsTable,
+			Columns: []string{product.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -132,6 +447,7 @@ func (pcb *ProductCreateBulk) Save(ctx context.Context) ([]*Product, error) {
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ProductMutation)
 				if !ok {

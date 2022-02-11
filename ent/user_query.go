@@ -3,7 +3,9 @@
 package ent
 
 import (
+	"api/ent/comment"
 	"api/ent/predicate"
+	"api/ent/product"
 	"api/ent/profile"
 	"api/ent/user"
 	"context"
@@ -27,7 +29,9 @@ type UserQuery struct {
 	fields     []string
 	predicates []predicate.User
 	// eager-loading edges.
-	withProfiles *ProfileQuery
+	withProfile  *ProfileQuery
+	withComments *CommentQuery
+	withProducts *ProductQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -64,8 +68,8 @@ func (uq *UserQuery) Order(o ...OrderFunc) *UserQuery {
 	return uq
 }
 
-// QueryProfiles chains the current query on the "profiles" edge.
-func (uq *UserQuery) QueryProfiles() *ProfileQuery {
+// QueryProfile chains the current query on the "profile" edge.
+func (uq *UserQuery) QueryProfile() *ProfileQuery {
 	query := &ProfileQuery{config: uq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
@@ -78,7 +82,51 @@ func (uq *UserQuery) QueryProfiles() *ProfileQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(profile.Table, profile.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.ProfilesTable, user.ProfilesColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.ProfileTable, user.ProfileColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryComments chains the current query on the "comments" edge.
+func (uq *UserQuery) QueryComments() *CommentQuery {
+	query := &CommentQuery{config: uq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(comment.Table, comment.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.CommentsTable, user.CommentsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryProducts chains the current query on the "products" edge.
+func (uq *UserQuery) QueryProducts() *ProductQuery {
+	query := &ProductQuery{config: uq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ProductsTable, user.ProductsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -267,21 +315,45 @@ func (uq *UserQuery) Clone() *UserQuery {
 		offset:       uq.offset,
 		order:        append([]OrderFunc{}, uq.order...),
 		predicates:   append([]predicate.User{}, uq.predicates...),
-		withProfiles: uq.withProfiles.Clone(),
+		withProfile:  uq.withProfile.Clone(),
+		withComments: uq.withComments.Clone(),
+		withProducts: uq.withProducts.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
 	}
 }
 
-// WithProfiles tells the query-builder to eager-load the nodes that are connected to
-// the "profiles" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithProfiles(opts ...func(*ProfileQuery)) *UserQuery {
+// WithProfile tells the query-builder to eager-load the nodes that are connected to
+// the "profile" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithProfile(opts ...func(*ProfileQuery)) *UserQuery {
 	query := &ProfileQuery{config: uq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withProfiles = query
+	uq.withProfile = query
+	return uq
+}
+
+// WithComments tells the query-builder to eager-load the nodes that are connected to
+// the "comments" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithComments(opts ...func(*CommentQuery)) *UserQuery {
+	query := &CommentQuery{config: uq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withComments = query
+	return uq
+}
+
+// WithProducts tells the query-builder to eager-load the nodes that are connected to
+// the "products" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithProducts(opts ...func(*ProductQuery)) *UserQuery {
+	query := &ProductQuery{config: uq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withProducts = query
 	return uq
 }
 
@@ -350,8 +422,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [1]bool{
-			uq.withProfiles != nil,
+		loadedTypes = [3]bool{
+			uq.withProfile != nil,
+			uq.withComments != nil,
+			uq.withProducts != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -374,32 +448,125 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		return nodes, nil
 	}
 
-	if query := uq.withProfiles; query != nil {
+	if query := uq.withProfile; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
 		nodeids := make(map[int]*User)
 		for i := range nodes {
 			fks = append(fks, nodes[i].ID)
 			nodeids[nodes[i].ID] = nodes[i]
-			nodes[i].Edges.Profiles = []*Profile{}
 		}
 		query.withFKs = true
 		query.Where(predicate.Profile(func(s *sql.Selector) {
-			s.Where(sql.InValues(user.ProfilesColumn, fks...))
+			s.Where(sql.InValues(user.ProfileColumn, fks...))
 		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.user_profiles
+			fk := n.user_profile
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "user_profiles" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "user_profile" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_profiles" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "user_profile" returned %v for node %v`, *fk, n.ID)
 			}
-			node.Edges.Profiles = append(node.Edges.Profiles, n)
+			node.Edges.Profile = n
+		}
+	}
+
+	if query := uq.withComments; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		ids := make(map[int]*User, len(nodes))
+		for _, node := range nodes {
+			ids[node.ID] = node
+			fks = append(fks, node.ID)
+			node.Edges.Comments = []*Comment{}
+		}
+		var (
+			edgeids []int
+			edges   = make(map[int][]*User)
+		)
+		_spec := &sqlgraph.EdgeQuerySpec{
+			Edge: &sqlgraph.EdgeSpec{
+				Inverse: false,
+				Table:   user.CommentsTable,
+				Columns: user.CommentsPrimaryKey,
+			},
+			Predicate: func(s *sql.Selector) {
+				s.Where(sql.InValues(user.CommentsPrimaryKey[0], fks...))
+			},
+			ScanValues: func() [2]interface{} {
+				return [2]interface{}{new(sql.NullInt64), new(sql.NullInt64)}
+			},
+			Assign: func(out, in interface{}) error {
+				eout, ok := out.(*sql.NullInt64)
+				if !ok || eout == nil {
+					return fmt.Errorf("unexpected id value for edge-out")
+				}
+				ein, ok := in.(*sql.NullInt64)
+				if !ok || ein == nil {
+					return fmt.Errorf("unexpected id value for edge-in")
+				}
+				outValue := int(eout.Int64)
+				inValue := int(ein.Int64)
+				node, ok := ids[outValue]
+				if !ok {
+					return fmt.Errorf("unexpected node id in edges: %v", outValue)
+				}
+				if _, ok := edges[inValue]; !ok {
+					edgeids = append(edgeids, inValue)
+				}
+				edges[inValue] = append(edges[inValue], node)
+				return nil
+			},
+		}
+		if err := sqlgraph.QueryEdges(ctx, uq.driver, _spec); err != nil {
+			return nil, fmt.Errorf(`query edges "comments": %w`, err)
+		}
+		query.Where(comment.IDIn(edgeids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := edges[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected "comments" node returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Comments = append(nodes[i].Edges.Comments, n)
+			}
+		}
+	}
+
+	if query := uq.withProducts; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*User)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Products = []*Product{}
+		}
+		query.withFKs = true
+		query.Where(predicate.Product(func(s *sql.Selector) {
+			s.Where(sql.InValues(user.ProductsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.user_products
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "user_products" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "user_products" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Products = append(node.Edges.Products, n)
 		}
 	}
 

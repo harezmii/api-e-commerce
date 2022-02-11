@@ -29,6 +29,8 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("profiles", Profile.Type),
+		edge.To("profile", Profile.Type).Unique(), // Done
+		edge.To("comments", Comment.Type),         //Done
+		edge.To("products", Product.Type),
 	}
 }

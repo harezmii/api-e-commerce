@@ -5,7 +5,9 @@ package ent
 import (
 	"api/ent/image"
 	"api/ent/predicate"
+	"api/ent/product"
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -24,6 +26,8 @@ type ImageQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Image
+	// eager-loading edges.
+	withOwner *ProductQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +62,28 @@ func (iq *ImageQuery) Unique(unique bool) *ImageQuery {
 func (iq *ImageQuery) Order(o ...OrderFunc) *ImageQuery {
 	iq.order = append(iq.order, o...)
 	return iq
+}
+
+// QueryOwner chains the current query on the "owner" edge.
+func (iq *ImageQuery) QueryOwner() *ProductQuery {
+	query := &ProductQuery{config: iq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := iq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := iq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(image.Table, image.FieldID, selector),
+			sqlgraph.To(product.Table, product.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, image.OwnerTable, image.OwnerPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Image entity from the query.
@@ -241,14 +267,39 @@ func (iq *ImageQuery) Clone() *ImageQuery {
 		offset:     iq.offset,
 		order:      append([]OrderFunc{}, iq.order...),
 		predicates: append([]predicate.Image{}, iq.predicates...),
+		withOwner:  iq.withOwner.Clone(),
 		// clone intermediate query.
 		sql:  iq.sql.Clone(),
 		path: iq.path,
 	}
 }
 
+// WithOwner tells the query-builder to eager-load the nodes that are connected to
+// the "owner" edge. The optional arguments are used to configure the query builder of the edge.
+func (iq *ImageQuery) WithOwner(opts ...func(*ProductQuery)) *ImageQuery {
+	query := &ProductQuery{config: iq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	iq.withOwner = query
+	return iq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Title string `json:"title,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Image.Query().
+//		GroupBy(image.FieldTitle).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (iq *ImageQuery) GroupBy(field string, fields ...string) *ImageGroupBy {
 	group := &ImageGroupBy{config: iq.config}
 	group.fields = append([]string{field}, fields...)
@@ -263,6 +314,17 @@ func (iq *ImageQuery) GroupBy(field string, fields ...string) *ImageGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Title string `json:"title,omitempty"`
+//	}
+//
+//	client.Image.Query().
+//		Select(image.FieldTitle).
+//		Scan(ctx, &v)
+//
 func (iq *ImageQuery) Select(fields ...string) *ImageSelect {
 	iq.fields = append(iq.fields, fields...)
 	return &ImageSelect{ImageQuery: iq}
@@ -286,8 +348,11 @@ func (iq *ImageQuery) prepareQuery(ctx context.Context) error {
 
 func (iq *ImageQuery) sqlAll(ctx context.Context) ([]*Image, error) {
 	var (
-		nodes = []*Image{}
-		_spec = iq.querySpec()
+		nodes       = []*Image{}
+		_spec       = iq.querySpec()
+		loadedTypes = [1]bool{
+			iq.withOwner != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Image{config: iq.config}
@@ -299,6 +364,7 @@ func (iq *ImageQuery) sqlAll(ctx context.Context) ([]*Image, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, iq.driver, _spec); err != nil {
@@ -307,6 +373,72 @@ func (iq *ImageQuery) sqlAll(ctx context.Context) ([]*Image, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := iq.withOwner; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		ids := make(map[int]*Image, len(nodes))
+		for _, node := range nodes {
+			ids[node.ID] = node
+			fks = append(fks, node.ID)
+			node.Edges.Owner = []*Product{}
+		}
+		var (
+			edgeids []int
+			edges   = make(map[int][]*Image)
+		)
+		_spec := &sqlgraph.EdgeQuerySpec{
+			Edge: &sqlgraph.EdgeSpec{
+				Inverse: true,
+				Table:   image.OwnerTable,
+				Columns: image.OwnerPrimaryKey,
+			},
+			Predicate: func(s *sql.Selector) {
+				s.Where(sql.InValues(image.OwnerPrimaryKey[1], fks...))
+			},
+			ScanValues: func() [2]interface{} {
+				return [2]interface{}{new(sql.NullInt64), new(sql.NullInt64)}
+			},
+			Assign: func(out, in interface{}) error {
+				eout, ok := out.(*sql.NullInt64)
+				if !ok || eout == nil {
+					return fmt.Errorf("unexpected id value for edge-out")
+				}
+				ein, ok := in.(*sql.NullInt64)
+				if !ok || ein == nil {
+					return fmt.Errorf("unexpected id value for edge-in")
+				}
+				outValue := int(eout.Int64)
+				inValue := int(ein.Int64)
+				node, ok := ids[outValue]
+				if !ok {
+					return fmt.Errorf("unexpected node id in edges: %v", outValue)
+				}
+				if _, ok := edges[inValue]; !ok {
+					edgeids = append(edgeids, inValue)
+				}
+				edges[inValue] = append(edges[inValue], node)
+				return nil
+			},
+		}
+		if err := sqlgraph.QueryEdges(ctx, iq.driver, _spec); err != nil {
+			return nil, fmt.Errorf(`query edges "owner": %w`, err)
+		}
+		query.Where(product.IDIn(edgeids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := edges[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected "owner" node returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Owner = append(nodes[i].Edges.Owner, n)
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

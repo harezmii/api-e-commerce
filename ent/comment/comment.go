@@ -2,19 +2,72 @@
 
 package comment
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the comment type in the database.
 	Label = "comment"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldComment holds the string denoting the comment field in the database.
+	FieldComment = "comment"
+	// FieldRate holds the string denoting the rate field in the database.
+	FieldRate = "rate"
+	// FieldIP holds the string denoting the ip field in the database.
+	FieldIP = "ip"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// EdgeOwner holds the string denoting the owner edge name in mutations.
+	EdgeOwner = "owner"
+	// EdgeOwn holds the string denoting the own edge name in mutations.
+	EdgeOwn = "own"
 	// Table holds the table name of the comment in the database.
 	Table = "comments"
+	// OwnerTable is the table that holds the owner relation/edge.
+	OwnerTable = "comments"
+	// OwnerInverseTable is the table name for the Product entity.
+	// It exists in this package in order to avoid circular dependency with the "product" package.
+	OwnerInverseTable = "products"
+	// OwnerColumn is the table column denoting the owner relation/edge.
+	OwnerColumn = "product_comments"
+	// OwnTable is the table that holds the own relation/edge. The primary key declared below.
+	OwnTable = "user_comments"
+	// OwnInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	OwnInverseTable = "users"
 )
 
 // Columns holds all SQL columns for comment fields.
 var Columns = []string{
 	FieldID,
+	FieldComment,
+	FieldRate,
+	FieldIP,
+	FieldStatus,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 }
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "comments"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"product_comments",
+}
+
+var (
+	// OwnPrimaryKey and OwnColumn2 are the table columns denoting the
+	// primary key for the own relation (M2M).
+	OwnPrimaryKey = []string{"user_id", "comment_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -23,5 +76,17 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus bool
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+)

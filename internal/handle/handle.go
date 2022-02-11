@@ -43,7 +43,7 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/users/:id", u.Show)
 	app.Delete("/users/:id", u.Destroy)
 	app.Put("/users/:id", u.Update)
-	//app.Post("/users/login", user.Login)
+	app.Post("/users/login", u.Login)
 	//// User Routes End
 
 	p := profile.ControllerProfile{

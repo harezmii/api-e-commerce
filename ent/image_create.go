@@ -4,7 +4,9 @@ package ent
 
 import (
 	"api/ent/image"
+	"api/ent/product"
 	"context"
+	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -16,6 +18,33 @@ type ImageCreate struct {
 	config
 	mutation *ImageMutation
 	hooks    []Hook
+}
+
+// SetTitle sets the "title" field.
+func (ic *ImageCreate) SetTitle(s string) *ImageCreate {
+	ic.mutation.SetTitle(s)
+	return ic
+}
+
+// SetImage sets the "image" field.
+func (ic *ImageCreate) SetImage(s string) *ImageCreate {
+	ic.mutation.SetImage(s)
+	return ic
+}
+
+// AddOwnerIDs adds the "owner" edge to the Product entity by IDs.
+func (ic *ImageCreate) AddOwnerIDs(ids ...int) *ImageCreate {
+	ic.mutation.AddOwnerIDs(ids...)
+	return ic
+}
+
+// AddOwner adds the "owner" edges to the Product entity.
+func (ic *ImageCreate) AddOwner(p ...*Product) *ImageCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ic.AddOwnerIDs(ids...)
 }
 
 // Mutation returns the ImageMutation object of the builder.
@@ -88,6 +117,12 @@ func (ic *ImageCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ic *ImageCreate) check() error {
+	if _, ok := ic.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Image.title"`)}
+	}
+	if _, ok := ic.mutation.Image(); !ok {
+		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Image.image"`)}
+	}
 	return nil
 }
 
@@ -115,6 +150,41 @@ func (ic *ImageCreate) createSpec() (*Image, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := ic.mutation.Title(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldTitle,
+		})
+		_node.Title = value
+	}
+	if value, ok := ic.mutation.Image(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldImage,
+		})
+		_node.Image = value
+	}
+	if nodes := ic.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   image.OwnerTable,
+			Columns: image.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 

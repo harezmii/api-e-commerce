@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"api/ent/comment"
+	"api/ent/product"
 	"api/ent/profile"
 	"api/ent/user"
 	"context"
@@ -93,19 +95,53 @@ func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
 	return uc
 }
 
-// AddProfileIDs adds the "profiles" edge to the Profile entity by IDs.
-func (uc *UserCreate) AddProfileIDs(ids ...int) *UserCreate {
-	uc.mutation.AddProfileIDs(ids...)
+// SetProfileID sets the "profile" edge to the Profile entity by ID.
+func (uc *UserCreate) SetProfileID(id int) *UserCreate {
+	uc.mutation.SetProfileID(id)
 	return uc
 }
 
-// AddProfiles adds the "profiles" edges to the Profile entity.
-func (uc *UserCreate) AddProfiles(p ...*Profile) *UserCreate {
+// SetNillableProfileID sets the "profile" edge to the Profile entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableProfileID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetProfileID(*id)
+	}
+	return uc
+}
+
+// SetProfile sets the "profile" edge to the Profile entity.
+func (uc *UserCreate) SetProfile(p *Profile) *UserCreate {
+	return uc.SetProfileID(p.ID)
+}
+
+// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
+func (uc *UserCreate) AddCommentIDs(ids ...int) *UserCreate {
+	uc.mutation.AddCommentIDs(ids...)
+	return uc
+}
+
+// AddComments adds the "comments" edges to the Comment entity.
+func (uc *UserCreate) AddComments(c ...*Comment) *UserCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddCommentIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (uc *UserCreate) AddProductIDs(ids ...int) *UserCreate {
+	uc.mutation.AddProductIDs(ids...)
+	return uc
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (uc *UserCreate) AddProducts(p ...*Product) *UserCreate {
 	ids := make([]int, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
-	return uc.AddProfileIDs(ids...)
+	return uc.AddProductIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -296,17 +332,55 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.DeletedAt = value
 	}
-	if nodes := uc.mutation.ProfilesIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.ProfileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   user.ProfilesTable,
-			Columns: []string{user.ProfilesColumn},
+			Table:   user.ProfileTable,
+			Columns: []string{user.ProfileColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: profile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.CommentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.CommentsTable,
+			Columns: user.CommentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ProductsTable,
+			Columns: []string{user.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
 				},
 			},
 		}

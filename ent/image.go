@@ -12,9 +12,34 @@ import (
 
 // Image is the model entity for the Image schema.
 type Image struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
+	// Image holds the value of the "image" field.
+	Image string `json:"image,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ImageQuery when eager-loading is set.
+	Edges ImageEdges `json:"edges"`
+}
+
+// ImageEdges holds the relations/edges for other nodes in the graph.
+type ImageEdges struct {
+	// Owner holds the value of the owner edge.
+	Owner []*Product `json:"owner,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// OwnerOrErr returns the Owner value or an error if the edge
+// was not loaded in eager-loading.
+func (e ImageEdges) OwnerOrErr() ([]*Product, error) {
+	if e.loadedTypes[0] {
+		return e.Owner, nil
+	}
+	return nil, &NotLoadedError{edge: "owner"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -24,6 +49,8 @@ func (*Image) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case image.FieldID:
 			values[i] = new(sql.NullInt64)
+		case image.FieldTitle, image.FieldImage:
+			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Image", columns[i])
 		}
@@ -45,9 +72,26 @@ func (i *Image) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			i.ID = int(value.Int64)
+		case image.FieldTitle:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[j])
+			} else if value.Valid {
+				i.Title = value.String
+			}
+		case image.FieldImage:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field image", values[j])
+			} else if value.Valid {
+				i.Image = value.String
+			}
 		}
 	}
 	return nil
+}
+
+// QueryOwner queries the "owner" edge of the Image entity.
+func (i *Image) QueryOwner() *ProductQuery {
+	return (&ImageClient{config: i.config}).QueryOwner(i)
 }
 
 // Update returns a builder for updating this Image.
@@ -73,6 +117,10 @@ func (i *Image) String() string {
 	var builder strings.Builder
 	builder.WriteString("Image(")
 	builder.WriteString(fmt.Sprintf("id=%v", i.ID))
+	builder.WriteString(", title=")
+	builder.WriteString(i.Title)
+	builder.WriteString(", image=")
+	builder.WriteString(i.Image)
 	builder.WriteByte(')')
 	return builder.String()
 }

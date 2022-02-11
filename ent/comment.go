@@ -4,17 +4,71 @@ package ent
 
 import (
 	"api/ent/comment"
+	"api/ent/product"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
 
 // Comment is the model entity for the Comment schema.
 type Comment struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// Comment holds the value of the "comment" field.
+	Comment string `json:"comment,omitempty"`
+	// Rate holds the value of the "rate" field.
+	Rate float64 `json:"rate,omitempty"`
+	// IP holds the value of the "ip" field.
+	IP string `json:"ip,omitempty"`
+	// Status holds the value of the "status" field.
+	Status bool `json:"status,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the CommentQuery when eager-loading is set.
+	Edges            CommentEdges `json:"edges"`
+	product_comments *int
+}
+
+// CommentEdges holds the relations/edges for other nodes in the graph.
+type CommentEdges struct {
+	// Owner holds the value of the owner edge.
+	Owner *Product `json:"owner,omitempty"`
+	// Own holds the value of the own edge.
+	Own []*User `json:"own,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// OwnerOrErr returns the Owner value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CommentEdges) OwnerOrErr() (*Product, error) {
+	if e.loadedTypes[0] {
+		if e.Owner == nil {
+			// The edge owner was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: product.Label}
+		}
+		return e.Owner, nil
+	}
+	return nil, &NotLoadedError{edge: "owner"}
+}
+
+// OwnOrErr returns the Own value or an error if the edge
+// was not loaded in eager-loading.
+func (e CommentEdges) OwnOrErr() ([]*User, error) {
+	if e.loadedTypes[1] {
+		return e.Own, nil
+	}
+	return nil, &NotLoadedError{edge: "own"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -22,7 +76,17 @@ func (*Comment) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case comment.FieldStatus:
+			values[i] = new(sql.NullBool)
+		case comment.FieldRate:
+			values[i] = new(sql.NullFloat64)
 		case comment.FieldID:
+			values[i] = new(sql.NullInt64)
+		case comment.FieldComment, comment.FieldIP:
+			values[i] = new(sql.NullString)
+		case comment.FieldCreatedAt, comment.FieldUpdatedAt, comment.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
+		case comment.ForeignKeys[0]: // product_comments
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Comment", columns[i])
@@ -45,9 +109,68 @@ func (c *Comment) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			c.ID = int(value.Int64)
+		case comment.FieldComment:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field comment", values[i])
+			} else if value.Valid {
+				c.Comment = value.String
+			}
+		case comment.FieldRate:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field rate", values[i])
+			} else if value.Valid {
+				c.Rate = value.Float64
+			}
+		case comment.FieldIP:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ip", values[i])
+			} else if value.Valid {
+				c.IP = value.String
+			}
+		case comment.FieldStatus:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				c.Status = value.Bool
+			}
+		case comment.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				c.CreatedAt = value.Time
+			}
+		case comment.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				c.UpdatedAt = value.Time
+			}
+		case comment.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				c.DeletedAt = value.Time
+			}
+		case comment.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field product_comments", value)
+			} else if value.Valid {
+				c.product_comments = new(int)
+				*c.product_comments = int(value.Int64)
+			}
 		}
 	}
 	return nil
+}
+
+// QueryOwner queries the "owner" edge of the Comment entity.
+func (c *Comment) QueryOwner() *ProductQuery {
+	return (&CommentClient{config: c.config}).QueryOwner(c)
+}
+
+// QueryOwn queries the "own" edge of the Comment entity.
+func (c *Comment) QueryOwn() *UserQuery {
+	return (&CommentClient{config: c.config}).QueryOwn(c)
 }
 
 // Update returns a builder for updating this Comment.
@@ -73,6 +196,20 @@ func (c *Comment) String() string {
 	var builder strings.Builder
 	builder.WriteString("Comment(")
 	builder.WriteString(fmt.Sprintf("id=%v", c.ID))
+	builder.WriteString(", comment=")
+	builder.WriteString(c.Comment)
+	builder.WriteString(", rate=")
+	builder.WriteString(fmt.Sprintf("%v", c.Rate))
+	builder.WriteString(", ip=")
+	builder.WriteString(c.IP)
+	builder.WriteString(", status=")
+	builder.WriteString(fmt.Sprintf("%v", c.Status))
+	builder.WriteString(", created_at=")
+	builder.WriteString(c.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(c.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", deleted_at=")
+	builder.WriteString(c.DeletedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

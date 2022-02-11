@@ -1,6 +1,11 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
+	"entgo.io/ent/schema/field"
+	"time"
+)
 
 // Product holds the schema definition for the Product entity.
 type Product struct {
@@ -9,10 +14,24 @@ type Product struct {
 
 // Fields of the Product.
 func (Product) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.String("title"),
+		field.String("keywords"),
+		field.String("description"),
+		field.String("image"),
+		field.Bool("status"),
+		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("updated_at").Optional(),
+		field.Time("deleted_at").Optional(),
+	}
 }
 
 // Edges of the Product.
 func (Product) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("photos", Image.Type),
+		edge.From("owner", Category.Type).Ref("products").Unique(),
+		edge.From("owner1", User.Type).Ref("products").Unique(),
+		edge.To("comments", Comment.Type),
+	}
 }

@@ -2,18 +2,73 @@
 
 package category
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the category type in the database.
 	Label = "category"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
+	// FieldKeywords holds the string denoting the keywords field in the database.
+	FieldKeywords = "keywords"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldImage holds the string denoting the image field in the database.
+	FieldImage = "image"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
+	// EdgeParent holds the string denoting the parent edge name in mutations.
+	EdgeParent = "parent"
+	// EdgeChildren holds the string denoting the children edge name in mutations.
+	EdgeChildren = "children"
+	// EdgeProducts holds the string denoting the products edge name in mutations.
+	EdgeProducts = "products"
 	// Table holds the table name of the category in the database.
 	Table = "categories"
+	// ParentTable is the table that holds the parent relation/edge.
+	ParentTable = "categories"
+	// ParentColumn is the table column denoting the parent relation/edge.
+	ParentColumn = "category_children"
+	// ChildrenTable is the table that holds the children relation/edge.
+	ChildrenTable = "categories"
+	// ChildrenColumn is the table column denoting the children relation/edge.
+	ChildrenColumn = "category_children"
+	// ProductsTable is the table that holds the products relation/edge.
+	ProductsTable = "products"
+	// ProductsInverseTable is the table name for the Product entity.
+	// It exists in this package in order to avoid circular dependency with the "product" package.
+	ProductsInverseTable = "products"
+	// ProductsColumn is the table column denoting the products relation/edge.
+	ProductsColumn = "category_products"
 )
 
 // Columns holds all SQL columns for category fields.
 var Columns = []string{
 	FieldID,
+	FieldTitle,
+	FieldKeywords,
+	FieldDescription,
+	FieldImage,
+	FieldStatus,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "categories"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"category_children",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -23,5 +78,15 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+)

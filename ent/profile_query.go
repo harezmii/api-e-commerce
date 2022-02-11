@@ -78,7 +78,7 @@ func (pq *ProfileQuery) QueryOwner() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(profile.Table, profile.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, profile.OwnerTable, profile.OwnerColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, profile.OwnerTable, profile.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -385,10 +385,10 @@ func (pq *ProfileQuery) sqlAll(ctx context.Context) ([]*Profile, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Profile)
 		for i := range nodes {
-			if nodes[i].user_profiles == nil {
+			if nodes[i].user_profile == nil {
 				continue
 			}
-			fk := *nodes[i].user_profiles
+			fk := *nodes[i].user_profile
 			if _, ok := nodeids[fk]; !ok {
 				ids = append(ids, fk)
 			}
@@ -402,7 +402,7 @@ func (pq *ProfileQuery) sqlAll(ctx context.Context) ([]*Profile, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_profiles" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "user_profile" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Owner = n

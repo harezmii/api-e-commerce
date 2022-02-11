@@ -3,11 +3,16 @@
 package ent
 
 import (
+	"api/ent/category"
+	"api/ent/comment"
+	"api/ent/image"
 	"api/ent/predicate"
 	"api/ent/product"
+	"api/ent/user"
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,9 +32,201 @@ func (pu *ProductUpdate) Where(ps ...predicate.Product) *ProductUpdate {
 	return pu
 }
 
+// SetTitle sets the "title" field.
+func (pu *ProductUpdate) SetTitle(s string) *ProductUpdate {
+	pu.mutation.SetTitle(s)
+	return pu
+}
+
+// SetKeywords sets the "keywords" field.
+func (pu *ProductUpdate) SetKeywords(s string) *ProductUpdate {
+	pu.mutation.SetKeywords(s)
+	return pu
+}
+
+// SetDescription sets the "description" field.
+func (pu *ProductUpdate) SetDescription(s string) *ProductUpdate {
+	pu.mutation.SetDescription(s)
+	return pu
+}
+
+// SetImage sets the "image" field.
+func (pu *ProductUpdate) SetImage(s string) *ProductUpdate {
+	pu.mutation.SetImage(s)
+	return pu
+}
+
+// SetStatus sets the "status" field.
+func (pu *ProductUpdate) SetStatus(b bool) *ProductUpdate {
+	pu.mutation.SetStatus(b)
+	return pu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (pu *ProductUpdate) SetUpdatedAt(t time.Time) *ProductUpdate {
+	pu.mutation.SetUpdatedAt(t)
+	return pu
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableUpdatedAt(t *time.Time) *ProductUpdate {
+	if t != nil {
+		pu.SetUpdatedAt(*t)
+	}
+	return pu
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (pu *ProductUpdate) ClearUpdatedAt() *ProductUpdate {
+	pu.mutation.ClearUpdatedAt()
+	return pu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (pu *ProductUpdate) SetDeletedAt(t time.Time) *ProductUpdate {
+	pu.mutation.SetDeletedAt(t)
+	return pu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableDeletedAt(t *time.Time) *ProductUpdate {
+	if t != nil {
+		pu.SetDeletedAt(*t)
+	}
+	return pu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (pu *ProductUpdate) ClearDeletedAt() *ProductUpdate {
+	pu.mutation.ClearDeletedAt()
+	return pu
+}
+
+// AddPhotoIDs adds the "photos" edge to the Image entity by IDs.
+func (pu *ProductUpdate) AddPhotoIDs(ids ...int) *ProductUpdate {
+	pu.mutation.AddPhotoIDs(ids...)
+	return pu
+}
+
+// AddPhotos adds the "photos" edges to the Image entity.
+func (pu *ProductUpdate) AddPhotos(i ...*Image) *ProductUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return pu.AddPhotoIDs(ids...)
+}
+
+// SetOwnerID sets the "owner" edge to the Category entity by ID.
+func (pu *ProductUpdate) SetOwnerID(id int) *ProductUpdate {
+	pu.mutation.SetOwnerID(id)
+	return pu
+}
+
+// SetNillableOwnerID sets the "owner" edge to the Category entity by ID if the given value is not nil.
+func (pu *ProductUpdate) SetNillableOwnerID(id *int) *ProductUpdate {
+	if id != nil {
+		pu = pu.SetOwnerID(*id)
+	}
+	return pu
+}
+
+// SetOwner sets the "owner" edge to the Category entity.
+func (pu *ProductUpdate) SetOwner(c *Category) *ProductUpdate {
+	return pu.SetOwnerID(c.ID)
+}
+
+// SetOwner1ID sets the "owner1" edge to the User entity by ID.
+func (pu *ProductUpdate) SetOwner1ID(id int) *ProductUpdate {
+	pu.mutation.SetOwner1ID(id)
+	return pu
+}
+
+// SetNillableOwner1ID sets the "owner1" edge to the User entity by ID if the given value is not nil.
+func (pu *ProductUpdate) SetNillableOwner1ID(id *int) *ProductUpdate {
+	if id != nil {
+		pu = pu.SetOwner1ID(*id)
+	}
+	return pu
+}
+
+// SetOwner1 sets the "owner1" edge to the User entity.
+func (pu *ProductUpdate) SetOwner1(u *User) *ProductUpdate {
+	return pu.SetOwner1ID(u.ID)
+}
+
+// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
+func (pu *ProductUpdate) AddCommentIDs(ids ...int) *ProductUpdate {
+	pu.mutation.AddCommentIDs(ids...)
+	return pu
+}
+
+// AddComments adds the "comments" edges to the Comment entity.
+func (pu *ProductUpdate) AddComments(c ...*Comment) *ProductUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return pu.AddCommentIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (pu *ProductUpdate) Mutation() *ProductMutation {
 	return pu.mutation
+}
+
+// ClearPhotos clears all "photos" edges to the Image entity.
+func (pu *ProductUpdate) ClearPhotos() *ProductUpdate {
+	pu.mutation.ClearPhotos()
+	return pu
+}
+
+// RemovePhotoIDs removes the "photos" edge to Image entities by IDs.
+func (pu *ProductUpdate) RemovePhotoIDs(ids ...int) *ProductUpdate {
+	pu.mutation.RemovePhotoIDs(ids...)
+	return pu
+}
+
+// RemovePhotos removes "photos" edges to Image entities.
+func (pu *ProductUpdate) RemovePhotos(i ...*Image) *ProductUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return pu.RemovePhotoIDs(ids...)
+}
+
+// ClearOwner clears the "owner" edge to the Category entity.
+func (pu *ProductUpdate) ClearOwner() *ProductUpdate {
+	pu.mutation.ClearOwner()
+	return pu
+}
+
+// ClearOwner1 clears the "owner1" edge to the User entity.
+func (pu *ProductUpdate) ClearOwner1() *ProductUpdate {
+	pu.mutation.ClearOwner1()
+	return pu
+}
+
+// ClearComments clears all "comments" edges to the Comment entity.
+func (pu *ProductUpdate) ClearComments() *ProductUpdate {
+	pu.mutation.ClearComments()
+	return pu
+}
+
+// RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
+func (pu *ProductUpdate) RemoveCommentIDs(ids ...int) *ProductUpdate {
+	pu.mutation.RemoveCommentIDs(ids...)
+	return pu
+}
+
+// RemoveComments removes "comments" edges to Comment entities.
+func (pu *ProductUpdate) RemoveComments(c ...*Comment) *ProductUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return pu.RemoveCommentIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -104,6 +301,245 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := pu.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldTitle,
+		})
+	}
+	if value, ok := pu.mutation.Keywords(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldKeywords,
+		})
+	}
+	if value, ok := pu.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldDescription,
+		})
+	}
+	if value, ok := pu.mutation.Image(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldImage,
+		})
+	}
+	if value, ok := pu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: product.FieldStatus,
+		})
+	}
+	if value, ok := pu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: product.FieldUpdatedAt,
+		})
+	}
+	if pu.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: product.FieldUpdatedAt,
+		})
+	}
+	if value, ok := pu.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: product.FieldDeletedAt,
+		})
+	}
+	if pu.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: product.FieldDeletedAt,
+		})
+	}
+	if pu.mutation.PhotosCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   product.PhotosTable,
+			Columns: product.PhotosPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedPhotosIDs(); len(nodes) > 0 && !pu.mutation.PhotosCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   product.PhotosTable,
+			Columns: product.PhotosPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.PhotosIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   product.PhotosTable,
+			Columns: product.PhotosPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.OwnerTable,
+			Columns: []string{product.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: category.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.OwnerTable,
+			Columns: []string{product.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.Owner1Cleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.Owner1Table,
+			Columns: []string{product.Owner1Column},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.Owner1IDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.Owner1Table,
+			Columns: []string{product.Owner1Column},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.CommentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.CommentsTable,
+			Columns: []string{product.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !pu.mutation.CommentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.CommentsTable,
+			Columns: []string{product.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.CommentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.CommentsTable,
+			Columns: []string{product.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{product.Label}
@@ -123,9 +559,201 @@ type ProductUpdateOne struct {
 	mutation *ProductMutation
 }
 
+// SetTitle sets the "title" field.
+func (puo *ProductUpdateOne) SetTitle(s string) *ProductUpdateOne {
+	puo.mutation.SetTitle(s)
+	return puo
+}
+
+// SetKeywords sets the "keywords" field.
+func (puo *ProductUpdateOne) SetKeywords(s string) *ProductUpdateOne {
+	puo.mutation.SetKeywords(s)
+	return puo
+}
+
+// SetDescription sets the "description" field.
+func (puo *ProductUpdateOne) SetDescription(s string) *ProductUpdateOne {
+	puo.mutation.SetDescription(s)
+	return puo
+}
+
+// SetImage sets the "image" field.
+func (puo *ProductUpdateOne) SetImage(s string) *ProductUpdateOne {
+	puo.mutation.SetImage(s)
+	return puo
+}
+
+// SetStatus sets the "status" field.
+func (puo *ProductUpdateOne) SetStatus(b bool) *ProductUpdateOne {
+	puo.mutation.SetStatus(b)
+	return puo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (puo *ProductUpdateOne) SetUpdatedAt(t time.Time) *ProductUpdateOne {
+	puo.mutation.SetUpdatedAt(t)
+	return puo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableUpdatedAt(t *time.Time) *ProductUpdateOne {
+	if t != nil {
+		puo.SetUpdatedAt(*t)
+	}
+	return puo
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (puo *ProductUpdateOne) ClearUpdatedAt() *ProductUpdateOne {
+	puo.mutation.ClearUpdatedAt()
+	return puo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (puo *ProductUpdateOne) SetDeletedAt(t time.Time) *ProductUpdateOne {
+	puo.mutation.SetDeletedAt(t)
+	return puo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableDeletedAt(t *time.Time) *ProductUpdateOne {
+	if t != nil {
+		puo.SetDeletedAt(*t)
+	}
+	return puo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (puo *ProductUpdateOne) ClearDeletedAt() *ProductUpdateOne {
+	puo.mutation.ClearDeletedAt()
+	return puo
+}
+
+// AddPhotoIDs adds the "photos" edge to the Image entity by IDs.
+func (puo *ProductUpdateOne) AddPhotoIDs(ids ...int) *ProductUpdateOne {
+	puo.mutation.AddPhotoIDs(ids...)
+	return puo
+}
+
+// AddPhotos adds the "photos" edges to the Image entity.
+func (puo *ProductUpdateOne) AddPhotos(i ...*Image) *ProductUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return puo.AddPhotoIDs(ids...)
+}
+
+// SetOwnerID sets the "owner" edge to the Category entity by ID.
+func (puo *ProductUpdateOne) SetOwnerID(id int) *ProductUpdateOne {
+	puo.mutation.SetOwnerID(id)
+	return puo
+}
+
+// SetNillableOwnerID sets the "owner" edge to the Category entity by ID if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableOwnerID(id *int) *ProductUpdateOne {
+	if id != nil {
+		puo = puo.SetOwnerID(*id)
+	}
+	return puo
+}
+
+// SetOwner sets the "owner" edge to the Category entity.
+func (puo *ProductUpdateOne) SetOwner(c *Category) *ProductUpdateOne {
+	return puo.SetOwnerID(c.ID)
+}
+
+// SetOwner1ID sets the "owner1" edge to the User entity by ID.
+func (puo *ProductUpdateOne) SetOwner1ID(id int) *ProductUpdateOne {
+	puo.mutation.SetOwner1ID(id)
+	return puo
+}
+
+// SetNillableOwner1ID sets the "owner1" edge to the User entity by ID if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableOwner1ID(id *int) *ProductUpdateOne {
+	if id != nil {
+		puo = puo.SetOwner1ID(*id)
+	}
+	return puo
+}
+
+// SetOwner1 sets the "owner1" edge to the User entity.
+func (puo *ProductUpdateOne) SetOwner1(u *User) *ProductUpdateOne {
+	return puo.SetOwner1ID(u.ID)
+}
+
+// AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
+func (puo *ProductUpdateOne) AddCommentIDs(ids ...int) *ProductUpdateOne {
+	puo.mutation.AddCommentIDs(ids...)
+	return puo
+}
+
+// AddComments adds the "comments" edges to the Comment entity.
+func (puo *ProductUpdateOne) AddComments(c ...*Comment) *ProductUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return puo.AddCommentIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (puo *ProductUpdateOne) Mutation() *ProductMutation {
 	return puo.mutation
+}
+
+// ClearPhotos clears all "photos" edges to the Image entity.
+func (puo *ProductUpdateOne) ClearPhotos() *ProductUpdateOne {
+	puo.mutation.ClearPhotos()
+	return puo
+}
+
+// RemovePhotoIDs removes the "photos" edge to Image entities by IDs.
+func (puo *ProductUpdateOne) RemovePhotoIDs(ids ...int) *ProductUpdateOne {
+	puo.mutation.RemovePhotoIDs(ids...)
+	return puo
+}
+
+// RemovePhotos removes "photos" edges to Image entities.
+func (puo *ProductUpdateOne) RemovePhotos(i ...*Image) *ProductUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return puo.RemovePhotoIDs(ids...)
+}
+
+// ClearOwner clears the "owner" edge to the Category entity.
+func (puo *ProductUpdateOne) ClearOwner() *ProductUpdateOne {
+	puo.mutation.ClearOwner()
+	return puo
+}
+
+// ClearOwner1 clears the "owner1" edge to the User entity.
+func (puo *ProductUpdateOne) ClearOwner1() *ProductUpdateOne {
+	puo.mutation.ClearOwner1()
+	return puo
+}
+
+// ClearComments clears all "comments" edges to the Comment entity.
+func (puo *ProductUpdateOne) ClearComments() *ProductUpdateOne {
+	puo.mutation.ClearComments()
+	return puo
+}
+
+// RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
+func (puo *ProductUpdateOne) RemoveCommentIDs(ids ...int) *ProductUpdateOne {
+	puo.mutation.RemoveCommentIDs(ids...)
+	return puo
+}
+
+// RemoveComments removes "comments" edges to Comment entities.
+func (puo *ProductUpdateOne) RemoveComments(c ...*Comment) *ProductUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return puo.RemoveCommentIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -223,6 +851,245 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := puo.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldTitle,
+		})
+	}
+	if value, ok := puo.mutation.Keywords(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldKeywords,
+		})
+	}
+	if value, ok := puo.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldDescription,
+		})
+	}
+	if value, ok := puo.mutation.Image(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldImage,
+		})
+	}
+	if value, ok := puo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: product.FieldStatus,
+		})
+	}
+	if value, ok := puo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: product.FieldUpdatedAt,
+		})
+	}
+	if puo.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: product.FieldUpdatedAt,
+		})
+	}
+	if value, ok := puo.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: product.FieldDeletedAt,
+		})
+	}
+	if puo.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: product.FieldDeletedAt,
+		})
+	}
+	if puo.mutation.PhotosCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   product.PhotosTable,
+			Columns: product.PhotosPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedPhotosIDs(); len(nodes) > 0 && !puo.mutation.PhotosCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   product.PhotosTable,
+			Columns: product.PhotosPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.PhotosIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   product.PhotosTable,
+			Columns: product.PhotosPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: image.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.OwnerTable,
+			Columns: []string{product.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: category.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.OwnerTable,
+			Columns: []string{product.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.Owner1Cleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.Owner1Table,
+			Columns: []string{product.Owner1Column},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.Owner1IDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   product.Owner1Table,
+			Columns: []string{product.Owner1Column},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.CommentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.CommentsTable,
+			Columns: []string{product.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !puo.mutation.CommentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.CommentsTable,
+			Columns: []string{product.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.CommentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.CommentsTable,
+			Columns: []string{product.CommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Product{config: puo.config}
 	_spec.Assign = _node.assignValues

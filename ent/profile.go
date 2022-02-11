@@ -31,8 +31,8 @@ type Profile struct {
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProfileQuery when eager-loading is set.
-	Edges         ProfileEdges `json:"edges"`
-	user_profiles *int
+	Edges        ProfileEdges `json:"edges"`
+	user_profile *int
 }
 
 // ProfileEdges holds the relations/edges for other nodes in the graph.
@@ -69,7 +69,7 @@ func (*Profile) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullString)
 		case profile.FieldCreatedAt, profile.FieldUpdatedAt, profile.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case profile.ForeignKeys[0]: // user_profiles
+		case profile.ForeignKeys[0]: // user_profile
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Profile", columns[i])
@@ -130,10 +130,10 @@ func (pr *Profile) assignValues(columns []string, values []interface{}) error {
 			}
 		case profile.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_profiles", value)
+				return fmt.Errorf("unexpected type %T for edge-field user_profile", value)
 			} else if value.Valid {
-				pr.user_profiles = new(int)
-				*pr.user_profiles = int(value.Int64)
+				pr.user_profile = new(int)
+				*pr.user_profile = int(value.Int64)
 			}
 		}
 	}

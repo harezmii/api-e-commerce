@@ -6,15 +6,81 @@ import (
 	"api/ent/category"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
 
 // Category is the model entity for the Category schema.
 type Category struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
+	// Keywords holds the value of the "keywords" field.
+	Keywords string `json:"keywords,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Image holds the value of the "image" field.
+	Image string `json:"image,omitempty"`
+	// Status holds the value of the "status" field.
+	Status bool `json:"status,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the CategoryQuery when eager-loading is set.
+	Edges             CategoryEdges `json:"edges"`
+	category_children *int
+}
+
+// CategoryEdges holds the relations/edges for other nodes in the graph.
+type CategoryEdges struct {
+	// Parent holds the value of the parent edge.
+	Parent *Category `json:"parent,omitempty"`
+	// Children holds the value of the children edge.
+	Children []*Category `json:"children,omitempty"`
+	// Products holds the value of the products edge.
+	Products []*Product `json:"products,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [3]bool
+}
+
+// ParentOrErr returns the Parent value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CategoryEdges) ParentOrErr() (*Category, error) {
+	if e.loadedTypes[0] {
+		if e.Parent == nil {
+			// The edge parent was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: category.Label}
+		}
+		return e.Parent, nil
+	}
+	return nil, &NotLoadedError{edge: "parent"}
+}
+
+// ChildrenOrErr returns the Children value or an error if the edge
+// was not loaded in eager-loading.
+func (e CategoryEdges) ChildrenOrErr() ([]*Category, error) {
+	if e.loadedTypes[1] {
+		return e.Children, nil
+	}
+	return nil, &NotLoadedError{edge: "children"}
+}
+
+// ProductsOrErr returns the Products value or an error if the edge
+// was not loaded in eager-loading.
+func (e CategoryEdges) ProductsOrErr() ([]*Product, error) {
+	if e.loadedTypes[2] {
+		return e.Products, nil
+	}
+	return nil, &NotLoadedError{edge: "products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -22,7 +88,15 @@ func (*Category) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case category.FieldStatus:
+			values[i] = new(sql.NullBool)
 		case category.FieldID:
+			values[i] = new(sql.NullInt64)
+		case category.FieldTitle, category.FieldKeywords, category.FieldDescription, category.FieldImage:
+			values[i] = new(sql.NullString)
+		case category.FieldCreatedAt, category.FieldUpdatedAt, category.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
+		case category.ForeignKeys[0]: // category_children
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Category", columns[i])
@@ -45,9 +119,79 @@ func (c *Category) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			c.ID = int(value.Int64)
+		case category.FieldTitle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[i])
+			} else if value.Valid {
+				c.Title = value.String
+			}
+		case category.FieldKeywords:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field keywords", values[i])
+			} else if value.Valid {
+				c.Keywords = value.String
+			}
+		case category.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				c.Description = value.String
+			}
+		case category.FieldImage:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field image", values[i])
+			} else if value.Valid {
+				c.Image = value.String
+			}
+		case category.FieldStatus:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				c.Status = value.Bool
+			}
+		case category.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				c.CreatedAt = value.Time
+			}
+		case category.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				c.UpdatedAt = value.Time
+			}
+		case category.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				c.DeletedAt = value.Time
+			}
+		case category.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field category_children", value)
+			} else if value.Valid {
+				c.category_children = new(int)
+				*c.category_children = int(value.Int64)
+			}
 		}
 	}
 	return nil
+}
+
+// QueryParent queries the "parent" edge of the Category entity.
+func (c *Category) QueryParent() *CategoryQuery {
+	return (&CategoryClient{config: c.config}).QueryParent(c)
+}
+
+// QueryChildren queries the "children" edge of the Category entity.
+func (c *Category) QueryChildren() *CategoryQuery {
+	return (&CategoryClient{config: c.config}).QueryChildren(c)
+}
+
+// QueryProducts queries the "products" edge of the Category entity.
+func (c *Category) QueryProducts() *ProductQuery {
+	return (&CategoryClient{config: c.config}).QueryProducts(c)
 }
 
 // Update returns a builder for updating this Category.
@@ -73,6 +217,22 @@ func (c *Category) String() string {
 	var builder strings.Builder
 	builder.WriteString("Category(")
 	builder.WriteString(fmt.Sprintf("id=%v", c.ID))
+	builder.WriteString(", title=")
+	builder.WriteString(c.Title)
+	builder.WriteString(", keywords=")
+	builder.WriteString(c.Keywords)
+	builder.WriteString(", description=")
+	builder.WriteString(c.Description)
+	builder.WriteString(", image=")
+	builder.WriteString(c.Image)
+	builder.WriteString(", status=")
+	builder.WriteString(fmt.Sprintf("%v", c.Status))
+	builder.WriteString(", created_at=")
+	builder.WriteString(c.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(c.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", deleted_at=")
+	builder.WriteString(c.DeletedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

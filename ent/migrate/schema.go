@@ -11,22 +11,55 @@ var (
 	// CategoriesColumns holds the columns for the "categories" table.
 	CategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "keywords", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "image", Type: field.TypeString},
+		{Name: "status", Type: field.TypeBool},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "category_children", Type: field.TypeInt, Nullable: true},
 	}
 	// CategoriesTable holds the schema information for the "categories" table.
 	CategoriesTable = &schema.Table{
 		Name:       "categories",
 		Columns:    CategoriesColumns,
 		PrimaryKey: []*schema.Column{CategoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "categories_categories_children",
+				Columns:    []*schema.Column{CategoriesColumns[9]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// CommentsColumns holds the columns for the "comments" table.
 	CommentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "comment", Type: field.TypeString},
+		{Name: "rate", Type: field.TypeFloat64},
+		{Name: "ip", Type: field.TypeString},
+		{Name: "status", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "product_comments", Type: field.TypeInt, Nullable: true},
 	}
 	// CommentsTable holds the schema information for the "comments" table.
 	CommentsTable = &schema.Table{
 		Name:       "comments",
 		Columns:    CommentsColumns,
 		PrimaryKey: []*schema.Column{CommentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "comments_products_comments",
+				Columns:    []*schema.Column{CommentsColumns[8]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// FaqsColumns holds the columns for the "faqs" table.
 	FaqsColumns = []*schema.Column{
@@ -47,6 +80,8 @@ var (
 	// ImagesColumns holds the columns for the "images" table.
 	ImagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "image", Type: field.TypeString},
 	}
 	// ImagesTable holds the schema information for the "images" table.
 	ImagesTable = &schema.Table{
@@ -77,12 +112,36 @@ var (
 	// ProductsColumns holds the columns for the "products" table.
 	ProductsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "keywords", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "image", Type: field.TypeString},
+		{Name: "status", Type: field.TypeBool},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "category_products", Type: field.TypeInt, Nullable: true},
+		{Name: "user_products", Type: field.TypeInt, Nullable: true},
 	}
 	// ProductsTable holds the schema information for the "products" table.
 	ProductsTable = &schema.Table{
 		Name:       "products",
 		Columns:    ProductsColumns,
 		PrimaryKey: []*schema.Column{ProductsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "products_categories_products",
+				Columns:    []*schema.Column{ProductsColumns[9]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "products_users_products",
+				Columns:    []*schema.Column{ProductsColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// ProfilesColumns holds the columns for the "profiles" table.
 	ProfilesColumns = []*schema.Column{
@@ -93,7 +152,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "user_profiles", Type: field.TypeInt, Nullable: true},
+		{Name: "user_profile", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// ProfilesTable holds the schema information for the "profiles" table.
 	ProfilesTable = &schema.Table{
@@ -102,7 +161,7 @@ var (
 		PrimaryKey: []*schema.Column{ProfilesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "profiles_users_profiles",
+				Symbol:     "profiles_users_profile",
 				Columns:    []*schema.Column{ProfilesColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -156,6 +215,56 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
+	// ProductPhotosColumns holds the columns for the "product_photos" table.
+	ProductPhotosColumns = []*schema.Column{
+		{Name: "product_id", Type: field.TypeInt},
+		{Name: "image_id", Type: field.TypeInt},
+	}
+	// ProductPhotosTable holds the schema information for the "product_photos" table.
+	ProductPhotosTable = &schema.Table{
+		Name:       "product_photos",
+		Columns:    ProductPhotosColumns,
+		PrimaryKey: []*schema.Column{ProductPhotosColumns[0], ProductPhotosColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "product_photos_product_id",
+				Columns:    []*schema.Column{ProductPhotosColumns[0]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "product_photos_image_id",
+				Columns:    []*schema.Column{ProductPhotosColumns[1]},
+				RefColumns: []*schema.Column{ImagesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// UserCommentsColumns holds the columns for the "user_comments" table.
+	UserCommentsColumns = []*schema.Column{
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "comment_id", Type: field.TypeInt},
+	}
+	// UserCommentsTable holds the schema information for the "user_comments" table.
+	UserCommentsTable = &schema.Table{
+		Name:       "user_comments",
+		Columns:    UserCommentsColumns,
+		PrimaryKey: []*schema.Column{UserCommentsColumns[0], UserCommentsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_comments_user_id",
+				Columns:    []*schema.Column{UserCommentsColumns[0]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "user_comments_comment_id",
+				Columns:    []*schema.Column{UserCommentsColumns[1]},
+				RefColumns: []*schema.Column{CommentsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CategoriesTable,
@@ -167,9 +276,19 @@ var (
 		ProfilesTable,
 		SettingsTable,
 		UsersTable,
+		ProductPhotosTable,
+		UserCommentsTable,
 	}
 )
 
 func init() {
+	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
+	CommentsTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
+	ProductsTable.ForeignKeys[1].RefTable = UsersTable
 	ProfilesTable.ForeignKeys[0].RefTable = UsersTable
+	ProductPhotosTable.ForeignKeys[0].RefTable = ProductsTable
+	ProductPhotosTable.ForeignKeys[1].RefTable = ImagesTable
+	UserCommentsTable.ForeignKeys[0].RefTable = UsersTable
+	UserCommentsTable.ForeignKeys[1].RefTable = CommentsTable
 }

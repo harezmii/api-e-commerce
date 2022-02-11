@@ -9,12 +9,9 @@ import (
 	"api/internal/logs"
 	"api/internal/secret/middleware"
 	_ "api/internal/secret/vault"
-	"api/internal/storage"
 	"api/pkg/config"
 	"context"
 	"fmt"
-	"github.com/gofiber/fiber/v2/middleware/cache"
-
 	"github.com/gofiber/fiber/v2"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
@@ -26,18 +23,19 @@ func RunRest(port string) {
 	})
 
 	// Storage
-	store := storage.RedisStore()
+	//store := storage.RedisStore()
 	// Storage End
 
 	// Cache
-	app.Use(cache.New(cache.Config{
-		Next: func(c *fiber.Ctx) bool {
-			return c.Query("refresh") == "true"
-		},
-		CacheControl: true,
-		Storage:      store,
-		CacheHeader:  "Cache-Time",
-	}))
+	//app.Use(cache.New(cache.Config{
+	//	Next: func(c *fiber.Ctx) bool {
+	//		return c.Query("refresh") == "true"
+	//	},
+	//	CacheControl: true,
+	//	Expiration:   time.Second * 8,
+	//	Storage:      store,
+	//	CacheHeader:  "Cache-Time",
+	//}))
 	// Cache End
 
 	// Fiber Internal Middleware

@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"api/ent/profile"
 	"api/ent/user"
 	"fmt"
 	"strings"
@@ -39,20 +40,47 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// Profiles holds the value of the profiles edge.
-	Profiles []*Profile `json:"profiles,omitempty"`
+	// Profile holds the value of the profile edge.
+	Profile *Profile `json:"profile,omitempty"`
+	// Comments holds the value of the comments edge.
+	Comments []*Comment `json:"comments,omitempty"`
+	// Products holds the value of the products edge.
+	Products []*Product `json:"products,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
 }
 
-// ProfilesOrErr returns the Profiles value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) ProfilesOrErr() ([]*Profile, error) {
+// ProfileOrErr returns the Profile value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ProfileOrErr() (*Profile, error) {
 	if e.loadedTypes[0] {
-		return e.Profiles, nil
+		if e.Profile == nil {
+			// The edge profile was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: profile.Label}
+		}
+		return e.Profile, nil
 	}
-	return nil, &NotLoadedError{edge: "profiles"}
+	return nil, &NotLoadedError{edge: "profile"}
+}
+
+// CommentsOrErr returns the Comments value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CommentsOrErr() ([]*Comment, error) {
+	if e.loadedTypes[1] {
+		return e.Comments, nil
+	}
+	return nil, &NotLoadedError{edge: "comments"}
+}
+
+// ProductsOrErr returns the Products value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ProductsOrErr() ([]*Product, error) {
+	if e.loadedTypes[2] {
+		return e.Products, nil
+	}
+	return nil, &NotLoadedError{edge: "products"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -142,9 +170,19 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryProfiles queries the "profiles" edge of the User entity.
-func (u *User) QueryProfiles() *ProfileQuery {
-	return (&UserClient{config: u.config}).QueryProfiles(u)
+// QueryProfile queries the "profile" edge of the User entity.
+func (u *User) QueryProfile() *ProfileQuery {
+	return (&UserClient{config: u.config}).QueryProfile(u)
+}
+
+// QueryComments queries the "comments" edge of the User entity.
+func (u *User) QueryComments() *CommentQuery {
+	return (&UserClient{config: u.config}).QueryComments(u)
+}
+
+// QueryProducts queries the "products" edge of the User entity.
+func (u *User) QueryProducts() *ProductQuery {
+	return (&UserClient{config: u.config}).QueryProducts(u)
 }
 
 // Update returns a builder for updating this User.

@@ -7,14 +7,33 @@ const (
 	Label = "image"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
+	// FieldImage holds the string denoting the image field in the database.
+	FieldImage = "image"
+	// EdgeOwner holds the string denoting the owner edge name in mutations.
+	EdgeOwner = "owner"
 	// Table holds the table name of the image in the database.
 	Table = "images"
+	// OwnerTable is the table that holds the owner relation/edge. The primary key declared below.
+	OwnerTable = "product_photos"
+	// OwnerInverseTable is the table name for the Product entity.
+	// It exists in this package in order to avoid circular dependency with the "product" package.
+	OwnerInverseTable = "products"
 )
 
 // Columns holds all SQL columns for image fields.
 var Columns = []string{
 	FieldID,
+	FieldTitle,
+	FieldImage,
 }
+
+var (
+	// OwnerPrimaryKey and OwnerColumn2 are the table columns denoting the
+	// primary key for the owner relation (M2M).
+	OwnerPrimaryKey = []string{"product_id", "image_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

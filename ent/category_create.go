@@ -4,8 +4,11 @@ package ent
 
 import (
 	"api/ent/category"
+	"api/ent/product"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -16,6 +19,127 @@ type CategoryCreate struct {
 	config
 	mutation *CategoryMutation
 	hooks    []Hook
+}
+
+// SetTitle sets the "title" field.
+func (cc *CategoryCreate) SetTitle(s string) *CategoryCreate {
+	cc.mutation.SetTitle(s)
+	return cc
+}
+
+// SetKeywords sets the "keywords" field.
+func (cc *CategoryCreate) SetKeywords(s string) *CategoryCreate {
+	cc.mutation.SetKeywords(s)
+	return cc
+}
+
+// SetDescription sets the "description" field.
+func (cc *CategoryCreate) SetDescription(s string) *CategoryCreate {
+	cc.mutation.SetDescription(s)
+	return cc
+}
+
+// SetImage sets the "image" field.
+func (cc *CategoryCreate) SetImage(s string) *CategoryCreate {
+	cc.mutation.SetImage(s)
+	return cc
+}
+
+// SetStatus sets the "status" field.
+func (cc *CategoryCreate) SetStatus(b bool) *CategoryCreate {
+	cc.mutation.SetStatus(b)
+	return cc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cc *CategoryCreate) SetCreatedAt(t time.Time) *CategoryCreate {
+	cc.mutation.SetCreatedAt(t)
+	return cc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cc *CategoryCreate) SetNillableCreatedAt(t *time.Time) *CategoryCreate {
+	if t != nil {
+		cc.SetCreatedAt(*t)
+	}
+	return cc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (cc *CategoryCreate) SetUpdatedAt(t time.Time) *CategoryCreate {
+	cc.mutation.SetUpdatedAt(t)
+	return cc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (cc *CategoryCreate) SetNillableUpdatedAt(t *time.Time) *CategoryCreate {
+	if t != nil {
+		cc.SetUpdatedAt(*t)
+	}
+	return cc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (cc *CategoryCreate) SetDeletedAt(t time.Time) *CategoryCreate {
+	cc.mutation.SetDeletedAt(t)
+	return cc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (cc *CategoryCreate) SetNillableDeletedAt(t *time.Time) *CategoryCreate {
+	if t != nil {
+		cc.SetDeletedAt(*t)
+	}
+	return cc
+}
+
+// SetParentID sets the "parent" edge to the Category entity by ID.
+func (cc *CategoryCreate) SetParentID(id int) *CategoryCreate {
+	cc.mutation.SetParentID(id)
+	return cc
+}
+
+// SetNillableParentID sets the "parent" edge to the Category entity by ID if the given value is not nil.
+func (cc *CategoryCreate) SetNillableParentID(id *int) *CategoryCreate {
+	if id != nil {
+		cc = cc.SetParentID(*id)
+	}
+	return cc
+}
+
+// SetParent sets the "parent" edge to the Category entity.
+func (cc *CategoryCreate) SetParent(c *Category) *CategoryCreate {
+	return cc.SetParentID(c.ID)
+}
+
+// AddChildIDs adds the "children" edge to the Category entity by IDs.
+func (cc *CategoryCreate) AddChildIDs(ids ...int) *CategoryCreate {
+	cc.mutation.AddChildIDs(ids...)
+	return cc
+}
+
+// AddChildren adds the "children" edges to the Category entity.
+func (cc *CategoryCreate) AddChildren(c ...*Category) *CategoryCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cc.AddChildIDs(ids...)
+}
+
+// AddProductIDs adds the "products" edge to the Product entity by IDs.
+func (cc *CategoryCreate) AddProductIDs(ids ...int) *CategoryCreate {
+	cc.mutation.AddProductIDs(ids...)
+	return cc
+}
+
+// AddProducts adds the "products" edges to the Product entity.
+func (cc *CategoryCreate) AddProducts(p ...*Product) *CategoryCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cc.AddProductIDs(ids...)
 }
 
 // Mutation returns the CategoryMutation object of the builder.
@@ -29,6 +153,7 @@ func (cc *CategoryCreate) Save(ctx context.Context) (*Category, error) {
 		err  error
 		node *Category
 	)
+	cc.defaults()
 	if len(cc.hooks) == 0 {
 		if err = cc.check(); err != nil {
 			return nil, err
@@ -86,8 +211,34 @@ func (cc *CategoryCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cc *CategoryCreate) defaults() {
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		v := category.DefaultCreatedAt()
+		cc.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cc *CategoryCreate) check() error {
+	if _, ok := cc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Category.title"`)}
+	}
+	if _, ok := cc.mutation.Keywords(); !ok {
+		return &ValidationError{Name: "keywords", err: errors.New(`ent: missing required field "Category.keywords"`)}
+	}
+	if _, ok := cc.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Category.description"`)}
+	}
+	if _, ok := cc.mutation.Image(); !ok {
+		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Category.image"`)}
+	}
+	if _, ok := cc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Category.status"`)}
+	}
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Category.created_at"`)}
+	}
 	return nil
 }
 
@@ -115,6 +266,128 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := cc.mutation.Title(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: category.FieldTitle,
+		})
+		_node.Title = value
+	}
+	if value, ok := cc.mutation.Keywords(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: category.FieldKeywords,
+		})
+		_node.Keywords = value
+	}
+	if value, ok := cc.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: category.FieldDescription,
+		})
+		_node.Description = value
+	}
+	if value, ok := cc.mutation.Image(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: category.FieldImage,
+		})
+		_node.Image = value
+	}
+	if value, ok := cc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: category.FieldStatus,
+		})
+		_node.Status = value
+	}
+	if value, ok := cc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: category.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := cc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: category.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := cc.mutation.DeletedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: category.FieldDeletedAt,
+		})
+		_node.DeletedAt = value
+	}
+	if nodes := cc.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   category.ParentTable,
+			Columns: []string{category.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.category_children = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ChildrenTable,
+			Columns: []string{category.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.ProductsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   category.ProductsTable,
+			Columns: []string{category.ProductsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -132,6 +405,7 @@ func (ccb *CategoryCreateBulk) Save(ctx context.Context) ([]*Category, error) {
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CategoryMutation)
 				if !ok {

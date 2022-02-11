@@ -7,6 +7,7 @@ import (
 	"api/internal/entity/response"
 	"api/internal/logs"
 	"api/internal/secret/hash"
+	"api/internal/secret/jwtManage"
 	"api/internal/validate"
 	"entgo.io/ent/dialect/sql"
 	"github.com/gofiber/fiber/v2"
@@ -201,31 +202,29 @@ func (u ControllerUser) Show(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User is finding", Data: responseDto})
 }
 
-//func Login(ctx *fiber.Ctx) error {
-//
-//	var login entity.Login
-//
-//	parseError := ctx.BodyParser(&login)
-//	if parseError != nil {
-//		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
-//	}
-//	errr := validate.ValidateStructToTurkish(login)
-//	if errr == nil {
-//		singleUser, err := client.User.FindFirst(db2.User.Email.Equals(login.Email)).Exec(contextt)
-//		if err != nil {
-//			return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
-//		}
-//		isLoginSuccess := hash.PasswordHashCompare(login.Password, singleUser.Password)
-//		if isLoginSuccess {
-//			//isSetSession := storage.SetSesion(ctx)
-//
-//			//if isSetSession {
-//			//get := storage.GetSession(ctx)
-//			//fmt.Println(get)
-//			return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Login success", Data: dto.LoginUserDTO{UserID: singleUser.ID, Name: singleUser.Name, Surname: singleUser.Surname, Email: singleUser.Email, Status: &singleUser.Status}})
-//			//}
-//		}
-//
-//	}
-//	return nil
-//}
+func (u ControllerUser) Login(ctx *fiber.Ctx) error {
+	var login entity.Login
+
+	parseError := ctx.BodyParser(&login)
+	if parseError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
+	}
+	validateError := validate.ValidateStructToTurkish(&login)
+	if validateError != nil {
+		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.SuccessResponse{StatusCode: 422, Message: "Validate error", Data: validateError})
+	}
+
+	user, err := u.Client.User.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.EQ("email", login.Email))
+	}).First(u.Context)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , parse error."})
+	}
+	isLoginSuccess := hash.PasswordHashCompare(login.Password, user.Password)
+	if isLoginSuccess {
+		tokenManage := jwtManage.TokenManage{}.Initialize()
+		token := tokenManage.NewToken(ctx, user.ID)
+		return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Login success", Data: token})
+	}
+	return ctx.Status(fiber.StatusUnauthorized).JSON(response.SuccessResponse{StatusCode: 401, Message: "Unauthorized"})
+}

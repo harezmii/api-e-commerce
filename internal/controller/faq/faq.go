@@ -9,6 +9,7 @@ import (
 	"api/internal/logs"
 	"api/internal/validate"
 	"entgo.io/ent/dialect/sql"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	_ "net/http"
 	"strconv"
@@ -147,13 +148,14 @@ func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 		sort = ent.Asc(sortField)
 	}
 	// Sort Control END
-
+	fmt.Println("Select")
 	// Search Field Control
 	var selectField []string
 	if arg.SelectFields == "" {
 		selectField = []string{"id", "question", "answer", "status"}
 	} else {
 		selectField = strings.Split(arg.SelectFields, ",")
+		fmt.Println("dd", selectField)
 	}
 	// Search Field Control End
 

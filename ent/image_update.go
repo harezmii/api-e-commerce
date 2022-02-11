@@ -5,6 +5,7 @@ package ent
 import (
 	"api/ent/image"
 	"api/ent/predicate"
+	"api/ent/product"
 	"context"
 	"errors"
 	"fmt"
@@ -27,9 +28,57 @@ func (iu *ImageUpdate) Where(ps ...predicate.Image) *ImageUpdate {
 	return iu
 }
 
+// SetTitle sets the "title" field.
+func (iu *ImageUpdate) SetTitle(s string) *ImageUpdate {
+	iu.mutation.SetTitle(s)
+	return iu
+}
+
+// SetImage sets the "image" field.
+func (iu *ImageUpdate) SetImage(s string) *ImageUpdate {
+	iu.mutation.SetImage(s)
+	return iu
+}
+
+// AddOwnerIDs adds the "owner" edge to the Product entity by IDs.
+func (iu *ImageUpdate) AddOwnerIDs(ids ...int) *ImageUpdate {
+	iu.mutation.AddOwnerIDs(ids...)
+	return iu
+}
+
+// AddOwner adds the "owner" edges to the Product entity.
+func (iu *ImageUpdate) AddOwner(p ...*Product) *ImageUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return iu.AddOwnerIDs(ids...)
+}
+
 // Mutation returns the ImageMutation object of the builder.
 func (iu *ImageUpdate) Mutation() *ImageMutation {
 	return iu.mutation
+}
+
+// ClearOwner clears all "owner" edges to the Product entity.
+func (iu *ImageUpdate) ClearOwner() *ImageUpdate {
+	iu.mutation.ClearOwner()
+	return iu
+}
+
+// RemoveOwnerIDs removes the "owner" edge to Product entities by IDs.
+func (iu *ImageUpdate) RemoveOwnerIDs(ids ...int) *ImageUpdate {
+	iu.mutation.RemoveOwnerIDs(ids...)
+	return iu
+}
+
+// RemoveOwner removes "owner" edges to Product entities.
+func (iu *ImageUpdate) RemoveOwner(p ...*Product) *ImageUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return iu.RemoveOwnerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -104,6 +153,74 @@ func (iu *ImageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := iu.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldTitle,
+		})
+	}
+	if value, ok := iu.mutation.Image(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldImage,
+		})
+	}
+	if iu.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   image.OwnerTable,
+			Columns: image.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iu.mutation.RemovedOwnerIDs(); len(nodes) > 0 && !iu.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   image.OwnerTable,
+			Columns: image.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iu.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   image.OwnerTable,
+			Columns: image.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, iu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{image.Label}
@@ -123,9 +240,57 @@ type ImageUpdateOne struct {
 	mutation *ImageMutation
 }
 
+// SetTitle sets the "title" field.
+func (iuo *ImageUpdateOne) SetTitle(s string) *ImageUpdateOne {
+	iuo.mutation.SetTitle(s)
+	return iuo
+}
+
+// SetImage sets the "image" field.
+func (iuo *ImageUpdateOne) SetImage(s string) *ImageUpdateOne {
+	iuo.mutation.SetImage(s)
+	return iuo
+}
+
+// AddOwnerIDs adds the "owner" edge to the Product entity by IDs.
+func (iuo *ImageUpdateOne) AddOwnerIDs(ids ...int) *ImageUpdateOne {
+	iuo.mutation.AddOwnerIDs(ids...)
+	return iuo
+}
+
+// AddOwner adds the "owner" edges to the Product entity.
+func (iuo *ImageUpdateOne) AddOwner(p ...*Product) *ImageUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return iuo.AddOwnerIDs(ids...)
+}
+
 // Mutation returns the ImageMutation object of the builder.
 func (iuo *ImageUpdateOne) Mutation() *ImageMutation {
 	return iuo.mutation
+}
+
+// ClearOwner clears all "owner" edges to the Product entity.
+func (iuo *ImageUpdateOne) ClearOwner() *ImageUpdateOne {
+	iuo.mutation.ClearOwner()
+	return iuo
+}
+
+// RemoveOwnerIDs removes the "owner" edge to Product entities by IDs.
+func (iuo *ImageUpdateOne) RemoveOwnerIDs(ids ...int) *ImageUpdateOne {
+	iuo.mutation.RemoveOwnerIDs(ids...)
+	return iuo
+}
+
+// RemoveOwner removes "owner" edges to Product entities.
+func (iuo *ImageUpdateOne) RemoveOwner(p ...*Product) *ImageUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return iuo.RemoveOwnerIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -223,6 +388,74 @@ func (iuo *ImageUpdateOne) sqlSave(ctx context.Context) (_node *Image, err error
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := iuo.mutation.Title(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldTitle,
+		})
+	}
+	if value, ok := iuo.mutation.Image(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldImage,
+		})
+	}
+	if iuo.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   image.OwnerTable,
+			Columns: image.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iuo.mutation.RemovedOwnerIDs(); len(nodes) > 0 && !iuo.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   image.OwnerTable,
+			Columns: image.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iuo.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   image.OwnerTable,
+			Columns: image.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Image{config: iuo.config}
 	_spec.Assign = _node.assignValues

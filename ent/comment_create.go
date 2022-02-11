@@ -4,8 +4,12 @@ package ent
 
 import (
 	"api/ent/comment"
+	"api/ent/product"
+	"api/ent/user"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -16,6 +20,114 @@ type CommentCreate struct {
 	config
 	mutation *CommentMutation
 	hooks    []Hook
+}
+
+// SetComment sets the "comment" field.
+func (cc *CommentCreate) SetComment(s string) *CommentCreate {
+	cc.mutation.SetComment(s)
+	return cc
+}
+
+// SetRate sets the "rate" field.
+func (cc *CommentCreate) SetRate(f float64) *CommentCreate {
+	cc.mutation.SetRate(f)
+	return cc
+}
+
+// SetIP sets the "ip" field.
+func (cc *CommentCreate) SetIP(s string) *CommentCreate {
+	cc.mutation.SetIP(s)
+	return cc
+}
+
+// SetStatus sets the "status" field.
+func (cc *CommentCreate) SetStatus(b bool) *CommentCreate {
+	cc.mutation.SetStatus(b)
+	return cc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cc *CommentCreate) SetNillableStatus(b *bool) *CommentCreate {
+	if b != nil {
+		cc.SetStatus(*b)
+	}
+	return cc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cc *CommentCreate) SetCreatedAt(t time.Time) *CommentCreate {
+	cc.mutation.SetCreatedAt(t)
+	return cc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cc *CommentCreate) SetNillableCreatedAt(t *time.Time) *CommentCreate {
+	if t != nil {
+		cc.SetCreatedAt(*t)
+	}
+	return cc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (cc *CommentCreate) SetUpdatedAt(t time.Time) *CommentCreate {
+	cc.mutation.SetUpdatedAt(t)
+	return cc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (cc *CommentCreate) SetNillableUpdatedAt(t *time.Time) *CommentCreate {
+	if t != nil {
+		cc.SetUpdatedAt(*t)
+	}
+	return cc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (cc *CommentCreate) SetDeletedAt(t time.Time) *CommentCreate {
+	cc.mutation.SetDeletedAt(t)
+	return cc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (cc *CommentCreate) SetNillableDeletedAt(t *time.Time) *CommentCreate {
+	if t != nil {
+		cc.SetDeletedAt(*t)
+	}
+	return cc
+}
+
+// SetOwnerID sets the "owner" edge to the Product entity by ID.
+func (cc *CommentCreate) SetOwnerID(id int) *CommentCreate {
+	cc.mutation.SetOwnerID(id)
+	return cc
+}
+
+// SetNillableOwnerID sets the "owner" edge to the Product entity by ID if the given value is not nil.
+func (cc *CommentCreate) SetNillableOwnerID(id *int) *CommentCreate {
+	if id != nil {
+		cc = cc.SetOwnerID(*id)
+	}
+	return cc
+}
+
+// SetOwner sets the "owner" edge to the Product entity.
+func (cc *CommentCreate) SetOwner(p *Product) *CommentCreate {
+	return cc.SetOwnerID(p.ID)
+}
+
+// AddOwnIDs adds the "own" edge to the User entity by IDs.
+func (cc *CommentCreate) AddOwnIDs(ids ...int) *CommentCreate {
+	cc.mutation.AddOwnIDs(ids...)
+	return cc
+}
+
+// AddOwn adds the "own" edges to the User entity.
+func (cc *CommentCreate) AddOwn(u ...*User) *CommentCreate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return cc.AddOwnIDs(ids...)
 }
 
 // Mutation returns the CommentMutation object of the builder.
@@ -29,6 +141,7 @@ func (cc *CommentCreate) Save(ctx context.Context) (*Comment, error) {
 		err  error
 		node *Comment
 	)
+	cc.defaults()
 	if len(cc.hooks) == 0 {
 		if err = cc.check(); err != nil {
 			return nil, err
@@ -86,8 +199,35 @@ func (cc *CommentCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cc *CommentCreate) defaults() {
+	if _, ok := cc.mutation.Status(); !ok {
+		v := comment.DefaultStatus
+		cc.mutation.SetStatus(v)
+	}
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		v := comment.DefaultCreatedAt()
+		cc.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cc *CommentCreate) check() error {
+	if _, ok := cc.mutation.Comment(); !ok {
+		return &ValidationError{Name: "comment", err: errors.New(`ent: missing required field "Comment.comment"`)}
+	}
+	if _, ok := cc.mutation.Rate(); !ok {
+		return &ValidationError{Name: "rate", err: errors.New(`ent: missing required field "Comment.rate"`)}
+	}
+	if _, ok := cc.mutation.IP(); !ok {
+		return &ValidationError{Name: "ip", err: errors.New(`ent: missing required field "Comment.ip"`)}
+	}
+	if _, ok := cc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Comment.status"`)}
+	}
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Comment.created_at"`)}
+	}
 	return nil
 }
 
@@ -115,6 +255,101 @@ func (cc *CommentCreate) createSpec() (*Comment, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := cc.mutation.Comment(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: comment.FieldComment,
+		})
+		_node.Comment = value
+	}
+	if value, ok := cc.mutation.Rate(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: comment.FieldRate,
+		})
+		_node.Rate = value
+	}
+	if value, ok := cc.mutation.IP(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: comment.FieldIP,
+		})
+		_node.IP = value
+	}
+	if value, ok := cc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: comment.FieldStatus,
+		})
+		_node.Status = value
+	}
+	if value, ok := cc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: comment.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := cc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: comment.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := cc.mutation.DeletedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: comment.FieldDeletedAt,
+		})
+		_node.DeletedAt = value
+	}
+	if nodes := cc.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   comment.OwnerTable,
+			Columns: []string{comment.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: product.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.product_comments = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.OwnIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   comment.OwnTable,
+			Columns: comment.OwnPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -132,6 +367,7 @@ func (ccb *CommentCreateBulk) Save(ctx context.Context) ([]*Comment, error) {
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CommentMutation)
 				if !ok {
