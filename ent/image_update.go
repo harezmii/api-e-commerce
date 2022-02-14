@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -37,6 +38,60 @@ func (iu *ImageUpdate) SetTitle(s string) *ImageUpdate {
 // SetImage sets the "image" field.
 func (iu *ImageUpdate) SetImage(s string) *ImageUpdate {
 	iu.mutation.SetImage(s)
+	return iu
+}
+
+// SetStatus sets the "status" field.
+func (iu *ImageUpdate) SetStatus(b bool) *ImageUpdate {
+	iu.mutation.SetStatus(b)
+	return iu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (iu *ImageUpdate) SetNillableStatus(b *bool) *ImageUpdate {
+	if b != nil {
+		iu.SetStatus(*b)
+	}
+	return iu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (iu *ImageUpdate) SetUpdatedAt(t time.Time) *ImageUpdate {
+	iu.mutation.SetUpdatedAt(t)
+	return iu
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (iu *ImageUpdate) SetNillableUpdatedAt(t *time.Time) *ImageUpdate {
+	if t != nil {
+		iu.SetUpdatedAt(*t)
+	}
+	return iu
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (iu *ImageUpdate) ClearUpdatedAt() *ImageUpdate {
+	iu.mutation.ClearUpdatedAt()
+	return iu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (iu *ImageUpdate) SetDeletedAt(t time.Time) *ImageUpdate {
+	iu.mutation.SetDeletedAt(t)
+	return iu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (iu *ImageUpdate) SetNillableDeletedAt(t *time.Time) *ImageUpdate {
+	if t != nil {
+		iu.SetDeletedAt(*t)
+	}
+	return iu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (iu *ImageUpdate) ClearDeletedAt() *ImageUpdate {
+	iu.mutation.ClearDeletedAt()
 	return iu
 }
 
@@ -167,6 +222,39 @@ func (iu *ImageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: image.FieldImage,
 		})
 	}
+	if value, ok := iu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: image.FieldStatus,
+		})
+	}
+	if value, ok := iu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: image.FieldUpdatedAt,
+		})
+	}
+	if iu.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: image.FieldUpdatedAt,
+		})
+	}
+	if value, ok := iu.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: image.FieldDeletedAt,
+		})
+	}
+	if iu.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: image.FieldDeletedAt,
+		})
+	}
 	if iu.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -249,6 +337,60 @@ func (iuo *ImageUpdateOne) SetTitle(s string) *ImageUpdateOne {
 // SetImage sets the "image" field.
 func (iuo *ImageUpdateOne) SetImage(s string) *ImageUpdateOne {
 	iuo.mutation.SetImage(s)
+	return iuo
+}
+
+// SetStatus sets the "status" field.
+func (iuo *ImageUpdateOne) SetStatus(b bool) *ImageUpdateOne {
+	iuo.mutation.SetStatus(b)
+	return iuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (iuo *ImageUpdateOne) SetNillableStatus(b *bool) *ImageUpdateOne {
+	if b != nil {
+		iuo.SetStatus(*b)
+	}
+	return iuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (iuo *ImageUpdateOne) SetUpdatedAt(t time.Time) *ImageUpdateOne {
+	iuo.mutation.SetUpdatedAt(t)
+	return iuo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (iuo *ImageUpdateOne) SetNillableUpdatedAt(t *time.Time) *ImageUpdateOne {
+	if t != nil {
+		iuo.SetUpdatedAt(*t)
+	}
+	return iuo
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (iuo *ImageUpdateOne) ClearUpdatedAt() *ImageUpdateOne {
+	iuo.mutation.ClearUpdatedAt()
+	return iuo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (iuo *ImageUpdateOne) SetDeletedAt(t time.Time) *ImageUpdateOne {
+	iuo.mutation.SetDeletedAt(t)
+	return iuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (iuo *ImageUpdateOne) SetNillableDeletedAt(t *time.Time) *ImageUpdateOne {
+	if t != nil {
+		iuo.SetDeletedAt(*t)
+	}
+	return iuo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (iuo *ImageUpdateOne) ClearDeletedAt() *ImageUpdateOne {
+	iuo.mutation.ClearDeletedAt()
 	return iuo
 }
 
@@ -401,6 +543,39 @@ func (iuo *ImageUpdateOne) sqlSave(ctx context.Context) (_node *Image, err error
 			Type:   field.TypeString,
 			Value:  value,
 			Column: image.FieldImage,
+		})
+	}
+	if value, ok := iuo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: image.FieldStatus,
+		})
+	}
+	if value, ok := iuo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: image.FieldUpdatedAt,
+		})
+	}
+	if iuo.mutation.UpdatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: image.FieldUpdatedAt,
+		})
+	}
+	if value, ok := iuo.mutation.DeletedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: image.FieldDeletedAt,
+		})
+	}
+	if iuo.mutation.DeletedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: image.FieldDeletedAt,
 		})
 	}
 	if iuo.mutation.OwnerCleared() {

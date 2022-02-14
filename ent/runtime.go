@@ -6,6 +6,7 @@ import (
 	"api/ent/category"
 	"api/ent/comment"
 	"api/ent/faq"
+	"api/ent/image"
 	"api/ent/message"
 	"api/ent/product"
 	"api/ent/profile"
@@ -48,6 +49,16 @@ func init() {
 	faqDescCreatedAt := faqFields[3].Descriptor()
 	// faq.DefaultCreatedAt holds the default value on creation for the created_at field.
 	faq.DefaultCreatedAt = faqDescCreatedAt.Default.(func() time.Time)
+	imageFields := schema.Image{}.Fields()
+	_ = imageFields
+	// imageDescStatus is the schema descriptor for status field.
+	imageDescStatus := imageFields[2].Descriptor()
+	// image.DefaultStatus holds the default value on creation for the status field.
+	image.DefaultStatus = imageDescStatus.Default.(bool)
+	// imageDescCreatedAt is the schema descriptor for created_at field.
+	imageDescCreatedAt := imageFields[3].Descriptor()
+	// image.DefaultCreatedAt holds the default value on creation for the created_at field.
+	image.DefaultCreatedAt = imageDescCreatedAt.Default.(func() time.Time)
 	messageFields := schema.Message{}.Fields()
 	_ = messageFields
 	// messageDescCreatedAt is the schema descriptor for created_at field.

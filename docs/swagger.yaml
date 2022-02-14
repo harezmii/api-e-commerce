@@ -285,7 +285,7 @@ paths:
       - application/json
       description: create comments
       parameters:
-      - description: Comment form
+      - description: comment form
         in: body
         name: body
         schema:
@@ -308,7 +308,7 @@ paths:
       - application/json
       description: delete comments
       parameters:
-      - description: Comment ID
+      - description: comment ID
         in: path
         name: id
         required: true
@@ -330,7 +330,7 @@ paths:
       - application/json
       description: get string by ID
       parameters:
-      - description: Comment ID
+      - description: comment ID
         in: path
         name: id
         required: true
@@ -350,12 +350,12 @@ paths:
       - application/json
       description: update comment
       parameters:
-      - description: Comment ID
+      - description: comment ID
         in: path
         name: id
         required: true
         type: string
-      - description: Comment update form
+      - description: comment update form
         in: body
         name: body
         schema:

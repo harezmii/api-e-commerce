@@ -2,6 +2,10 @@
 
 package image
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the image type in the database.
 	Label = "image"
@@ -11,6 +15,14 @@ const (
 	FieldTitle = "title"
 	// FieldImage holds the string denoting the image field in the database.
 	FieldImage = "image"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// Table holds the table name of the image in the database.
@@ -27,6 +39,10 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldImage,
+	FieldStatus,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 }
 
 var (
@@ -44,3 +60,10 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus bool
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+)

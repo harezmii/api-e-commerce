@@ -6,6 +6,7 @@ import (
 	"api/ent/image"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -19,6 +20,14 @@ type Image struct {
 	Title string `json:"title,omitempty"`
 	// Image holds the value of the "image" field.
 	Image string `json:"image,omitempty"`
+	// Status holds the value of the "status" field.
+	Status bool `json:"status,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ImageQuery when eager-loading is set.
 	Edges ImageEdges `json:"edges"`
@@ -47,10 +56,14 @@ func (*Image) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case image.FieldStatus:
+			values[i] = new(sql.NullBool)
 		case image.FieldID:
 			values[i] = new(sql.NullInt64)
 		case image.FieldTitle, image.FieldImage:
 			values[i] = new(sql.NullString)
+		case image.FieldCreatedAt, image.FieldUpdatedAt, image.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Image", columns[i])
 		}
@@ -83,6 +96,30 @@ func (i *Image) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field image", values[j])
 			} else if value.Valid {
 				i.Image = value.String
+			}
+		case image.FieldStatus:
+			if value, ok := values[j].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[j])
+			} else if value.Valid {
+				i.Status = value.Bool
+			}
+		case image.FieldCreatedAt:
+			if value, ok := values[j].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[j])
+			} else if value.Valid {
+				i.CreatedAt = value.Time
+			}
+		case image.FieldUpdatedAt:
+			if value, ok := values[j].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[j])
+			} else if value.Valid {
+				i.UpdatedAt = value.Time
+			}
+		case image.FieldDeletedAt:
+			if value, ok := values[j].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[j])
+			} else if value.Valid {
+				i.DeletedAt = value.Time
 			}
 		}
 	}
@@ -121,6 +158,14 @@ func (i *Image) String() string {
 	builder.WriteString(i.Title)
 	builder.WriteString(", image=")
 	builder.WriteString(i.Image)
+	builder.WriteString(", status=")
+	builder.WriteString(fmt.Sprintf("%v", i.Status))
+	builder.WriteString(", created_at=")
+	builder.WriteString(i.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(i.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", deleted_at=")
+	builder.WriteString(i.DeletedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

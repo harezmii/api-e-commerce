@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"time"
 )
 
 // Image holds the schema definition for the Image entity.
@@ -16,6 +17,10 @@ func (Image) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title"),
 		field.String("image"),
+		field.Bool("status").Default(false),
+		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("updated_at").Optional(),
+		field.Time("deleted_at").Optional(),
 	}
 }
 

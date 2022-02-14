@@ -29,7 +29,11 @@ type Profile struct {
 	Address string `json:"address" form:"address" validate:"required"`
 	Phone   string `json:"phone" form:"phone" validate:"required,min=10,max=15"`
 }
-
+type Image struct {
+	ContentId int    `json:"contentId" xml:"contentId" validate:"required"`
+	Title     string `json:"title" xml:"title" validate:"required,min=3,max=50"`
+	Image     string `json:"image" xml:"image" validate:"required"`
+}
 type Comment struct {
 	Comment   string  `json:"comment" xml:"comment" form:"comment" validate:"required"`
 	Rate      float64 `json:"rate" xml:"rate" form:"rate" validate:"required"`

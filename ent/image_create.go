@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -29,6 +30,62 @@ func (ic *ImageCreate) SetTitle(s string) *ImageCreate {
 // SetImage sets the "image" field.
 func (ic *ImageCreate) SetImage(s string) *ImageCreate {
 	ic.mutation.SetImage(s)
+	return ic
+}
+
+// SetStatus sets the "status" field.
+func (ic *ImageCreate) SetStatus(b bool) *ImageCreate {
+	ic.mutation.SetStatus(b)
+	return ic
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ic *ImageCreate) SetNillableStatus(b *bool) *ImageCreate {
+	if b != nil {
+		ic.SetStatus(*b)
+	}
+	return ic
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (ic *ImageCreate) SetCreatedAt(t time.Time) *ImageCreate {
+	ic.mutation.SetCreatedAt(t)
+	return ic
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (ic *ImageCreate) SetNillableCreatedAt(t *time.Time) *ImageCreate {
+	if t != nil {
+		ic.SetCreatedAt(*t)
+	}
+	return ic
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ic *ImageCreate) SetUpdatedAt(t time.Time) *ImageCreate {
+	ic.mutation.SetUpdatedAt(t)
+	return ic
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (ic *ImageCreate) SetNillableUpdatedAt(t *time.Time) *ImageCreate {
+	if t != nil {
+		ic.SetUpdatedAt(*t)
+	}
+	return ic
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (ic *ImageCreate) SetDeletedAt(t time.Time) *ImageCreate {
+	ic.mutation.SetDeletedAt(t)
+	return ic
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (ic *ImageCreate) SetNillableDeletedAt(t *time.Time) *ImageCreate {
+	if t != nil {
+		ic.SetDeletedAt(*t)
+	}
 	return ic
 }
 
@@ -58,6 +115,7 @@ func (ic *ImageCreate) Save(ctx context.Context) (*Image, error) {
 		err  error
 		node *Image
 	)
+	ic.defaults()
 	if len(ic.hooks) == 0 {
 		if err = ic.check(); err != nil {
 			return nil, err
@@ -115,6 +173,18 @@ func (ic *ImageCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ic *ImageCreate) defaults() {
+	if _, ok := ic.mutation.Status(); !ok {
+		v := image.DefaultStatus
+		ic.mutation.SetStatus(v)
+	}
+	if _, ok := ic.mutation.CreatedAt(); !ok {
+		v := image.DefaultCreatedAt()
+		ic.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ic *ImageCreate) check() error {
 	if _, ok := ic.mutation.Title(); !ok {
@@ -122,6 +192,12 @@ func (ic *ImageCreate) check() error {
 	}
 	if _, ok := ic.mutation.Image(); !ok {
 		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Image.image"`)}
+	}
+	if _, ok := ic.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Image.status"`)}
+	}
+	if _, ok := ic.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Image.created_at"`)}
 	}
 	return nil
 }
@@ -166,6 +242,38 @@ func (ic *ImageCreate) createSpec() (*Image, *sqlgraph.CreateSpec) {
 		})
 		_node.Image = value
 	}
+	if value, ok := ic.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: image.FieldStatus,
+		})
+		_node.Status = value
+	}
+	if value, ok := ic.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: image.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := ic.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: image.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := ic.mutation.DeletedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: image.FieldDeletedAt,
+		})
+		_node.DeletedAt = value
+	}
 	if nodes := ic.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -202,6 +310,7 @@ func (icb *ImageCreateBulk) Save(ctx context.Context) ([]*Image, error) {
 	for i := range icb.builders {
 		func(i int, root context.Context) {
 			builder := icb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ImageMutation)
 				if !ok {

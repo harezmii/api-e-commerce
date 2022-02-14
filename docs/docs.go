@@ -220,7 +220,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Comment"
+                            "$ref": "#/definitions/entity.comment"
                         }
                     }
                 }
@@ -239,11 +239,11 @@ const docTemplate_swagger = `{
                 "summary": "Create Data",
                 "parameters": [
                     {
-                        "description": "Comment form",
+                        "description": "comment form",
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/entity.Comment"
+                            "$ref": "#/definitions/entity.comment"
                         }
                     }
                 ],
@@ -253,7 +253,7 @@ const docTemplate_swagger = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.Comment"
+                                "$ref": "#/definitions/entity.comment"
                             }
                         }
                     }
@@ -276,7 +276,7 @@ const docTemplate_swagger = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Comment ID",
+                        "description": "comment ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -286,7 +286,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Comment"
+                            "$ref": "#/definitions/entity.comment"
                         }
                     }
                 }
@@ -306,17 +306,17 @@ const docTemplate_swagger = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Comment ID",
+                        "description": "comment ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Comment update form",
+                        "description": "comment update form",
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/entity.Comment"
+                            "$ref": "#/definitions/entity.comment"
                         }
                     }
                 ],
@@ -324,7 +324,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Comment"
+                            "$ref": "#/definitions/entity.comment"
                         }
                     }
                 }
@@ -344,7 +344,7 @@ const docTemplate_swagger = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Comment ID",
+                        "description": "comment ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -356,7 +356,7 @@ const docTemplate_swagger = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.Comment"
+                                "$ref": "#/definitions/entity.comment"
                             }
                         }
                     }
@@ -980,7 +980,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "entity.Comment": {
+        "entity.comment": {
             "type": "object",
             "required": [
                 "comment",

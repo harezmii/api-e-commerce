@@ -1,4 +1,4 @@
-package Comment
+package comment
 
 import (
 	"api/ent"
@@ -25,7 +25,7 @@ type ControllerComment struct {
 // @Tags         Comments
 // @Accept       json
 // @Produce      json
-// @Param        body body  entity.Comment  false   "Comment form"
+// @Param        body body  entity.Comment  false   "comment form"
 // @Success      201  {object}  []entity.Comment
 // @Router       /comments [post]
 func (c ControllerComment) Store(ctx *fiber.Ctx) error {
@@ -42,11 +42,11 @@ func (c ControllerComment) Store(ctx *fiber.Ctx) error {
 		dbError := c.Client.Comment.Create().SetComment(comment.Comment).SetIP(comment.IP).SetRate(comment.Rate).SetStatus(*comment.Status).Exec(c.Context)
 
 		if dbError != nil {
-			logs.Logger(ctx, "Store!Comment not created.Database error.", logs.ERROR)
-			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Comment not created.Database error."})
+			logs.Logger(ctx, "Store!comment not created.Database error.", logs.ERROR)
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "comment not created.Database error."})
 		}
 
-		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Comment created", Data: comment})
+		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "comment created", Data: comment})
 	}
 	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
 
@@ -59,8 +59,8 @@ func (c ControllerComment) Store(ctx *fiber.Ctx) error {
 // @Tags         Comments
 // @Accept       json
 // @Produce      json
-// @Param        id path  string  true   "Comment ID"
-// @Param        body body  entity.Comment  false   "Comment update form"
+// @Param        id path  string  true   "comment ID"
+// @Param        body body  entity.Comment  false   "comment update form"
 // @Success      200  {object}  entity.Comment
 // @Router       /comments/{id} [put]
 func (c ControllerComment) Update(ctx *fiber.Ctx) error {
@@ -96,11 +96,11 @@ func (c ControllerComment) Update(ctx *fiber.Ctx) error {
 			}
 		}
 		if err != nil {
-			logs.Logger(ctx, "Update!Comment not updated.", logs.ERROR)
+			logs.Logger(ctx, "Update!comment not updated.", logs.ERROR)
 			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "comment not updated"})
 		}
 		return ctx.Status(fiber.StatusOK).JSON(
-			response.SuccessResponse{StatusCode: 200, Message: "Comment Updated.", Data: comment},
+			response.SuccessResponse{StatusCode: 200, Message: "comment Updated.", Data: comment},
 		)
 	}
 	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)
@@ -182,14 +182,14 @@ func (c ControllerComment) Index(ctx *fiber.Ctx) error {
 	}).Limit(10).Offset(offsetInt).Order(sort).Select(selectField...).Scan(c.Context, &responseDto)
 
 	if err != nil {
-		logs.Logger(ctx, "Index!Comment is empty", logs.ERROR)
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Comment is empty"})
+		logs.Logger(ctx, "Index!comment is empty", logs.ERROR)
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "comment is empty"})
 	}
 	// Deleted record find
 	if len(responseDto) == 0 {
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Comment not finding"})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "comment not finding"})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Comment is all", Data: responseDto})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "comment is all", Data: responseDto})
 }
 
 // Destroy ShowAccount godoc
@@ -198,7 +198,7 @@ func (c ControllerComment) Index(ctx *fiber.Ctx) error {
 // @Tags         Comments
 // @Accept       json
 // @Produce      json
-// @Param        id  path  string  true   "Comment ID"
+// @Param        id  path  string  true   "comment ID"
 // @Success      200  {object}  []entity.Comment
 // @Router       /comments/{id} [delete]
 func (c ControllerComment) Destroy(ctx *fiber.Ctx) error {
@@ -221,10 +221,10 @@ func (c ControllerComment) Destroy(ctx *fiber.Ctx) error {
 		c.Client.Comment.UpdateOneID(idInt).SetDeletedAt(time.Now()).Exec(c.Context)
 	}
 	if err != nil {
-		logs.Logger(ctx, "Delete!Comment not find.Not deleted.", logs.ERROR)
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Comment not find.Not deleted."})
+		logs.Logger(ctx, "Delete!comment not find.Not deleted.", logs.ERROR)
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "comment not find.Not deleted."})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Comment deleted", Data: "Comment deleted id:"})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "comment deleted", Data: "comment deleted id:"})
 }
 
 // Show ShowAccount godoc
@@ -233,7 +233,7 @@ func (c ControllerComment) Destroy(ctx *fiber.Ctx) error {
 // @Tags         Comments
 // @Accept       json
 // @Produce      json
-// @Param        id  path  string  true   "Comment ID"
+// @Param        id  path  string  true   "comment ID"
 // @Success      200  {object}  entity.Comment
 // @Router       /comments/{id} [get]
 func (c ControllerComment) Show(ctx *fiber.Ctx) error {
@@ -253,13 +253,13 @@ func (c ControllerComment) Show(ctx *fiber.Ctx) error {
 
 	// Database query error
 	if err != nil {
-		logs.Logger(ctx, "Show!Comment not finding", logs.ERROR)
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Comment not finding"})
+		logs.Logger(ctx, "Show!comment not finding", logs.ERROR)
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "comment not finding"})
 	}
 
 	// Deleted record find
 	if len(responseDto) == 0 {
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Comment not finding"})
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "comment not finding"})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Comment is finding", Data: responseDto})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "comment is finding", Data: responseDto})
 }
