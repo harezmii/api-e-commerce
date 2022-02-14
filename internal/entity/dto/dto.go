@@ -29,6 +29,14 @@ type CategoryDto struct {
 	Image       string `json:"image,omitempty"`
 	Status      *bool  `json:"status,omitempty"`
 }
+
+type CommentDto struct {
+	Id      int     `json:"id,omitempty"`
+	Comment string  `json:"comment,omitempty"`
+	Rate    float32 `json:"rate,omitempty"`
+	Ip      string  `json:"ip,omitempty"`
+	Status  *bool   `json:"status,omitempty"`
+}
 type MessageDto struct {
 	Id      int    `json:"id,omitempty"`
 	Name    string `json:"name,omitempty"`

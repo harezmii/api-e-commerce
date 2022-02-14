@@ -86,4 +86,17 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/categories/:id", c.Show)
 	app.Delete("/categories/:id", c.Destroy)
 	app.Put("/categories/:id", c.Update)
+
+	co := category.ControllerCategory{
+		Controller: struct {
+			Client  *ent.Client
+			Context context.Context
+			Entity  interface{}
+		}{Client: connection, Context: backContext, Entity: entity.Comment{}},
+	}
+	app.Post("/comments", co.Store)
+	app.Get("/comments", co.Index)
+	app.Get("/comments/:id", co.Show)
+	app.Delete("/comments/:id", co.Destroy)
+	app.Put("/comments/:id", co.Update)
 }

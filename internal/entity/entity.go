@@ -30,6 +30,14 @@ type Profile struct {
 	Phone   string `json:"phone" form:"phone" validate:"required,min=10,max=15"`
 }
 
+type Comment struct {
+	Comment   string  `json:"comment" xml:"comment" form:"comment" validate:"required"`
+	Rate      float64 `json:"rate" xml:"rate" form:"rate" validate:"required"`
+	ContentId int     `json:"contentId,omitempty"`
+	UserId    int     `json:"userId,omitempty"`
+	IP        string  `json:"ip" xml:"ip" form:"ip" validate:"required"`
+	Status    *bool   `json:"status" xml:"status" form:"status" validate:"required"`
+}
 type Message struct {
 	Name    string `json:"name" form:"name" validate:"required,min=3,max=30"`
 	Email   string `json:"email" form:"email" validate:"required,email"`
