@@ -1160,15 +1160,15 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 	return obj
 }
 
-// QueryProfile queries the profile edge of a User.
-func (c *UserClient) QueryProfile(u *User) *ProfileQuery {
+// QueryProfiles queries the profiles edge of a User.
+func (c *UserClient) QueryProfiles(u *User) *ProfileQuery {
 	query := &ProfileQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(profile.Table, profile.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.ProfileTable, user.ProfileColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.ProfilesTable, user.ProfilesColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

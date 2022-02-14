@@ -152,7 +152,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "user_profile", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "user_profiles", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// ProfilesTable holds the schema information for the "profiles" table.
 	ProfilesTable = &schema.Table{
@@ -161,7 +161,7 @@ var (
 		PrimaryKey: []*schema.Column{ProfilesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "profiles_users_profile",
+				Symbol:     "profiles_users_profiles",
 				Columns:    []*schema.Column{ProfilesColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,

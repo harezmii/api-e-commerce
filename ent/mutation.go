@@ -6821,8 +6821,8 @@ type UserMutation struct {
 	updated_at      *time.Time
 	deleted_at      *time.Time
 	clearedFields   map[string]struct{}
-	profile         *int
-	clearedprofile  bool
+	profiles        *int
+	clearedprofiles bool
 	comments        map[int]struct{}
 	removedcomments map[int]struct{}
 	clearedcomments bool
@@ -7246,43 +7246,43 @@ func (m *UserMutation) ResetDeletedAt() {
 	delete(m.clearedFields, user.FieldDeletedAt)
 }
 
-// SetProfileID sets the "profile" edge to the Profile entity by id.
-func (m *UserMutation) SetProfileID(id int) {
-	m.profile = &id
+// SetProfilesID sets the "profiles" edge to the Profile entity by id.
+func (m *UserMutation) SetProfilesID(id int) {
+	m.profiles = &id
 }
 
-// ClearProfile clears the "profile" edge to the Profile entity.
-func (m *UserMutation) ClearProfile() {
-	m.clearedprofile = true
+// ClearProfiles clears the "profiles" edge to the Profile entity.
+func (m *UserMutation) ClearProfiles() {
+	m.clearedprofiles = true
 }
 
-// ProfileCleared reports if the "profile" edge to the Profile entity was cleared.
-func (m *UserMutation) ProfileCleared() bool {
-	return m.clearedprofile
+// ProfilesCleared reports if the "profiles" edge to the Profile entity was cleared.
+func (m *UserMutation) ProfilesCleared() bool {
+	return m.clearedprofiles
 }
 
-// ProfileID returns the "profile" edge ID in the mutation.
-func (m *UserMutation) ProfileID() (id int, exists bool) {
-	if m.profile != nil {
-		return *m.profile, true
+// ProfilesID returns the "profiles" edge ID in the mutation.
+func (m *UserMutation) ProfilesID() (id int, exists bool) {
+	if m.profiles != nil {
+		return *m.profiles, true
 	}
 	return
 }
 
-// ProfileIDs returns the "profile" edge IDs in the mutation.
+// ProfilesIDs returns the "profiles" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProfileID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) ProfileIDs() (ids []int) {
-	if id := m.profile; id != nil {
+// ProfilesID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) ProfilesIDs() (ids []int) {
+	if id := m.profiles; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetProfile resets all changes to the "profile" edge.
-func (m *UserMutation) ResetProfile() {
-	m.profile = nil
-	m.clearedprofile = false
+// ResetProfiles resets all changes to the "profiles" edge.
+func (m *UserMutation) ResetProfiles() {
+	m.profiles = nil
+	m.clearedprofiles = false
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by ids.
@@ -7646,8 +7646,8 @@ func (m *UserMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.profile != nil {
-		edges = append(edges, user.EdgeProfile)
+	if m.profiles != nil {
+		edges = append(edges, user.EdgeProfiles)
 	}
 	if m.comments != nil {
 		edges = append(edges, user.EdgeComments)
@@ -7662,8 +7662,8 @@ func (m *UserMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case user.EdgeProfile:
-		if id := m.profile; id != nil {
+	case user.EdgeProfiles:
+		if id := m.profiles; id != nil {
 			return []ent.Value{*id}
 		}
 	case user.EdgeComments:
@@ -7717,8 +7717,8 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.clearedprofile {
-		edges = append(edges, user.EdgeProfile)
+	if m.clearedprofiles {
+		edges = append(edges, user.EdgeProfiles)
 	}
 	if m.clearedcomments {
 		edges = append(edges, user.EdgeComments)
@@ -7733,8 +7733,8 @@ func (m *UserMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
 	switch name {
-	case user.EdgeProfile:
-		return m.clearedprofile
+	case user.EdgeProfiles:
+		return m.clearedprofiles
 	case user.EdgeComments:
 		return m.clearedcomments
 	case user.EdgeProducts:
@@ -7747,8 +7747,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
 	switch name {
-	case user.EdgeProfile:
-		m.ClearProfile()
+	case user.EdgeProfiles:
+		m.ClearProfiles()
 		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
@@ -7758,8 +7758,8 @@ func (m *UserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
 	switch name {
-	case user.EdgeProfile:
-		m.ResetProfile()
+	case user.EdgeProfiles:
+		m.ResetProfiles()
 		return nil
 	case user.EdgeComments:
 		m.ResetComments()

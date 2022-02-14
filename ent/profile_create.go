@@ -95,14 +95,6 @@ func (pc *ProfileCreate) SetOwnerID(id int) *ProfileCreate {
 	return pc
 }
 
-// SetNillableOwnerID sets the "owner" edge to the User entity by ID if the given value is not nil.
-func (pc *ProfileCreate) SetNillableOwnerID(id *int) *ProfileCreate {
-	if id != nil {
-		pc = pc.SetOwnerID(*id)
-	}
-	return pc
-}
-
 // SetOwner sets the "owner" edge to the User entity.
 func (pc *ProfileCreate) SetOwner(u *User) *ProfileCreate {
 	return pc.SetOwnerID(u.ID)
@@ -196,6 +188,9 @@ func (pc *ProfileCreate) check() error {
 	if _, ok := pc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Profile.created_at"`)}
 	}
+	if _, ok := pc.mutation.OwnerID(); !ok {
+		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "Profile.owner"`)}
+	}
 	return nil
 }
 
@@ -288,7 +283,7 @@ func (pc *ProfileCreate) createSpec() (*Profile, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_profile = &nodes[0]
+		_node.user_profiles = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

@@ -17,7 +17,7 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/swaggo/fiber-swagger v1.0.3
-	github.com/swaggo/swag v1.7.8
+	github.com/swaggo/swag v1.7.9
 	go.elastic.co/apm/module/apmfiber v1.15.0
 	go.uber.org/zap v1.20.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5

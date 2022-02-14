@@ -115,23 +115,23 @@ func (uu *UserUpdate) ClearDeletedAt() *UserUpdate {
 	return uu
 }
 
-// SetProfileID sets the "profile" edge to the Profile entity by ID.
-func (uu *UserUpdate) SetProfileID(id int) *UserUpdate {
-	uu.mutation.SetProfileID(id)
+// SetProfilesID sets the "profiles" edge to the Profile entity by ID.
+func (uu *UserUpdate) SetProfilesID(id int) *UserUpdate {
+	uu.mutation.SetProfilesID(id)
 	return uu
 }
 
-// SetNillableProfileID sets the "profile" edge to the Profile entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableProfileID(id *int) *UserUpdate {
+// SetNillableProfilesID sets the "profiles" edge to the Profile entity by ID if the given value is not nil.
+func (uu *UserUpdate) SetNillableProfilesID(id *int) *UserUpdate {
 	if id != nil {
-		uu = uu.SetProfileID(*id)
+		uu = uu.SetProfilesID(*id)
 	}
 	return uu
 }
 
-// SetProfile sets the "profile" edge to the Profile entity.
-func (uu *UserUpdate) SetProfile(p *Profile) *UserUpdate {
-	return uu.SetProfileID(p.ID)
+// SetProfiles sets the "profiles" edge to the Profile entity.
+func (uu *UserUpdate) SetProfiles(p *Profile) *UserUpdate {
+	return uu.SetProfilesID(p.ID)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
@@ -169,9 +169,9 @@ func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
 }
 
-// ClearProfile clears the "profile" edge to the Profile entity.
-func (uu *UserUpdate) ClearProfile() *UserUpdate {
-	uu.mutation.ClearProfile()
+// ClearProfiles clears the "profiles" edge to the Profile entity.
+func (uu *UserUpdate) ClearProfiles() *UserUpdate {
+	uu.mutation.ClearProfiles()
 	return uu
 }
 
@@ -357,12 +357,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldDeletedAt,
 		})
 	}
-	if uu.mutation.ProfileCleared() {
+	if uu.mutation.ProfilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   user.ProfileTable,
-			Columns: []string{user.ProfileColumn},
+			Table:   user.ProfilesTable,
+			Columns: []string{user.ProfilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -373,12 +373,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.ProfileIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.ProfilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   user.ProfileTable,
-			Columns: []string{user.ProfileColumn},
+			Table:   user.ProfilesTable,
+			Columns: []string{user.ProfilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -603,23 +603,23 @@ func (uuo *UserUpdateOne) ClearDeletedAt() *UserUpdateOne {
 	return uuo
 }
 
-// SetProfileID sets the "profile" edge to the Profile entity by ID.
-func (uuo *UserUpdateOne) SetProfileID(id int) *UserUpdateOne {
-	uuo.mutation.SetProfileID(id)
+// SetProfilesID sets the "profiles" edge to the Profile entity by ID.
+func (uuo *UserUpdateOne) SetProfilesID(id int) *UserUpdateOne {
+	uuo.mutation.SetProfilesID(id)
 	return uuo
 }
 
-// SetNillableProfileID sets the "profile" edge to the Profile entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableProfileID(id *int) *UserUpdateOne {
+// SetNillableProfilesID sets the "profiles" edge to the Profile entity by ID if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableProfilesID(id *int) *UserUpdateOne {
 	if id != nil {
-		uuo = uuo.SetProfileID(*id)
+		uuo = uuo.SetProfilesID(*id)
 	}
 	return uuo
 }
 
-// SetProfile sets the "profile" edge to the Profile entity.
-func (uuo *UserUpdateOne) SetProfile(p *Profile) *UserUpdateOne {
-	return uuo.SetProfileID(p.ID)
+// SetProfiles sets the "profiles" edge to the Profile entity.
+func (uuo *UserUpdateOne) SetProfiles(p *Profile) *UserUpdateOne {
+	return uuo.SetProfilesID(p.ID)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
@@ -657,9 +657,9 @@ func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
 }
 
-// ClearProfile clears the "profile" edge to the Profile entity.
-func (uuo *UserUpdateOne) ClearProfile() *UserUpdateOne {
-	uuo.mutation.ClearProfile()
+// ClearProfiles clears the "profiles" edge to the Profile entity.
+func (uuo *UserUpdateOne) ClearProfiles() *UserUpdateOne {
+	uuo.mutation.ClearProfiles()
 	return uuo
 }
 
@@ -869,12 +869,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Column: user.FieldDeletedAt,
 		})
 	}
-	if uuo.mutation.ProfileCleared() {
+	if uuo.mutation.ProfilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   user.ProfileTable,
-			Columns: []string{user.ProfileColumn},
+			Table:   user.ProfilesTable,
+			Columns: []string{user.ProfilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -885,12 +885,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.ProfileIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.ProfilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   user.ProfileTable,
-			Columns: []string{user.ProfileColumn},
+			Table:   user.ProfilesTable,
+			Columns: []string{user.ProfilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

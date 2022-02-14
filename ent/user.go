@@ -40,8 +40,8 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// Profile holds the value of the profile edge.
-	Profile *Profile `json:"profile,omitempty"`
+	// Profiles holds the value of the profiles edge.
+	Profiles *Profile `json:"profiles,omitempty"`
 	// Comments holds the value of the comments edge.
 	Comments []*Comment `json:"comments,omitempty"`
 	// Products holds the value of the products edge.
@@ -51,18 +51,18 @@ type UserEdges struct {
 	loadedTypes [3]bool
 }
 
-// ProfileOrErr returns the Profile value or an error if the edge
+// ProfilesOrErr returns the Profiles value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) ProfileOrErr() (*Profile, error) {
+func (e UserEdges) ProfilesOrErr() (*Profile, error) {
 	if e.loadedTypes[0] {
-		if e.Profile == nil {
-			// The edge profile was loaded in eager-loading,
+		if e.Profiles == nil {
+			// The edge profiles was loaded in eager-loading,
 			// but was not found.
 			return nil, &NotFoundError{label: profile.Label}
 		}
-		return e.Profile, nil
+		return e.Profiles, nil
 	}
-	return nil, &NotLoadedError{edge: "profile"}
+	return nil, &NotLoadedError{edge: "profiles"}
 }
 
 // CommentsOrErr returns the Comments value or an error if the edge
@@ -170,9 +170,9 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryProfile queries the "profile" edge of the User entity.
-func (u *User) QueryProfile() *ProfileQuery {
-	return (&UserClient{config: u.config}).QueryProfile(u)
+// QueryProfiles queries the "profiles" edge of the User entity.
+func (u *User) QueryProfiles() *ProfileQuery {
+	return (&UserClient{config: u.config}).QueryProfiles(u)
 }
 
 // QueryComments queries the "comments" edge of the User entity.

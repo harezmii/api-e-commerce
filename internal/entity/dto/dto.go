@@ -21,6 +21,14 @@ type UserDto struct {
 	Email   string `json:"email,omitempty"`
 	Status  *bool  `json:"status,omitempty"`
 }
+type CategoryDto struct {
+	Id          int    `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Keywords    string `json:"keywords,omitempty"`
+	Description string `json:"description,omitempty"`
+	Image       string `json:"image,omitempty"`
+	Status      *bool  `json:"status,omitempty"`
+}
 type MessageDto struct {
 	Id      int    `json:"id,omitempty"`
 	Name    string `json:"name,omitempty"`

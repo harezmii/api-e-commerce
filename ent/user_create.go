@@ -95,23 +95,23 @@ func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
 	return uc
 }
 
-// SetProfileID sets the "profile" edge to the Profile entity by ID.
-func (uc *UserCreate) SetProfileID(id int) *UserCreate {
-	uc.mutation.SetProfileID(id)
+// SetProfilesID sets the "profiles" edge to the Profile entity by ID.
+func (uc *UserCreate) SetProfilesID(id int) *UserCreate {
+	uc.mutation.SetProfilesID(id)
 	return uc
 }
 
-// SetNillableProfileID sets the "profile" edge to the Profile entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableProfileID(id *int) *UserCreate {
+// SetNillableProfilesID sets the "profiles" edge to the Profile entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableProfilesID(id *int) *UserCreate {
 	if id != nil {
-		uc = uc.SetProfileID(*id)
+		uc = uc.SetProfilesID(*id)
 	}
 	return uc
 }
 
-// SetProfile sets the "profile" edge to the Profile entity.
-func (uc *UserCreate) SetProfile(p *Profile) *UserCreate {
-	return uc.SetProfileID(p.ID)
+// SetProfiles sets the "profiles" edge to the Profile entity.
+func (uc *UserCreate) SetProfiles(p *Profile) *UserCreate {
+	return uc.SetProfilesID(p.ID)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
@@ -332,12 +332,12 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.DeletedAt = value
 	}
-	if nodes := uc.mutation.ProfileIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.ProfilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   user.ProfileTable,
-			Columns: []string{user.ProfileColumn},
+			Table:   user.ProfilesTable,
+			Columns: []string{user.ProfilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

@@ -863,25 +863,25 @@ func DeletedAtNotNil() predicate.User {
 	})
 }
 
-// HasProfile applies the HasEdge predicate on the "profile" edge.
-func HasProfile() predicate.User {
+// HasProfiles applies the HasEdge predicate on the "profiles" edge.
+func HasProfiles() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ProfileTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, ProfileTable, ProfileColumn),
+			sqlgraph.To(ProfilesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, ProfilesTable, ProfilesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasProfileWith applies the HasEdge predicate on the "profile" edge with a given conditions (other predicates).
-func HasProfileWith(preds ...predicate.Profile) predicate.User {
+// HasProfilesWith applies the HasEdge predicate on the "profiles" edge with a given conditions (other predicates).
+func HasProfilesWith(preds ...predicate.Profile) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ProfileInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, ProfileTable, ProfileColumn),
+			sqlgraph.To(ProfilesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, ProfilesTable, ProfilesColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

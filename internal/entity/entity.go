@@ -1,5 +1,13 @@
 package entity
 
+type Category struct {
+	Title       string `json:"title" xml:"title" form:"title" validate:"required,min=3,max=30"`
+	Keywords    string `json:"keywords" xml:"keywords" form:"keywords" validate:"required,min=3,max=250"`
+	Description string `json:"description" xml:"description" form:"description" validate:"required,min=10,max=250"`
+	Image       string `json:"image" xml:"image" form:"image" validate:"required"`
+	Status      *bool  `json:"status" xml:"status" form:"status" validate:"required"`
+}
+
 type Faq struct {
 	Question string `json:"question" form:"question" validate:"required,min=3,max=40"`
 	Answer   string `json:"answer" form:"answer" validate:"required,min=3,max=250"`
@@ -16,7 +24,7 @@ type User struct {
 }
 
 type Profile struct {
-	UserId  int    `json:"userId" validate:"required"`
+	UserId  int    `json:"userId,omitempty"`
 	Image   string `json:"image" form:"image" validate:"required"`
 	Address string `json:"address" form:"address" validate:"required"`
 	Phone   string `json:"phone" form:"phone" validate:"required,min=10,max=15"`

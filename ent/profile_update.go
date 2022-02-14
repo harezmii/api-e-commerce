@@ -121,14 +121,6 @@ func (pu *ProfileUpdate) SetOwnerID(id int) *ProfileUpdate {
 	return pu
 }
 
-// SetNillableOwnerID sets the "owner" edge to the User entity by ID if the given value is not nil.
-func (pu *ProfileUpdate) SetNillableOwnerID(id *int) *ProfileUpdate {
-	if id != nil {
-		pu = pu.SetOwnerID(*id)
-	}
-	return pu
-}
-
 // SetOwner sets the "owner" edge to the User entity.
 func (pu *ProfileUpdate) SetOwner(u *User) *ProfileUpdate {
 	return pu.SetOwnerID(u.ID)
@@ -152,12 +144,18 @@ func (pu *ProfileUpdate) Save(ctx context.Context) (int, error) {
 		affected int
 	)
 	if len(pu.hooks) == 0 {
+		if err = pu.check(); err != nil {
+			return 0, err
+		}
 		affected, err = pu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*ProfileMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = pu.check(); err != nil {
+				return 0, err
 			}
 			pu.mutation = mutation
 			affected, err = pu.sqlSave(ctx)
@@ -197,6 +195,14 @@ func (pu *ProfileUpdate) ExecX(ctx context.Context) {
 	if err := pu.Exec(ctx); err != nil {
 		panic(err)
 	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (pu *ProfileUpdate) check() error {
+	if _, ok := pu.mutation.OwnerID(); pu.mutation.OwnerCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Profile.owner"`)
+	}
+	return nil
 }
 
 func (pu *ProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
@@ -423,14 +429,6 @@ func (puo *ProfileUpdateOne) SetOwnerID(id int) *ProfileUpdateOne {
 	return puo
 }
 
-// SetNillableOwnerID sets the "owner" edge to the User entity by ID if the given value is not nil.
-func (puo *ProfileUpdateOne) SetNillableOwnerID(id *int) *ProfileUpdateOne {
-	if id != nil {
-		puo = puo.SetOwnerID(*id)
-	}
-	return puo
-}
-
 // SetOwner sets the "owner" edge to the User entity.
 func (puo *ProfileUpdateOne) SetOwner(u *User) *ProfileUpdateOne {
 	return puo.SetOwnerID(u.ID)
@@ -461,12 +459,18 @@ func (puo *ProfileUpdateOne) Save(ctx context.Context) (*Profile, error) {
 		node *Profile
 	)
 	if len(puo.hooks) == 0 {
+		if err = puo.check(); err != nil {
+			return nil, err
+		}
 		node, err = puo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*ProfileMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = puo.check(); err != nil {
+				return nil, err
 			}
 			puo.mutation = mutation
 			node, err = puo.sqlSave(ctx)
@@ -506,6 +510,14 @@ func (puo *ProfileUpdateOne) ExecX(ctx context.Context) {
 	if err := puo.Exec(ctx); err != nil {
 		panic(err)
 	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (puo *ProfileUpdateOne) check() error {
+	if _, ok := puo.mutation.OwnerID(); puo.mutation.OwnerCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Profile.owner"`)
+	}
+	return nil
 }
 
 func (puo *ProfileUpdateOne) sqlSave(ctx context.Context) (_node *Profile, err error) {
