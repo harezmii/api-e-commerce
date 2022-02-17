@@ -20,16 +20,17 @@ type Config struct {
 }
 
 func ConfigDefault(params ...string) Config {
+	c := config.GetConf()
 	cfg := Config{}
 
 	if cfg.Endpoint == "" {
-		cfg.Endpoint = config.GetEnvironment("ENDPOINT", config.STRING).(string)
+		cfg.Endpoint = c.Minio.EndPoint
 	}
 	if cfg.AccessKey == "" {
-		cfg.AccessKey = config.GetEnvironment("ACCESS_KEY", config.STRING).(string)
+		cfg.AccessKey = c.Minio.AccessKey
 	}
 	if cfg.SecretKey == "" {
-		cfg.SecretKey = config.GetEnvironment("SECRET_KEY", config.STRING).(string)
+		cfg.SecretKey = c.Minio.SecretKey
 	}
 	if cfg.Context == nil {
 		cfg.Context = context.Background()

@@ -17,19 +17,15 @@ type Provider struct {
 	results map[string]interface{}
 }
 
-var token string = config.GetEnvironment("VAULT_TOKEN", config.STRING).(string)
-var addr string = config.GetEnvironment("VAULT_ADDRESS", config.STRING).(string)
-var path string = config.GetEnvironment("VAULT_PATH", config.STRING).(string)
-
 func New() (*Provider, error) {
-
-	client, clientError := api.NewClient(&api.Config{Address: addr})
+	cfg := config.GetConf()
+	client, clientError := api.NewClient(&api.Config{Address: cfg.Vault.VaultAddress})
 	if clientError != nil {
 		return nil, fmt.Errorf("Vault client error")
 	}
-	client.SetToken(token)
+	client.SetToken(cfg.Vault.VaultToken)
 	return &Provider{
-		path:    path,
+		path:    cfg.Vault.VaultPath,
 		client:  client.Logical(),
 		results: map[string]interface{}{},
 	}, nil

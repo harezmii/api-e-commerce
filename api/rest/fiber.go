@@ -17,8 +17,10 @@ import (
 )
 
 func RunRest(port string) {
+	cfg := config.GetConf()
+
 	app := fiber.New(fiber.Config{
-		AppName: config.GetEnvironment("APP_NAME", config.STRING).(string),
+		AppName: cfg.Server.AppName,
 		//BodyLimit: config.GetEnvironment("BODY_LİMİT", config.INTEGER).(int),
 	})
 	app.Static("images", "./images")

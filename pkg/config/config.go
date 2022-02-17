@@ -4,52 +4,58 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	INTEGER int = 0
-	STRING  int = 1
-	BOOL    int = 2
-	FLOAT   int = 3
-	MAP     int = 4
-)
-
-func GetEnvironment(key string, process int) interface{} {
-	if loadEnvironment() {
-		switch process {
-		case INTEGER:
-			{
-				return viper.GetInt(key)
-				break
-			}
-		case STRING:
-			{
-				return viper.GetString(key)
-			}
-		case BOOL:
-			{
-				return viper.GetBool(key)
-			}
-		case FLOAT:
-			{
-				return viper.GetFloat64(key)
-			}
-		case MAP:
-			{
-				return viper.GetStringMap(key)
-			}
-
-		}
-	}
-	return "Get environment error"
+type Config struct {
+	Server   Server
+	Minio    Minio
+	Vault    Vault
+	Database Database
 }
 
-func loadEnvironment() bool {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.SetConfigFile("config.yaml")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
+type Server struct {
+	AppName   string
+	BodyLimit int
+	Port      int
+}
+type Database struct {
+	DatabaseUrl    string
+	DriverName     string
+	DataSourceName string
+}
+type Vault struct {
+	VaultToken   string
+	VaultAddress string
+	VaultPath    string
+}
+type Minio struct {
+	EndPoint  string
+	AccessKey string
+	SecretKey string
+}
+
+func LoadEnvironment() (*viper.Viper, error) {
+	v := viper.New()
+	v.SetConfigName("config")
+	v.SetConfigType("yaml")
+	v.SetConfigFile("config.yaml")
+	v.AddConfigPath(".")
+	v.AutomaticEnv()
+	err := v.ReadInConfig()
 	if err != nil {
-		return false
+		return nil, err
 	}
-	return true
+	return v, nil
+}
+func ParseEnvironment(v *viper.Viper) (Config, error) {
+	var cfg Config
+	err := v.Unmarshal(&cfg)
+	if err != nil {
+		return Config{}, err
+	}
+	return cfg, nil
+}
+
+func GetConf() Config {
+	var vip, _ = LoadEnvironment()
+	var c, _ = ParseEnvironment(vip)
+	return c
 }

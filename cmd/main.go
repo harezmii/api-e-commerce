@@ -3,6 +3,7 @@ package main
 import (
 	"api/api/rest"
 	"api/pkg/config"
+	"strconv"
 )
 
 // @title E Commerce API
@@ -20,7 +21,9 @@ import (
 // @host localhost:3500
 // @BasePath /api/v1
 func main() {
-	rest.RunRest(config.GetEnvironment("PORT", config.STRING).(string))
+	cfg := config.GetConf()
+
+	rest.RunRest(strconv.Itoa(cfg.Server.Port))
 }
 
 /*

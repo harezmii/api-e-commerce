@@ -11,9 +11,10 @@ type Database struct {
 }
 
 func EntConnection() *Client {
+	cfg := config2.GetConf()
 	pg := Database{
-		DriverName:     config2.GetEnvironment("DRIVER_NAME", config2.STRING).(string),
-		DataSourceName: config2.GetEnvironment("DATA_SOURCE_NAME", config2.STRING).(string),
+		DriverName:     cfg.Database.DriverName,
+		DataSourceName: cfg.Database.DataSourceName,
 	}
 	client, _ := Open(pg.DriverName, pg.DataSourceName)
 
