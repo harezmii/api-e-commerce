@@ -622,7 +622,7 @@ func (c *ImageClient) QueryOwner(i *Image) *ProductQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(image.Table, image.FieldID, id),
 			sqlgraph.To(product.Table, product.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, image.OwnerTable, image.OwnerPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, image.OwnerTable, image.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
 		return fromV, nil
@@ -810,15 +810,15 @@ func (c *ProductClient) GetX(ctx context.Context, id int) *Product {
 	return obj
 }
 
-// QueryPhotos queries the photos edge of a Product.
-func (c *ProductClient) QueryPhotos(pr *Product) *ImageQuery {
+// QueryImages queries the images edge of a Product.
+func (c *ProductClient) QueryImages(pr *Product) *ImageQuery {
 	query := &ImageQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(product.Table, product.FieldID, id),
 			sqlgraph.To(image.Table, image.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, product.PhotosTable, product.PhotosPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.ImagesTable, product.ImagesColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -1160,15 +1160,15 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 	return obj
 }
 
-// QueryProfiles queries the profiles edge of a User.
-func (c *UserClient) QueryProfiles(u *User) *ProfileQuery {
+// QueryProfile queries the profile edge of a User.
+func (c *UserClient) QueryProfile(u *User) *ProfileQuery {
 	query := &ProfileQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(profile.Table, profile.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.ProfilesTable, user.ProfilesColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.ProfileTable, user.ProfileColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

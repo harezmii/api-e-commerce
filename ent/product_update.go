@@ -102,19 +102,19 @@ func (pu *ProductUpdate) ClearDeletedAt() *ProductUpdate {
 	return pu
 }
 
-// AddPhotoIDs adds the "photos" edge to the Image entity by IDs.
-func (pu *ProductUpdate) AddPhotoIDs(ids ...int) *ProductUpdate {
-	pu.mutation.AddPhotoIDs(ids...)
+// AddImageIDs adds the "images" edge to the Image entity by IDs.
+func (pu *ProductUpdate) AddImageIDs(ids ...int) *ProductUpdate {
+	pu.mutation.AddImageIDs(ids...)
 	return pu
 }
 
-// AddPhotos adds the "photos" edges to the Image entity.
-func (pu *ProductUpdate) AddPhotos(i ...*Image) *ProductUpdate {
+// AddImages adds the "images" edges to the Image entity.
+func (pu *ProductUpdate) AddImages(i ...*Image) *ProductUpdate {
 	ids := make([]int, len(i))
 	for j := range i {
 		ids[j] = i[j].ID
 	}
-	return pu.AddPhotoIDs(ids...)
+	return pu.AddImageIDs(ids...)
 }
 
 // SetOwnerID sets the "owner" edge to the Category entity by ID.
@@ -175,25 +175,25 @@ func (pu *ProductUpdate) Mutation() *ProductMutation {
 	return pu.mutation
 }
 
-// ClearPhotos clears all "photos" edges to the Image entity.
-func (pu *ProductUpdate) ClearPhotos() *ProductUpdate {
-	pu.mutation.ClearPhotos()
+// ClearImages clears all "images" edges to the Image entity.
+func (pu *ProductUpdate) ClearImages() *ProductUpdate {
+	pu.mutation.ClearImages()
 	return pu
 }
 
-// RemovePhotoIDs removes the "photos" edge to Image entities by IDs.
-func (pu *ProductUpdate) RemovePhotoIDs(ids ...int) *ProductUpdate {
-	pu.mutation.RemovePhotoIDs(ids...)
+// RemoveImageIDs removes the "images" edge to Image entities by IDs.
+func (pu *ProductUpdate) RemoveImageIDs(ids ...int) *ProductUpdate {
+	pu.mutation.RemoveImageIDs(ids...)
 	return pu
 }
 
-// RemovePhotos removes "photos" edges to Image entities.
-func (pu *ProductUpdate) RemovePhotos(i ...*Image) *ProductUpdate {
+// RemoveImages removes "images" edges to Image entities.
+func (pu *ProductUpdate) RemoveImages(i ...*Image) *ProductUpdate {
 	ids := make([]int, len(i))
 	for j := range i {
 		ids[j] = i[j].ID
 	}
-	return pu.RemovePhotoIDs(ids...)
+	return pu.RemoveImageIDs(ids...)
 }
 
 // ClearOwner clears the "owner" edge to the Category entity.
@@ -362,12 +362,12 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: product.FieldDeletedAt,
 		})
 	}
-	if pu.mutation.PhotosCleared() {
+	if pu.mutation.ImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   product.PhotosTable,
-			Columns: product.PhotosPrimaryKey,
+			Table:   product.ImagesTable,
+			Columns: []string{product.ImagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -378,12 +378,12 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.RemovedPhotosIDs(); len(nodes) > 0 && !pu.mutation.PhotosCleared() {
+	if nodes := pu.mutation.RemovedImagesIDs(); len(nodes) > 0 && !pu.mutation.ImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   product.PhotosTable,
-			Columns: product.PhotosPrimaryKey,
+			Table:   product.ImagesTable,
+			Columns: []string{product.ImagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -397,12 +397,12 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.PhotosIDs(); len(nodes) > 0 {
+	if nodes := pu.mutation.ImagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   product.PhotosTable,
-			Columns: product.PhotosPrimaryKey,
+			Table:   product.ImagesTable,
+			Columns: []string{product.ImagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -629,19 +629,19 @@ func (puo *ProductUpdateOne) ClearDeletedAt() *ProductUpdateOne {
 	return puo
 }
 
-// AddPhotoIDs adds the "photos" edge to the Image entity by IDs.
-func (puo *ProductUpdateOne) AddPhotoIDs(ids ...int) *ProductUpdateOne {
-	puo.mutation.AddPhotoIDs(ids...)
+// AddImageIDs adds the "images" edge to the Image entity by IDs.
+func (puo *ProductUpdateOne) AddImageIDs(ids ...int) *ProductUpdateOne {
+	puo.mutation.AddImageIDs(ids...)
 	return puo
 }
 
-// AddPhotos adds the "photos" edges to the Image entity.
-func (puo *ProductUpdateOne) AddPhotos(i ...*Image) *ProductUpdateOne {
+// AddImages adds the "images" edges to the Image entity.
+func (puo *ProductUpdateOne) AddImages(i ...*Image) *ProductUpdateOne {
 	ids := make([]int, len(i))
 	for j := range i {
 		ids[j] = i[j].ID
 	}
-	return puo.AddPhotoIDs(ids...)
+	return puo.AddImageIDs(ids...)
 }
 
 // SetOwnerID sets the "owner" edge to the Category entity by ID.
@@ -702,25 +702,25 @@ func (puo *ProductUpdateOne) Mutation() *ProductMutation {
 	return puo.mutation
 }
 
-// ClearPhotos clears all "photos" edges to the Image entity.
-func (puo *ProductUpdateOne) ClearPhotos() *ProductUpdateOne {
-	puo.mutation.ClearPhotos()
+// ClearImages clears all "images" edges to the Image entity.
+func (puo *ProductUpdateOne) ClearImages() *ProductUpdateOne {
+	puo.mutation.ClearImages()
 	return puo
 }
 
-// RemovePhotoIDs removes the "photos" edge to Image entities by IDs.
-func (puo *ProductUpdateOne) RemovePhotoIDs(ids ...int) *ProductUpdateOne {
-	puo.mutation.RemovePhotoIDs(ids...)
+// RemoveImageIDs removes the "images" edge to Image entities by IDs.
+func (puo *ProductUpdateOne) RemoveImageIDs(ids ...int) *ProductUpdateOne {
+	puo.mutation.RemoveImageIDs(ids...)
 	return puo
 }
 
-// RemovePhotos removes "photos" edges to Image entities.
-func (puo *ProductUpdateOne) RemovePhotos(i ...*Image) *ProductUpdateOne {
+// RemoveImages removes "images" edges to Image entities.
+func (puo *ProductUpdateOne) RemoveImages(i ...*Image) *ProductUpdateOne {
 	ids := make([]int, len(i))
 	for j := range i {
 		ids[j] = i[j].ID
 	}
-	return puo.RemovePhotoIDs(ids...)
+	return puo.RemoveImageIDs(ids...)
 }
 
 // ClearOwner clears the "owner" edge to the Category entity.
@@ -913,12 +913,12 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 			Column: product.FieldDeletedAt,
 		})
 	}
-	if puo.mutation.PhotosCleared() {
+	if puo.mutation.ImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   product.PhotosTable,
-			Columns: product.PhotosPrimaryKey,
+			Table:   product.ImagesTable,
+			Columns: []string{product.ImagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -929,12 +929,12 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.RemovedPhotosIDs(); len(nodes) > 0 && !puo.mutation.PhotosCleared() {
+	if nodes := puo.mutation.RemovedImagesIDs(); len(nodes) > 0 && !puo.mutation.ImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   product.PhotosTable,
-			Columns: product.PhotosPrimaryKey,
+			Table:   product.ImagesTable,
+			Columns: []string{product.ImagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -948,12 +948,12 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.PhotosIDs(); len(nodes) > 0 {
+	if nodes := puo.mutation.ImagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   product.PhotosTable,
-			Columns: product.PhotosPrimaryKey,
+			Table:   product.ImagesTable,
+			Columns: []string{product.ImagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

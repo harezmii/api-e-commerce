@@ -6,10 +6,13 @@ import (
 	"api/internal/entity"
 	"api/internal/entity/dto"
 	"api/internal/entity/response"
+	"api/internal/infraStructure/minio"
 	"api/internal/logs"
 	"api/internal/validate"
 	"entgo.io/ent/dialect/sql"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	uuid2 "github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
@@ -19,19 +22,28 @@ type ControllerImage struct {
 	controller.Controller
 }
 
-// Store ShowAccount godoc
-// @Summary      Create Data
-// @Description  create Image
-// @Tags         Images
-// @Accept       json
-// @Produce      json
-// @Param        body body  entity.Image  false   "Image form"
-// @Success      201  {object}  []entity.Image
-// @Router       /images [post]
+//Store ShowAccount godoc
+//@Summary      Create Data
+//@Description  create Image
+//@Tags         Images
+//@Accept       json
+//@Produce      json
+//@Param        body body  entity.Image  false   "Image form"
+//@Success      201  {object}  []entity.Image
+//@Router       /images [post]
 func (i ControllerImage) Store(ctx *fiber.Ctx) error {
+	file, errorImage := ctx.FormFile("image")
+	if errorImage != nil {
+		return errorImage
+	}
+
+	extension := strings.Split(file.Filename, ".")[1]
+	uuid, _ := uuid2.NewUUID()
 	image := i.Entity.(entity.Image)
+	image.Image = fmt.Sprintf("%s.%s", uuid, extension)
 
 	parseError := ctx.BodyParser(&image)
+
 	if parseError != nil {
 		logs.Logger(ctx, "Store!Bad Request , parse error.", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(
@@ -39,13 +51,18 @@ func (i ControllerImage) Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&image)
 	if err == nil {
-		dbError := i.Client.Image.Create().SetImage(image.Image).SetTitle(image.Title).Exec(i.Context)
-
+		dbError := i.Client.Image.Create().SetImage(image.Image).SetTitle(image.Title).SetStatus(true).Exec(i.Context)
 		if dbError != nil {
 			logs.Logger(ctx, "Store!Image not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created.Database error."})
 		}
 
+		openr, _ := file.Open()
+
+		defer openr.Close()
+
+		c := minioUpload.ConfigDefault("image", file.Header["Content-Type"][0])
+		c.PutImage(image.Image, openr, file.Size)
 		return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Image created", Data: image})
 	}
 	logs.Logger(ctx, "Store!Bad request , validate error.", logs.ERROR)

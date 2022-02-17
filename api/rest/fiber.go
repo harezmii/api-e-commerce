@@ -18,10 +18,10 @@ import (
 
 func RunRest(port string) {
 	app := fiber.New(fiber.Config{
-		AppName:   config.GetEnvironment("APP_NAME", config.STRING).(string),
-		BodyLimit: config.GetEnvironment("BODY_LİMİT", config.INTEGER).(int),
+		AppName: config.GetEnvironment("APP_NAME", config.STRING).(string),
+		//BodyLimit: config.GetEnvironment("BODY_LİMİT", config.INTEGER).(int),
 	})
-
+	app.Static("images", "./images")
 	// Storage
 	//store := storage.RedisStore()
 	// Storage End

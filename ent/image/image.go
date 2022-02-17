@@ -27,11 +27,13 @@ const (
 	EdgeOwner = "owner"
 	// Table holds the table name of the image in the database.
 	Table = "images"
-	// OwnerTable is the table that holds the owner relation/edge. The primary key declared below.
-	OwnerTable = "product_photos"
+	// OwnerTable is the table that holds the owner relation/edge.
+	OwnerTable = "images"
 	// OwnerInverseTable is the table name for the Product entity.
 	// It exists in this package in order to avoid circular dependency with the "product" package.
 	OwnerInverseTable = "products"
+	// OwnerColumn is the table column denoting the owner relation/edge.
+	OwnerColumn = "product_images"
 )
 
 // Columns holds all SQL columns for image fields.
@@ -45,11 +47,11 @@ var Columns = []string{
 	FieldDeletedAt,
 }
 
-var (
-	// OwnerPrimaryKey and OwnerColumn2 are the table columns denoting the
-	// primary key for the owner relation (M2M).
-	OwnerPrimaryKey = []string{"product_id", "image_id"}
-)
+// ForeignKeys holds the SQL foreign-keys that are owned by the "images"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"product_images",
+}
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -58,12 +60,15 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
 
 var (
-	// DefaultStatus holds the default value on creation for the "status" field.
-	DefaultStatus bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )

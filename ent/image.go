@@ -4,6 +4,7 @@ package ent
 
 import (
 	"api/ent/image"
+	"api/ent/product"
 	"fmt"
 	"strings"
 	"time"
@@ -30,22 +31,28 @@ type Image struct {
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ImageQuery when eager-loading is set.
-	Edges ImageEdges `json:"edges"`
+	Edges          ImageEdges `json:"edges"`
+	product_images *int
 }
 
 // ImageEdges holds the relations/edges for other nodes in the graph.
 type ImageEdges struct {
 	// Owner holds the value of the owner edge.
-	Owner []*Product `json:"owner,omitempty"`
+	Owner *Product `json:"owner,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
-// was not loaded in eager-loading.
-func (e ImageEdges) OwnerOrErr() ([]*Product, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ImageEdges) OwnerOrErr() (*Product, error) {
 	if e.loadedTypes[0] {
+		if e.Owner == nil {
+			// The edge owner was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: product.Label}
+		}
 		return e.Owner, nil
 	}
 	return nil, &NotLoadedError{edge: "owner"}
@@ -64,6 +71,8 @@ func (*Image) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullString)
 		case image.FieldCreatedAt, image.FieldUpdatedAt, image.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case image.ForeignKeys[0]: // product_images
+			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Image", columns[i])
 		}
@@ -120,6 +129,13 @@ func (i *Image) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[j])
 			} else if value.Valid {
 				i.DeletedAt = value.Time
+			}
+		case image.ForeignKeys[0]:
+			if value, ok := values[j].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field product_images", value)
+			} else if value.Valid {
+				i.product_images = new(int)
+				*i.product_images = int(value.Int64)
 			}
 		}
 	}

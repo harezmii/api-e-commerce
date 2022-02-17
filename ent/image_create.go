@@ -39,14 +39,6 @@ func (ic *ImageCreate) SetStatus(b bool) *ImageCreate {
 	return ic
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (ic *ImageCreate) SetNillableStatus(b *bool) *ImageCreate {
-	if b != nil {
-		ic.SetStatus(*b)
-	}
-	return ic
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (ic *ImageCreate) SetCreatedAt(t time.Time) *ImageCreate {
 	ic.mutation.SetCreatedAt(t)
@@ -89,19 +81,23 @@ func (ic *ImageCreate) SetNillableDeletedAt(t *time.Time) *ImageCreate {
 	return ic
 }
 
-// AddOwnerIDs adds the "owner" edge to the Product entity by IDs.
-func (ic *ImageCreate) AddOwnerIDs(ids ...int) *ImageCreate {
-	ic.mutation.AddOwnerIDs(ids...)
+// SetOwnerID sets the "owner" edge to the Product entity by ID.
+func (ic *ImageCreate) SetOwnerID(id int) *ImageCreate {
+	ic.mutation.SetOwnerID(id)
 	return ic
 }
 
-// AddOwner adds the "owner" edges to the Product entity.
-func (ic *ImageCreate) AddOwner(p ...*Product) *ImageCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetNillableOwnerID sets the "owner" edge to the Product entity by ID if the given value is not nil.
+func (ic *ImageCreate) SetNillableOwnerID(id *int) *ImageCreate {
+	if id != nil {
+		ic = ic.SetOwnerID(*id)
 	}
-	return ic.AddOwnerIDs(ids...)
+	return ic
+}
+
+// SetOwner sets the "owner" edge to the Product entity.
+func (ic *ImageCreate) SetOwner(p *Product) *ImageCreate {
+	return ic.SetOwnerID(p.ID)
 }
 
 // Mutation returns the ImageMutation object of the builder.
@@ -175,10 +171,6 @@ func (ic *ImageCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (ic *ImageCreate) defaults() {
-	if _, ok := ic.mutation.Status(); !ok {
-		v := image.DefaultStatus
-		ic.mutation.SetStatus(v)
-	}
 	if _, ok := ic.mutation.CreatedAt(); !ok {
 		v := image.DefaultCreatedAt()
 		ic.mutation.SetCreatedAt(v)
@@ -276,10 +268,10 @@ func (ic *ImageCreate) createSpec() (*Image, *sqlgraph.CreateSpec) {
 	}
 	if nodes := ic.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   image.OwnerTable,
-			Columns: image.OwnerPrimaryKey,
+			Columns: []string{image.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -291,6 +283,7 @@ func (ic *ImageCreate) createSpec() (*Image, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.product_images = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

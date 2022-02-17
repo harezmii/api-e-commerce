@@ -30,7 +30,7 @@ type ProductQuery struct {
 	fields     []string
 	predicates []predicate.Product
 	// eager-loading edges.
-	withPhotos   *ImageQuery
+	withImages   *ImageQuery
 	withOwner    *CategoryQuery
 	withOwner1   *UserQuery
 	withComments *CommentQuery
@@ -71,8 +71,8 @@ func (pq *ProductQuery) Order(o ...OrderFunc) *ProductQuery {
 	return pq
 }
 
-// QueryPhotos chains the current query on the "photos" edge.
-func (pq *ProductQuery) QueryPhotos() *ImageQuery {
+// QueryImages chains the current query on the "images" edge.
+func (pq *ProductQuery) QueryImages() *ImageQuery {
 	query := &ImageQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -85,7 +85,7 @@ func (pq *ProductQuery) QueryPhotos() *ImageQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(product.Table, product.FieldID, selector),
 			sqlgraph.To(image.Table, image.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, product.PhotosTable, product.PhotosPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.ImagesTable, product.ImagesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -340,7 +340,7 @@ func (pq *ProductQuery) Clone() *ProductQuery {
 		offset:       pq.offset,
 		order:        append([]OrderFunc{}, pq.order...),
 		predicates:   append([]predicate.Product{}, pq.predicates...),
-		withPhotos:   pq.withPhotos.Clone(),
+		withImages:   pq.withImages.Clone(),
 		withOwner:    pq.withOwner.Clone(),
 		withOwner1:   pq.withOwner1.Clone(),
 		withComments: pq.withComments.Clone(),
@@ -350,14 +350,14 @@ func (pq *ProductQuery) Clone() *ProductQuery {
 	}
 }
 
-// WithPhotos tells the query-builder to eager-load the nodes that are connected to
-// the "photos" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProductQuery) WithPhotos(opts ...func(*ImageQuery)) *ProductQuery {
+// WithImages tells the query-builder to eager-load the nodes that are connected to
+// the "images" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProductQuery) WithImages(opts ...func(*ImageQuery)) *ProductQuery {
 	query := &ImageQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withPhotos = query
+	pq.withImages = query
 	return pq
 }
 
@@ -461,7 +461,7 @@ func (pq *ProductQuery) sqlAll(ctx context.Context) ([]*Product, error) {
 		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
 		loadedTypes = [4]bool{
-			pq.withPhotos != nil,
+			pq.withImages != nil,
 			pq.withOwner != nil,
 			pq.withOwner1 != nil,
 			pq.withComments != nil,
@@ -493,68 +493,32 @@ func (pq *ProductQuery) sqlAll(ctx context.Context) ([]*Product, error) {
 		return nodes, nil
 	}
 
-	if query := pq.withPhotos; query != nil {
+	if query := pq.withImages; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
-		ids := make(map[int]*Product, len(nodes))
-		for _, node := range nodes {
-			ids[node.ID] = node
-			fks = append(fks, node.ID)
-			node.Edges.Photos = []*Image{}
+		nodeids := make(map[int]*Product)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Images = []*Image{}
 		}
-		var (
-			edgeids []int
-			edges   = make(map[int][]*Product)
-		)
-		_spec := &sqlgraph.EdgeQuerySpec{
-			Edge: &sqlgraph.EdgeSpec{
-				Inverse: false,
-				Table:   product.PhotosTable,
-				Columns: product.PhotosPrimaryKey,
-			},
-			Predicate: func(s *sql.Selector) {
-				s.Where(sql.InValues(product.PhotosPrimaryKey[0], fks...))
-			},
-			ScanValues: func() [2]interface{} {
-				return [2]interface{}{new(sql.NullInt64), new(sql.NullInt64)}
-			},
-			Assign: func(out, in interface{}) error {
-				eout, ok := out.(*sql.NullInt64)
-				if !ok || eout == nil {
-					return fmt.Errorf("unexpected id value for edge-out")
-				}
-				ein, ok := in.(*sql.NullInt64)
-				if !ok || ein == nil {
-					return fmt.Errorf("unexpected id value for edge-in")
-				}
-				outValue := int(eout.Int64)
-				inValue := int(ein.Int64)
-				node, ok := ids[outValue]
-				if !ok {
-					return fmt.Errorf("unexpected node id in edges: %v", outValue)
-				}
-				if _, ok := edges[inValue]; !ok {
-					edgeids = append(edgeids, inValue)
-				}
-				edges[inValue] = append(edges[inValue], node)
-				return nil
-			},
-		}
-		if err := sqlgraph.QueryEdges(ctx, pq.driver, _spec); err != nil {
-			return nil, fmt.Errorf(`query edges "photos": %w`, err)
-		}
-		query.Where(image.IDIn(edgeids...))
+		query.withFKs = true
+		query.Where(predicate.Image(func(s *sql.Selector) {
+			s.Where(sql.InValues(product.ImagesColumn, fks...))
+		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := edges[n.ID]
+			fk := n.product_images
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "product_images" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected "photos" node returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "product_images" returned %v for node %v`, *fk, n.ID)
 			}
-			for i := range nodes {
-				nodes[i].Edges.Photos = append(nodes[i].Edges.Photos, n)
-			}
+			node.Edges.Images = append(node.Edges.Images, n)
 		}
 	}
 

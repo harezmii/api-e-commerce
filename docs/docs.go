@@ -220,7 +220,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.comment"
+                            "$ref": "#/definitions/entity.Comment"
                         }
                     }
                 }
@@ -243,7 +243,7 @@ const docTemplate_swagger = `{
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/entity.comment"
+                            "$ref": "#/definitions/entity.Comment"
                         }
                     }
                 ],
@@ -253,7 +253,7 @@ const docTemplate_swagger = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.comment"
+                                "$ref": "#/definitions/entity.Comment"
                             }
                         }
                     }
@@ -286,7 +286,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.comment"
+                            "$ref": "#/definitions/entity.Comment"
                         }
                     }
                 }
@@ -316,7 +316,7 @@ const docTemplate_swagger = `{
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/entity.comment"
+                            "$ref": "#/definitions/entity.Comment"
                         }
                     }
                 ],
@@ -324,7 +324,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.comment"
+                            "$ref": "#/definitions/entity.Comment"
                         }
                     }
                 }
@@ -356,7 +356,7 @@ const docTemplate_swagger = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.comment"
+                                "$ref": "#/definitions/entity.Comment"
                             }
                         }
                     }
@@ -526,6 +526,175 @@ const docTemplate_swagger = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/entity.Faq"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/images": {
+            "get": {
+                "description": "Get all images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "All  Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Image"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create Image",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Create Data",
+                "parameters": [
+                    {
+                        "description": "Image form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Image"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Image"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/images/{id}": {
+            "get": {
+                "description": "get string by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Show Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Image ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Image"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Update Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "images ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "image update form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Image"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Image"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Delete Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Image ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Image"
                             }
                         }
                     }
@@ -980,7 +1149,7 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "entity.comment": {
+        "entity.Comment": {
             "type": "object",
             "required": [
                 "comment",
@@ -1029,6 +1198,26 @@ const docTemplate_swagger = `{
                 },
                 "status": {
                     "type": "boolean"
+                }
+            }
+        },
+        "entity.Image": {
+            "type": "object",
+            "required": [
+                "image",
+                "title"
+            ],
+            "properties": {
+                "contentId": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
                 }
             }
         },

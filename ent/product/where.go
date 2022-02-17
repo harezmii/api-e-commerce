@@ -863,25 +863,25 @@ func DeletedAtNotNil() predicate.Product {
 	})
 }
 
-// HasPhotos applies the HasEdge predicate on the "photos" edge.
-func HasPhotos() predicate.Product {
+// HasImages applies the HasEdge predicate on the "images" edge.
+func HasImages() predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PhotosTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, PhotosTable, PhotosPrimaryKey...),
+			sqlgraph.To(ImagesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ImagesTable, ImagesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPhotosWith applies the HasEdge predicate on the "photos" edge with a given conditions (other predicates).
-func HasPhotosWith(preds ...predicate.Image) predicate.Product {
+// HasImagesWith applies the HasEdge predicate on the "images" edge with a given conditions (other predicates).
+func HasImagesWith(preds ...predicate.Image) predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PhotosInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, PhotosTable, PhotosPrimaryKey...),
+			sqlgraph.To(ImagesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ImagesTable, ImagesColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

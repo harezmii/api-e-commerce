@@ -27,21 +27,21 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// EdgeProfiles holds the string denoting the profiles edge name in mutations.
-	EdgeProfiles = "profiles"
+	// EdgeProfile holds the string denoting the profile edge name in mutations.
+	EdgeProfile = "profile"
 	// EdgeComments holds the string denoting the comments edge name in mutations.
 	EdgeComments = "comments"
 	// EdgeProducts holds the string denoting the products edge name in mutations.
 	EdgeProducts = "products"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// ProfilesTable is the table that holds the profiles relation/edge.
-	ProfilesTable = "profiles"
-	// ProfilesInverseTable is the table name for the Profile entity.
+	// ProfileTable is the table that holds the profile relation/edge.
+	ProfileTable = "profiles"
+	// ProfileInverseTable is the table name for the Profile entity.
 	// It exists in this package in order to avoid circular dependency with the "profile" package.
-	ProfilesInverseTable = "profiles"
-	// ProfilesColumn is the table column denoting the profiles relation/edge.
-	ProfilesColumn = "user_profiles"
+	ProfileInverseTable = "profiles"
+	// ProfileColumn is the table column denoting the profile relation/edge.
+	ProfileColumn = "user_profile"
 	// CommentsTable is the table that holds the comments relation/edge. The primary key declared below.
 	CommentsTable = "user_comments"
 	// CommentsInverseTable is the table name for the Comment entity.

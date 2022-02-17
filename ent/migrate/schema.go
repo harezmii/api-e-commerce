@@ -82,16 +82,25 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "image", Type: field.TypeString},
-		{Name: "status", Type: field.TypeBool, Default: false},
+		{Name: "status", Type: field.TypeBool},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "product_images", Type: field.TypeInt, Nullable: true},
 	}
 	// ImagesTable holds the schema information for the "images" table.
 	ImagesTable = &schema.Table{
 		Name:       "images",
 		Columns:    ImagesColumns,
 		PrimaryKey: []*schema.Column{ImagesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "images_products_images",
+				Columns:    []*schema.Column{ImagesColumns[7]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// MessagesColumns holds the columns for the "messages" table.
 	MessagesColumns = []*schema.Column{
@@ -156,7 +165,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "user_profiles", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "user_profile", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// ProfilesTable holds the schema information for the "profiles" table.
 	ProfilesTable = &schema.Table{
@@ -165,7 +174,7 @@ var (
 		PrimaryKey: []*schema.Column{ProfilesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "profiles_users_profiles",
+				Symbol:     "profiles_users_profile",
 				Columns:    []*schema.Column{ProfilesColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -219,31 +228,6 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
-	// ProductPhotosColumns holds the columns for the "product_photos" table.
-	ProductPhotosColumns = []*schema.Column{
-		{Name: "product_id", Type: field.TypeInt},
-		{Name: "image_id", Type: field.TypeInt},
-	}
-	// ProductPhotosTable holds the schema information for the "product_photos" table.
-	ProductPhotosTable = &schema.Table{
-		Name:       "product_photos",
-		Columns:    ProductPhotosColumns,
-		PrimaryKey: []*schema.Column{ProductPhotosColumns[0], ProductPhotosColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "product_photos_product_id",
-				Columns:    []*schema.Column{ProductPhotosColumns[0]},
-				RefColumns: []*schema.Column{ProductsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "product_photos_image_id",
-				Columns:    []*schema.Column{ProductPhotosColumns[1]},
-				RefColumns: []*schema.Column{ImagesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// UserCommentsColumns holds the columns for the "user_comments" table.
 	UserCommentsColumns = []*schema.Column{
 		{Name: "user_id", Type: field.TypeInt},
@@ -280,7 +264,6 @@ var (
 		ProfilesTable,
 		SettingsTable,
 		UsersTable,
-		ProductPhotosTable,
 		UserCommentsTable,
 	}
 )
@@ -288,11 +271,10 @@ var (
 func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
 	CommentsTable.ForeignKeys[0].RefTable = ProductsTable
+	ImagesTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
 	ProductsTable.ForeignKeys[1].RefTable = UsersTable
 	ProfilesTable.ForeignKeys[0].RefTable = UsersTable
-	ProductPhotosTable.ForeignKeys[0].RefTable = ProductsTable
-	ProductPhotosTable.ForeignKeys[1].RefTable = ImagesTable
 	UserCommentsTable.ForeignKeys[0].RefTable = UsersTable
 	UserCommentsTable.ForeignKeys[1].RefTable = CommentsTable
 }

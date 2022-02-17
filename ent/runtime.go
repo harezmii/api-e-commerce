@@ -51,10 +51,6 @@ func init() {
 	faq.DefaultCreatedAt = faqDescCreatedAt.Default.(func() time.Time)
 	imageFields := schema.Image{}.Fields()
 	_ = imageFields
-	// imageDescStatus is the schema descriptor for status field.
-	imageDescStatus := imageFields[2].Descriptor()
-	// image.DefaultStatus holds the default value on creation for the status field.
-	image.DefaultStatus = imageDescStatus.Default.(bool)
 	// imageDescCreatedAt is the schema descriptor for created_at field.
 	imageDescCreatedAt := imageFields[3].Descriptor()
 	// image.DefaultCreatedAt holds the default value on creation for the created_at field.

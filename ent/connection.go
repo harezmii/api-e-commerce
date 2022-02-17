@@ -16,5 +16,6 @@ func EntConnection() *Client {
 		DataSourceName: config2.GetEnvironment("DATA_SOURCE_NAME", config2.STRING).(string),
 	}
 	client, _ := Open(pg.DriverName, pg.DataSourceName)
+
 	return client
 }

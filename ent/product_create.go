@@ -96,19 +96,19 @@ func (pc *ProductCreate) SetNillableDeletedAt(t *time.Time) *ProductCreate {
 	return pc
 }
 
-// AddPhotoIDs adds the "photos" edge to the Image entity by IDs.
-func (pc *ProductCreate) AddPhotoIDs(ids ...int) *ProductCreate {
-	pc.mutation.AddPhotoIDs(ids...)
+// AddImageIDs adds the "images" edge to the Image entity by IDs.
+func (pc *ProductCreate) AddImageIDs(ids ...int) *ProductCreate {
+	pc.mutation.AddImageIDs(ids...)
 	return pc
 }
 
-// AddPhotos adds the "photos" edges to the Image entity.
-func (pc *ProductCreate) AddPhotos(i ...*Image) *ProductCreate {
+// AddImages adds the "images" edges to the Image entity.
+func (pc *ProductCreate) AddImages(i ...*Image) *ProductCreate {
 	ids := make([]int, len(i))
 	for j := range i {
 		ids[j] = i[j].ID
 	}
-	return pc.AddPhotoIDs(ids...)
+	return pc.AddImageIDs(ids...)
 }
 
 // SetOwnerID sets the "owner" edge to the Category entity by ID.
@@ -352,12 +352,12 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		})
 		_node.DeletedAt = value
 	}
-	if nodes := pc.mutation.PhotosIDs(); len(nodes) > 0 {
+	if nodes := pc.mutation.ImagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   product.PhotosTable,
-			Columns: product.PhotosPrimaryKey,
+			Table:   product.ImagesTable,
+			Columns: []string{product.ImagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

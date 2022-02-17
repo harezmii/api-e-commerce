@@ -62,6 +62,20 @@ definitions:
     - question
     - status
     type: object
+  entity.Image:
+    properties:
+      contentId:
+        type: integer
+      image:
+        type: string
+      title:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - image
+    - title
+    type: object
   entity.Message:
     properties:
       email:
@@ -481,6 +495,117 @@ paths:
       summary: Update Data
       tags:
       - Faqs
+  /images:
+    get:
+      consumes:
+      - application/json
+      description: Get all images
+      parameters:
+      - description: Offset
+        in: query
+        name: offset
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Image'
+      summary: All  Data
+      tags:
+      - Images
+    post:
+      consumes:
+      - application/json
+      description: create Image
+      parameters:
+      - description: Image form
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/entity.Image'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/entity.Image'
+            type: array
+      summary: Create Data
+      tags:
+      - Images
+  /images/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete images
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Image'
+            type: array
+      summary: Delete Data
+      tags:
+      - Images
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Image'
+      summary: Show Data
+      tags:
+      - Images
+    put:
+      consumes:
+      - application/json
+      description: update images
+      parameters:
+      - description: images ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: image update form
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/entity.Image'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Image'
+      summary: Update Data
+      tags:
+      - Images
   /messages:
     get:
       consumes:

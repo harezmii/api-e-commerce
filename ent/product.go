@@ -43,8 +43,8 @@ type Product struct {
 
 // ProductEdges holds the relations/edges for other nodes in the graph.
 type ProductEdges struct {
-	// Photos holds the value of the photos edge.
-	Photos []*Image `json:"photos,omitempty"`
+	// Images holds the value of the images edge.
+	Images []*Image `json:"images,omitempty"`
 	// Owner holds the value of the owner edge.
 	Owner *Category `json:"owner,omitempty"`
 	// Owner1 holds the value of the owner1 edge.
@@ -56,13 +56,13 @@ type ProductEdges struct {
 	loadedTypes [4]bool
 }
 
-// PhotosOrErr returns the Photos value or an error if the edge
+// ImagesOrErr returns the Images value or an error if the edge
 // was not loaded in eager-loading.
-func (e ProductEdges) PhotosOrErr() ([]*Image, error) {
+func (e ProductEdges) ImagesOrErr() ([]*Image, error) {
 	if e.loadedTypes[0] {
-		return e.Photos, nil
+		return e.Images, nil
 	}
-	return nil, &NotLoadedError{edge: "photos"}
+	return nil, &NotLoadedError{edge: "images"}
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
@@ -207,9 +207,9 @@ func (pr *Product) assignValues(columns []string, values []interface{}) error {
 	return nil
 }
 
-// QueryPhotos queries the "photos" edge of the Product entity.
-func (pr *Product) QueryPhotos() *ImageQuery {
-	return (&ProductClient{config: pr.config}).QueryPhotos(pr)
+// QueryImages queries the "images" edge of the Product entity.
+func (pr *Product) QueryImages() *ImageQuery {
+	return (&ProductClient{config: pr.config}).QueryImages(pr)
 }
 
 // QueryOwner queries the "owner" edge of the Product entity.

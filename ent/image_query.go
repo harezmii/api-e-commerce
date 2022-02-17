@@ -7,7 +7,6 @@ import (
 	"api/ent/predicate"
 	"api/ent/product"
 	"context"
-	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -28,6 +27,7 @@ type ImageQuery struct {
 	predicates []predicate.Image
 	// eager-loading edges.
 	withOwner *ProductQuery
+	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,7 +78,7 @@ func (iq *ImageQuery) QueryOwner() *ProductQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(image.Table, image.FieldID, selector),
 			sqlgraph.To(product.Table, product.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, image.OwnerTable, image.OwnerPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, image.OwnerTable, image.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
 		return fromU, nil
@@ -349,11 +349,18 @@ func (iq *ImageQuery) prepareQuery(ctx context.Context) error {
 func (iq *ImageQuery) sqlAll(ctx context.Context) ([]*Image, error) {
 	var (
 		nodes       = []*Image{}
+		withFKs     = iq.withFKs
 		_spec       = iq.querySpec()
 		loadedTypes = [1]bool{
 			iq.withOwner != nil,
 		}
 	)
+	if iq.withOwner != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, image.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Image{config: iq.config}
 		nodes = append(nodes, node)
@@ -375,66 +382,30 @@ func (iq *ImageQuery) sqlAll(ctx context.Context) ([]*Image, error) {
 	}
 
 	if query := iq.withOwner; query != nil {
-		fks := make([]driver.Value, 0, len(nodes))
-		ids := make(map[int]*Image, len(nodes))
-		for _, node := range nodes {
-			ids[node.ID] = node
-			fks = append(fks, node.ID)
-			node.Edges.Owner = []*Product{}
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Image)
+		for i := range nodes {
+			if nodes[i].product_images == nil {
+				continue
+			}
+			fk := *nodes[i].product_images
+			if _, ok := nodeids[fk]; !ok {
+				ids = append(ids, fk)
+			}
+			nodeids[fk] = append(nodeids[fk], nodes[i])
 		}
-		var (
-			edgeids []int
-			edges   = make(map[int][]*Image)
-		)
-		_spec := &sqlgraph.EdgeQuerySpec{
-			Edge: &sqlgraph.EdgeSpec{
-				Inverse: true,
-				Table:   image.OwnerTable,
-				Columns: image.OwnerPrimaryKey,
-			},
-			Predicate: func(s *sql.Selector) {
-				s.Where(sql.InValues(image.OwnerPrimaryKey[1], fks...))
-			},
-			ScanValues: func() [2]interface{} {
-				return [2]interface{}{new(sql.NullInt64), new(sql.NullInt64)}
-			},
-			Assign: func(out, in interface{}) error {
-				eout, ok := out.(*sql.NullInt64)
-				if !ok || eout == nil {
-					return fmt.Errorf("unexpected id value for edge-out")
-				}
-				ein, ok := in.(*sql.NullInt64)
-				if !ok || ein == nil {
-					return fmt.Errorf("unexpected id value for edge-in")
-				}
-				outValue := int(eout.Int64)
-				inValue := int(ein.Int64)
-				node, ok := ids[outValue]
-				if !ok {
-					return fmt.Errorf("unexpected node id in edges: %v", outValue)
-				}
-				if _, ok := edges[inValue]; !ok {
-					edgeids = append(edgeids, inValue)
-				}
-				edges[inValue] = append(edges[inValue], node)
-				return nil
-			},
-		}
-		if err := sqlgraph.QueryEdges(ctx, iq.driver, _spec); err != nil {
-			return nil, fmt.Errorf(`query edges "owner": %w`, err)
-		}
-		query.Where(product.IDIn(edgeids...))
+		query.Where(product.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := edges[n.ID]
+			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected "owner" node returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "product_images" returned %v`, n.ID)
 			}
 			for i := range nodes {
-				nodes[i].Edges.Owner = append(nodes[i].Edges.Owner, n)
+				nodes[i].Edges.Owner = n
 			}
 		}
 	}

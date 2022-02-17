@@ -25,5 +25,6 @@ func main() {
 
 /*
 TODO
-Jwt implementasyonu yapılacak.
+-- Jwt implementasyonu yapılacak. Done
+Veritabanı ilişkileri düzenlenecek.
 */

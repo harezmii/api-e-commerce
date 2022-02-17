@@ -2506,8 +2506,7 @@ type ImageMutation struct {
 	updated_at    *time.Time
 	deleted_at    *time.Time
 	clearedFields map[string]struct{}
-	owner         map[int]struct{}
-	removedowner  map[int]struct{}
+	owner         *int
 	clearedowner  bool
 	done          bool
 	oldValue      func(context.Context) (*Image, error)
@@ -2854,14 +2853,9 @@ func (m *ImageMutation) ResetDeletedAt() {
 	delete(m.clearedFields, image.FieldDeletedAt)
 }
 
-// AddOwnerIDs adds the "owner" edge to the Product entity by ids.
-func (m *ImageMutation) AddOwnerIDs(ids ...int) {
-	if m.owner == nil {
-		m.owner = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.owner[ids[i]] = struct{}{}
-	}
+// SetOwnerID sets the "owner" edge to the Product entity by id.
+func (m *ImageMutation) SetOwnerID(id int) {
+	m.owner = &id
 }
 
 // ClearOwner clears the "owner" edge to the Product entity.
@@ -2874,29 +2868,20 @@ func (m *ImageMutation) OwnerCleared() bool {
 	return m.clearedowner
 }
 
-// RemoveOwnerIDs removes the "owner" edge to the Product entity by IDs.
-func (m *ImageMutation) RemoveOwnerIDs(ids ...int) {
-	if m.removedowner == nil {
-		m.removedowner = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.owner, ids[i])
-		m.removedowner[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedOwner returns the removed IDs of the "owner" edge to the Product entity.
-func (m *ImageMutation) RemovedOwnerIDs() (ids []int) {
-	for id := range m.removedowner {
-		ids = append(ids, id)
+// OwnerID returns the "owner" edge ID in the mutation.
+func (m *ImageMutation) OwnerID() (id int, exists bool) {
+	if m.owner != nil {
+		return *m.owner, true
 	}
 	return
 }
 
 // OwnerIDs returns the "owner" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// OwnerID instead. It exists only for internal usage by the builders.
 func (m *ImageMutation) OwnerIDs() (ids []int) {
-	for id := range m.owner {
-		ids = append(ids, id)
+	if id := m.owner; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -2905,7 +2890,6 @@ func (m *ImageMutation) OwnerIDs() (ids []int) {
 func (m *ImageMutation) ResetOwner() {
 	m.owner = nil
 	m.clearedowner = false
-	m.removedowner = nil
 }
 
 // Where appends a list predicates to the ImageMutation builder.
@@ -3138,11 +3122,9 @@ func (m *ImageMutation) AddedEdges() []string {
 func (m *ImageMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case image.EdgeOwner:
-		ids := make([]ent.Value, 0, len(m.owner))
-		for id := range m.owner {
-			ids = append(ids, id)
+		if id := m.owner; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -3150,9 +3132,6 @@ func (m *ImageMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ImageMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedowner != nil {
-		edges = append(edges, image.EdgeOwner)
-	}
 	return edges
 }
 
@@ -3160,12 +3139,6 @@ func (m *ImageMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *ImageMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case image.EdgeOwner:
-		ids := make([]ent.Value, 0, len(m.removedowner))
-		for id := range m.removedowner {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
@@ -3193,6 +3166,9 @@ func (m *ImageMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ImageMutation) ClearEdge(name string) error {
 	switch name {
+	case image.EdgeOwner:
+		m.ClearOwner()
+		return nil
 	}
 	return fmt.Errorf("unknown Image unique edge %s", name)
 }
@@ -4061,9 +4037,9 @@ type ProductMutation struct {
 	updated_at      *time.Time
 	deleted_at      *time.Time
 	clearedFields   map[string]struct{}
-	photos          map[int]struct{}
-	removedphotos   map[int]struct{}
-	clearedphotos   bool
+	images          map[int]struct{}
+	removedimages   map[int]struct{}
+	clearedimages   bool
 	owner           *int
 	clearedowner    bool
 	owner1          *int
@@ -4488,58 +4464,58 @@ func (m *ProductMutation) ResetDeletedAt() {
 	delete(m.clearedFields, product.FieldDeletedAt)
 }
 
-// AddPhotoIDs adds the "photos" edge to the Image entity by ids.
-func (m *ProductMutation) AddPhotoIDs(ids ...int) {
-	if m.photos == nil {
-		m.photos = make(map[int]struct{})
+// AddImageIDs adds the "images" edge to the Image entity by ids.
+func (m *ProductMutation) AddImageIDs(ids ...int) {
+	if m.images == nil {
+		m.images = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.photos[ids[i]] = struct{}{}
+		m.images[ids[i]] = struct{}{}
 	}
 }
 
-// ClearPhotos clears the "photos" edge to the Image entity.
-func (m *ProductMutation) ClearPhotos() {
-	m.clearedphotos = true
+// ClearImages clears the "images" edge to the Image entity.
+func (m *ProductMutation) ClearImages() {
+	m.clearedimages = true
 }
 
-// PhotosCleared reports if the "photos" edge to the Image entity was cleared.
-func (m *ProductMutation) PhotosCleared() bool {
-	return m.clearedphotos
+// ImagesCleared reports if the "images" edge to the Image entity was cleared.
+func (m *ProductMutation) ImagesCleared() bool {
+	return m.clearedimages
 }
 
-// RemovePhotoIDs removes the "photos" edge to the Image entity by IDs.
-func (m *ProductMutation) RemovePhotoIDs(ids ...int) {
-	if m.removedphotos == nil {
-		m.removedphotos = make(map[int]struct{})
+// RemoveImageIDs removes the "images" edge to the Image entity by IDs.
+func (m *ProductMutation) RemoveImageIDs(ids ...int) {
+	if m.removedimages == nil {
+		m.removedimages = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.photos, ids[i])
-		m.removedphotos[ids[i]] = struct{}{}
+		delete(m.images, ids[i])
+		m.removedimages[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedPhotos returns the removed IDs of the "photos" edge to the Image entity.
-func (m *ProductMutation) RemovedPhotosIDs() (ids []int) {
-	for id := range m.removedphotos {
+// RemovedImages returns the removed IDs of the "images" edge to the Image entity.
+func (m *ProductMutation) RemovedImagesIDs() (ids []int) {
+	for id := range m.removedimages {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// PhotosIDs returns the "photos" edge IDs in the mutation.
-func (m *ProductMutation) PhotosIDs() (ids []int) {
-	for id := range m.photos {
+// ImagesIDs returns the "images" edge IDs in the mutation.
+func (m *ProductMutation) ImagesIDs() (ids []int) {
+	for id := range m.images {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetPhotos resets all changes to the "photos" edge.
-func (m *ProductMutation) ResetPhotos() {
-	m.photos = nil
-	m.clearedphotos = false
-	m.removedphotos = nil
+// ResetImages resets all changes to the "images" edge.
+func (m *ProductMutation) ResetImages() {
+	m.images = nil
+	m.clearedimages = false
+	m.removedimages = nil
 }
 
 // SetOwnerID sets the "owner" edge to the Category entity by id.
@@ -4927,8 +4903,8 @@ func (m *ProductMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProductMutation) AddedEdges() []string {
 	edges := make([]string, 0, 4)
-	if m.photos != nil {
-		edges = append(edges, product.EdgePhotos)
+	if m.images != nil {
+		edges = append(edges, product.EdgeImages)
 	}
 	if m.owner != nil {
 		edges = append(edges, product.EdgeOwner)
@@ -4946,9 +4922,9 @@ func (m *ProductMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *ProductMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case product.EdgePhotos:
-		ids := make([]ent.Value, 0, len(m.photos))
-		for id := range m.photos {
+	case product.EdgeImages:
+		ids := make([]ent.Value, 0, len(m.images))
+		for id := range m.images {
 			ids = append(ids, id)
 		}
 		return ids
@@ -4973,8 +4949,8 @@ func (m *ProductMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProductMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 4)
-	if m.removedphotos != nil {
-		edges = append(edges, product.EdgePhotos)
+	if m.removedimages != nil {
+		edges = append(edges, product.EdgeImages)
 	}
 	if m.removedcomments != nil {
 		edges = append(edges, product.EdgeComments)
@@ -4986,9 +4962,9 @@ func (m *ProductMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *ProductMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case product.EdgePhotos:
-		ids := make([]ent.Value, 0, len(m.removedphotos))
-		for id := range m.removedphotos {
+	case product.EdgeImages:
+		ids := make([]ent.Value, 0, len(m.removedimages))
+		for id := range m.removedimages {
 			ids = append(ids, id)
 		}
 		return ids
@@ -5005,8 +4981,8 @@ func (m *ProductMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProductMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 4)
-	if m.clearedphotos {
-		edges = append(edges, product.EdgePhotos)
+	if m.clearedimages {
+		edges = append(edges, product.EdgeImages)
 	}
 	if m.clearedowner {
 		edges = append(edges, product.EdgeOwner)
@@ -5024,8 +5000,8 @@ func (m *ProductMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *ProductMutation) EdgeCleared(name string) bool {
 	switch name {
-	case product.EdgePhotos:
-		return m.clearedphotos
+	case product.EdgeImages:
+		return m.clearedimages
 	case product.EdgeOwner:
 		return m.clearedowner
 	case product.EdgeOwner1:
@@ -5054,8 +5030,8 @@ func (m *ProductMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *ProductMutation) ResetEdge(name string) error {
 	switch name {
-	case product.EdgePhotos:
-		m.ResetPhotos()
+	case product.EdgeImages:
+		m.ResetImages()
 		return nil
 	case product.EdgeOwner:
 		m.ResetOwner()
@@ -7078,8 +7054,8 @@ type UserMutation struct {
 	updated_at      *time.Time
 	deleted_at      *time.Time
 	clearedFields   map[string]struct{}
-	profiles        *int
-	clearedprofiles bool
+	profile         *int
+	clearedprofile  bool
 	comments        map[int]struct{}
 	removedcomments map[int]struct{}
 	clearedcomments bool
@@ -7503,43 +7479,43 @@ func (m *UserMutation) ResetDeletedAt() {
 	delete(m.clearedFields, user.FieldDeletedAt)
 }
 
-// SetProfilesID sets the "profiles" edge to the Profile entity by id.
-func (m *UserMutation) SetProfilesID(id int) {
-	m.profiles = &id
+// SetProfileID sets the "profile" edge to the Profile entity by id.
+func (m *UserMutation) SetProfileID(id int) {
+	m.profile = &id
 }
 
-// ClearProfiles clears the "profiles" edge to the Profile entity.
-func (m *UserMutation) ClearProfiles() {
-	m.clearedprofiles = true
+// ClearProfile clears the "profile" edge to the Profile entity.
+func (m *UserMutation) ClearProfile() {
+	m.clearedprofile = true
 }
 
-// ProfilesCleared reports if the "profiles" edge to the Profile entity was cleared.
-func (m *UserMutation) ProfilesCleared() bool {
-	return m.clearedprofiles
+// ProfileCleared reports if the "profile" edge to the Profile entity was cleared.
+func (m *UserMutation) ProfileCleared() bool {
+	return m.clearedprofile
 }
 
-// ProfilesID returns the "profiles" edge ID in the mutation.
-func (m *UserMutation) ProfilesID() (id int, exists bool) {
-	if m.profiles != nil {
-		return *m.profiles, true
+// ProfileID returns the "profile" edge ID in the mutation.
+func (m *UserMutation) ProfileID() (id int, exists bool) {
+	if m.profile != nil {
+		return *m.profile, true
 	}
 	return
 }
 
-// ProfilesIDs returns the "profiles" edge IDs in the mutation.
+// ProfileIDs returns the "profile" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProfilesID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) ProfilesIDs() (ids []int) {
-	if id := m.profiles; id != nil {
+// ProfileID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) ProfileIDs() (ids []int) {
+	if id := m.profile; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetProfiles resets all changes to the "profiles" edge.
-func (m *UserMutation) ResetProfiles() {
-	m.profiles = nil
-	m.clearedprofiles = false
+// ResetProfile resets all changes to the "profile" edge.
+func (m *UserMutation) ResetProfile() {
+	m.profile = nil
+	m.clearedprofile = false
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by ids.
@@ -7903,8 +7879,8 @@ func (m *UserMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.profiles != nil {
-		edges = append(edges, user.EdgeProfiles)
+	if m.profile != nil {
+		edges = append(edges, user.EdgeProfile)
 	}
 	if m.comments != nil {
 		edges = append(edges, user.EdgeComments)
@@ -7919,8 +7895,8 @@ func (m *UserMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case user.EdgeProfiles:
-		if id := m.profiles; id != nil {
+	case user.EdgeProfile:
+		if id := m.profile; id != nil {
 			return []ent.Value{*id}
 		}
 	case user.EdgeComments:
@@ -7974,8 +7950,8 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.clearedprofiles {
-		edges = append(edges, user.EdgeProfiles)
+	if m.clearedprofile {
+		edges = append(edges, user.EdgeProfile)
 	}
 	if m.clearedcomments {
 		edges = append(edges, user.EdgeComments)
@@ -7990,8 +7966,8 @@ func (m *UserMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
 	switch name {
-	case user.EdgeProfiles:
-		return m.clearedprofiles
+	case user.EdgeProfile:
+		return m.clearedprofile
 	case user.EdgeComments:
 		return m.clearedcomments
 	case user.EdgeProducts:
@@ -8004,8 +7980,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
 	switch name {
-	case user.EdgeProfiles:
-		m.ClearProfiles()
+	case user.EdgeProfile:
+		m.ClearProfile()
 		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
@@ -8015,8 +7991,8 @@ func (m *UserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
 	switch name {
-	case user.EdgeProfiles:
-		m.ResetProfiles()
+	case user.EdgeProfile:
+		m.ResetProfile()
 		return nil
 	case user.EdgeComments:
 		m.ResetComments()

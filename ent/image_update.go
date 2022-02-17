@@ -47,14 +47,6 @@ func (iu *ImageUpdate) SetStatus(b bool) *ImageUpdate {
 	return iu
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (iu *ImageUpdate) SetNillableStatus(b *bool) *ImageUpdate {
-	if b != nil {
-		iu.SetStatus(*b)
-	}
-	return iu
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (iu *ImageUpdate) SetUpdatedAt(t time.Time) *ImageUpdate {
 	iu.mutation.SetUpdatedAt(t)
@@ -95,19 +87,23 @@ func (iu *ImageUpdate) ClearDeletedAt() *ImageUpdate {
 	return iu
 }
 
-// AddOwnerIDs adds the "owner" edge to the Product entity by IDs.
-func (iu *ImageUpdate) AddOwnerIDs(ids ...int) *ImageUpdate {
-	iu.mutation.AddOwnerIDs(ids...)
+// SetOwnerID sets the "owner" edge to the Product entity by ID.
+func (iu *ImageUpdate) SetOwnerID(id int) *ImageUpdate {
+	iu.mutation.SetOwnerID(id)
 	return iu
 }
 
-// AddOwner adds the "owner" edges to the Product entity.
-func (iu *ImageUpdate) AddOwner(p ...*Product) *ImageUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetNillableOwnerID sets the "owner" edge to the Product entity by ID if the given value is not nil.
+func (iu *ImageUpdate) SetNillableOwnerID(id *int) *ImageUpdate {
+	if id != nil {
+		iu = iu.SetOwnerID(*id)
 	}
-	return iu.AddOwnerIDs(ids...)
+	return iu
+}
+
+// SetOwner sets the "owner" edge to the Product entity.
+func (iu *ImageUpdate) SetOwner(p *Product) *ImageUpdate {
+	return iu.SetOwnerID(p.ID)
 }
 
 // Mutation returns the ImageMutation object of the builder.
@@ -115,25 +111,10 @@ func (iu *ImageUpdate) Mutation() *ImageMutation {
 	return iu.mutation
 }
 
-// ClearOwner clears all "owner" edges to the Product entity.
+// ClearOwner clears the "owner" edge to the Product entity.
 func (iu *ImageUpdate) ClearOwner() *ImageUpdate {
 	iu.mutation.ClearOwner()
 	return iu
-}
-
-// RemoveOwnerIDs removes the "owner" edge to Product entities by IDs.
-func (iu *ImageUpdate) RemoveOwnerIDs(ids ...int) *ImageUpdate {
-	iu.mutation.RemoveOwnerIDs(ids...)
-	return iu
-}
-
-// RemoveOwner removes "owner" edges to Product entities.
-func (iu *ImageUpdate) RemoveOwner(p ...*Product) *ImageUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return iu.RemoveOwnerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -257,10 +238,10 @@ func (iu *ImageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if iu.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   image.OwnerTable,
-			Columns: image.OwnerPrimaryKey,
+			Columns: []string{image.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -268,34 +249,15 @@ func (iu *ImageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 					Column: product.FieldID,
 				},
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := iu.mutation.RemovedOwnerIDs(); len(nodes) > 0 && !iu.mutation.OwnerCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   image.OwnerTable,
-			Columns: image.OwnerPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: product.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := iu.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   image.OwnerTable,
-			Columns: image.OwnerPrimaryKey,
+			Columns: []string{image.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -346,14 +308,6 @@ func (iuo *ImageUpdateOne) SetStatus(b bool) *ImageUpdateOne {
 	return iuo
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (iuo *ImageUpdateOne) SetNillableStatus(b *bool) *ImageUpdateOne {
-	if b != nil {
-		iuo.SetStatus(*b)
-	}
-	return iuo
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (iuo *ImageUpdateOne) SetUpdatedAt(t time.Time) *ImageUpdateOne {
 	iuo.mutation.SetUpdatedAt(t)
@@ -394,19 +348,23 @@ func (iuo *ImageUpdateOne) ClearDeletedAt() *ImageUpdateOne {
 	return iuo
 }
 
-// AddOwnerIDs adds the "owner" edge to the Product entity by IDs.
-func (iuo *ImageUpdateOne) AddOwnerIDs(ids ...int) *ImageUpdateOne {
-	iuo.mutation.AddOwnerIDs(ids...)
+// SetOwnerID sets the "owner" edge to the Product entity by ID.
+func (iuo *ImageUpdateOne) SetOwnerID(id int) *ImageUpdateOne {
+	iuo.mutation.SetOwnerID(id)
 	return iuo
 }
 
-// AddOwner adds the "owner" edges to the Product entity.
-func (iuo *ImageUpdateOne) AddOwner(p ...*Product) *ImageUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetNillableOwnerID sets the "owner" edge to the Product entity by ID if the given value is not nil.
+func (iuo *ImageUpdateOne) SetNillableOwnerID(id *int) *ImageUpdateOne {
+	if id != nil {
+		iuo = iuo.SetOwnerID(*id)
 	}
-	return iuo.AddOwnerIDs(ids...)
+	return iuo
+}
+
+// SetOwner sets the "owner" edge to the Product entity.
+func (iuo *ImageUpdateOne) SetOwner(p *Product) *ImageUpdateOne {
+	return iuo.SetOwnerID(p.ID)
 }
 
 // Mutation returns the ImageMutation object of the builder.
@@ -414,25 +372,10 @@ func (iuo *ImageUpdateOne) Mutation() *ImageMutation {
 	return iuo.mutation
 }
 
-// ClearOwner clears all "owner" edges to the Product entity.
+// ClearOwner clears the "owner" edge to the Product entity.
 func (iuo *ImageUpdateOne) ClearOwner() *ImageUpdateOne {
 	iuo.mutation.ClearOwner()
 	return iuo
-}
-
-// RemoveOwnerIDs removes the "owner" edge to Product entities by IDs.
-func (iuo *ImageUpdateOne) RemoveOwnerIDs(ids ...int) *ImageUpdateOne {
-	iuo.mutation.RemoveOwnerIDs(ids...)
-	return iuo
-}
-
-// RemoveOwner removes "owner" edges to Product entities.
-func (iuo *ImageUpdateOne) RemoveOwner(p ...*Product) *ImageUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return iuo.RemoveOwnerIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -580,10 +523,10 @@ func (iuo *ImageUpdateOne) sqlSave(ctx context.Context) (_node *Image, err error
 	}
 	if iuo.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   image.OwnerTable,
-			Columns: image.OwnerPrimaryKey,
+			Columns: []string{image.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -591,34 +534,15 @@ func (iuo *ImageUpdateOne) sqlSave(ctx context.Context) (_node *Image, err error
 					Column: product.FieldID,
 				},
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := iuo.mutation.RemovedOwnerIDs(); len(nodes) > 0 && !iuo.mutation.OwnerCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   image.OwnerTable,
-			Columns: image.OwnerPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: product.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := iuo.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   image.OwnerTable,
-			Columns: image.OwnerPrimaryKey,
+			Columns: []string{image.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

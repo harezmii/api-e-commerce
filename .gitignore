@@ -4,6 +4,7 @@ config.yaml
 serviceAccount.json
 logs.json
 tmp
+images
 # macOS
 **/.DS_Store
 
