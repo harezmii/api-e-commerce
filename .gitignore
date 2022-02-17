@@ -5,6 +5,7 @@ serviceAccount.json
 logs.json
 tmp
 images
+temp
 # macOS
 **/.DS_Store
 

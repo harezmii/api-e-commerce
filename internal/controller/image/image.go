@@ -228,19 +228,25 @@ func (i ControllerImage) Destroy(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
 	// Not delete record finding
-	selectId, err := i.Client.Image.Query().Where(func(s *sql.Selector) {
+	firstImage, err := i.Client.Image.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))
 		s.Where(sql.EQ("id", idInt))
-	}).FirstID(i.Context)
-
+	}).First(i.Context)
+	if firstImage == nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Image not find.Not deleted."})
+	}
 	// Not deleting record
-	if selectId != 0 {
+	if firstImage.ID != 0 {
 		i.Client.Image.UpdateOneID(idInt).SetDeletedAt(time.Now()).Exec(i.Context)
 	}
 	if err != nil {
 		logs.Logger(ctx, "Delete!Image not find.Not deleted.", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Image not find.Not deleted."})
 	}
+
+	// MINIO Remove Object
+	cfg := minioUpload.ConfigDefault("image", "")
+	cfg.RemoveImage(firstImage.Image)
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Image deleted", Data: "Image deleted id:"})
 }
 
@@ -266,11 +272,10 @@ func (i ControllerImage) Show(ctx *fiber.Ctx) error {
 	err := i.Client.Image.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))
 		s.Where(sql.EQ("id", idInt))
-	}).Select("id", "title", "image", "status").Scan(i.Context, &responseDto)
-
+	}).Select("id", "title", "image").Scan(i.Context, &responseDto)
 	// Database query error
 	if err != nil {
-		logs.Logger(ctx, "Show!Image not finding", logs.ERROR)
+		//logs.Logger(ctx, "Show!Image not finding", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Image not finding"})
 	}
 
@@ -278,5 +283,9 @@ func (i ControllerImage) Show(ctx *fiber.Ctx) error {
 	if len(responseDto) == 0 {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Image not finding"})
 	}
+	cfg := minioUpload.ConfigDefault("image", "")
+	file := cfg.GetImage(responseDto[0].Image)
+	responseDto[0].Image = file.String()
+
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Image is finding", Data: responseDto})
 }
