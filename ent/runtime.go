@@ -70,7 +70,7 @@ func init() {
 	profileFields := schema.Profile{}.Fields()
 	_ = profileFields
 	// profileDescCreatedAt is the schema descriptor for created_at field.
-	profileDescCreatedAt := profileFields[3].Descriptor()
+	profileDescCreatedAt := profileFields[4].Descriptor()
 	// profile.DefaultCreatedAt holds the default value on creation for the created_at field.
 	profile.DefaultCreatedAt = profileDescCreatedAt.Default.(func() time.Time)
 	userFields := schema.User{}.Fields()

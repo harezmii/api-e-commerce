@@ -18,6 +18,7 @@ func (Profile) Fields() []ent.Field {
 		field.String("address"),
 		field.String("phone"),
 		field.String("image").Optional(),
+		field.String("url").Optional(),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Optional(),
 		field.Time("deleted_at").Optional(),

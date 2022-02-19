@@ -72,8 +72,9 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
+      url:
+        type: string
     required:
-    - image
     - title
     type: object
   entity.Message:
@@ -118,6 +119,8 @@ definitions:
       phone:
         maxLength: 15
         minLength: 10
+        type: string
+      url:
         type: string
       userId:
         type: integer

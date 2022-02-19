@@ -1204,7 +1204,6 @@ const docTemplate_swagger = `{
         "entity.Image": {
             "type": "object",
             "required": [
-                "image",
                 "title"
             ],
             "properties": {
@@ -1218,6 +1217,9 @@ const docTemplate_swagger = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         },
@@ -1282,6 +1284,9 @@ const docTemplate_swagger = `{
                     "type": "string",
                     "maxLength": 15,
                     "minLength": 10
+                },
+                "url": {
+                    "type": "string"
                 },
                 "userId": {
                     "type": "integer"

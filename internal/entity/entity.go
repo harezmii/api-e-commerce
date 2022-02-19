@@ -25,7 +25,8 @@ type User struct {
 
 type Profile struct {
 	UserId  int    `json:"userId,omitempty"`
-	Image   string `json:"image" form:"image" validate:"required"`
+	Image   string `json:"image" xml:"image,omitempty" form:"image,omitempy"`
+	Url     string `json:"url,omitempty" xml:"url,omitempty"`
 	Address string `json:"address" form:"address" validate:"required"`
 	Phone   string `json:"phone" form:"phone" validate:"required,min=10,max=15"`
 }

@@ -47,6 +47,20 @@ func (pc *ProfileCreate) SetNillableImage(s *string) *ProfileCreate {
 	return pc
 }
 
+// SetURL sets the "url" field.
+func (pc *ProfileCreate) SetURL(s string) *ProfileCreate {
+	pc.mutation.SetURL(s)
+	return pc
+}
+
+// SetNillableURL sets the "url" field if the given value is not nil.
+func (pc *ProfileCreate) SetNillableURL(s *string) *ProfileCreate {
+	if s != nil {
+		pc.SetURL(*s)
+	}
+	return pc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (pc *ProfileCreate) SetCreatedAt(t time.Time) *ProfileCreate {
 	pc.mutation.SetCreatedAt(t)
@@ -241,6 +255,14 @@ func (pc *ProfileCreate) createSpec() (*Profile, *sqlgraph.CreateSpec) {
 			Column: profile.FieldImage,
 		})
 		_node.Image = value
+	}
+	if value, ok := pc.mutation.URL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: profile.FieldURL,
+		})
+		_node.URL = value
 	}
 	if value, ok := pc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

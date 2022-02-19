@@ -59,7 +59,7 @@ func (i ControllerImage) Store(ctx *fiber.Ctx) error {
 
 		defer openr.Close()
 
-		c := minioUpload.ConfigDefault("deneme", file.Header["Content-Type"][0])
+		c := minioUpload.ConfigDefault("image", file.Header["Content-Type"][0])
 		putError := c.PutImage(image.Image, openr, file.Size)
 		if putError != nil {
 			fmt.Println("Put error: " + putError.Error())

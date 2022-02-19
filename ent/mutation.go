@@ -5109,6 +5109,7 @@ type ProfileMutation struct {
 	address       *string
 	phone         *string
 	image         *string
+	url           *string
 	created_at    *time.Time
 	updated_at    *time.Time
 	deleted_at    *time.Time
@@ -5339,6 +5340,55 @@ func (m *ProfileMutation) ResetImage() {
 	delete(m.clearedFields, profile.FieldImage)
 }
 
+// SetURL sets the "url" field.
+func (m *ProfileMutation) SetURL(s string) {
+	m.url = &s
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *ProfileMutation) URL() (r string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the Profile entity.
+// If the Profile object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProfileMutation) OldURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// ClearURL clears the value of the "url" field.
+func (m *ProfileMutation) ClearURL() {
+	m.url = nil
+	m.clearedFields[profile.FieldURL] = struct{}{}
+}
+
+// URLCleared returns if the "url" field was cleared in this mutation.
+func (m *ProfileMutation) URLCleared() bool {
+	_, ok := m.clearedFields[profile.FieldURL]
+	return ok
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *ProfileMutation) ResetURL() {
+	m.url = nil
+	delete(m.clearedFields, profile.FieldURL)
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *ProfileMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -5531,7 +5581,7 @@ func (m *ProfileMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProfileMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.address != nil {
 		fields = append(fields, profile.FieldAddress)
 	}
@@ -5540,6 +5590,9 @@ func (m *ProfileMutation) Fields() []string {
 	}
 	if m.image != nil {
 		fields = append(fields, profile.FieldImage)
+	}
+	if m.url != nil {
+		fields = append(fields, profile.FieldURL)
 	}
 	if m.created_at != nil {
 		fields = append(fields, profile.FieldCreatedAt)
@@ -5564,6 +5617,8 @@ func (m *ProfileMutation) Field(name string) (ent.Value, bool) {
 		return m.Phone()
 	case profile.FieldImage:
 		return m.Image()
+	case profile.FieldURL:
+		return m.URL()
 	case profile.FieldCreatedAt:
 		return m.CreatedAt()
 	case profile.FieldUpdatedAt:
@@ -5585,6 +5640,8 @@ func (m *ProfileMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldPhone(ctx)
 	case profile.FieldImage:
 		return m.OldImage(ctx)
+	case profile.FieldURL:
+		return m.OldURL(ctx)
 	case profile.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case profile.FieldUpdatedAt:
@@ -5620,6 +5677,13 @@ func (m *ProfileMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetImage(v)
+		return nil
+	case profile.FieldURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
 		return nil
 	case profile.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -5675,6 +5739,9 @@ func (m *ProfileMutation) ClearedFields() []string {
 	if m.FieldCleared(profile.FieldImage) {
 		fields = append(fields, profile.FieldImage)
 	}
+	if m.FieldCleared(profile.FieldURL) {
+		fields = append(fields, profile.FieldURL)
+	}
 	if m.FieldCleared(profile.FieldUpdatedAt) {
 		fields = append(fields, profile.FieldUpdatedAt)
 	}
@@ -5698,6 +5765,9 @@ func (m *ProfileMutation) ClearField(name string) error {
 	case profile.FieldImage:
 		m.ClearImage()
 		return nil
+	case profile.FieldURL:
+		m.ClearURL()
+		return nil
 	case profile.FieldUpdatedAt:
 		m.ClearUpdatedAt()
 		return nil
@@ -5720,6 +5790,9 @@ func (m *ProfileMutation) ResetField(name string) error {
 		return nil
 	case profile.FieldImage:
 		m.ResetImage()
+		return nil
+	case profile.FieldURL:
+		m.ResetURL()
 		return nil
 	case profile.FieldCreatedAt:
 		m.ResetCreatedAt()

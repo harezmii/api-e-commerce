@@ -23,6 +23,8 @@ type Profile struct {
 	Phone string `json:"phone,omitempty"`
 	// Image holds the value of the "image" field.
 	Image string `json:"image,omitempty"`
+	// URL holds the value of the "url" field.
+	URL string `json:"url,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -65,7 +67,7 @@ func (*Profile) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case profile.FieldID:
 			values[i] = new(sql.NullInt64)
-		case profile.FieldAddress, profile.FieldPhone, profile.FieldImage:
+		case profile.FieldAddress, profile.FieldPhone, profile.FieldImage, profile.FieldURL:
 			values[i] = new(sql.NullString)
 		case profile.FieldCreatedAt, profile.FieldUpdatedAt, profile.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -109,6 +111,12 @@ func (pr *Profile) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field image", values[i])
 			} else if value.Valid {
 				pr.Image = value.String
+			}
+		case profile.FieldURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field url", values[i])
+			} else if value.Valid {
+				pr.URL = value.String
 			}
 		case profile.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -174,6 +182,8 @@ func (pr *Profile) String() string {
 	builder.WriteString(pr.Phone)
 	builder.WriteString(", image=")
 	builder.WriteString(pr.Image)
+	builder.WriteString(", url=")
+	builder.WriteString(pr.URL)
 	builder.WriteString(", created_at=")
 	builder.WriteString(pr.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")

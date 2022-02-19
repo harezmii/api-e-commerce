@@ -1197,7 +1197,6 @@
         "entity.Image": {
             "type": "object",
             "required": [
-                "image",
                 "title"
             ],
             "properties": {
@@ -1211,6 +1210,9 @@
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         },
@@ -1275,6 +1277,9 @@
                     "type": "string",
                     "maxLength": 15,
                     "minLength": 10
+                },
+                "url": {
+                    "type": "string"
                 },
                 "userId": {
                     "type": "integer"

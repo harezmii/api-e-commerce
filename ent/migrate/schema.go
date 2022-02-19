@@ -163,6 +163,7 @@ var (
 		{Name: "address", Type: field.TypeString},
 		{Name: "phone", Type: field.TypeString},
 		{Name: "image", Type: field.TypeString, Nullable: true},
+		{Name: "url", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
@@ -176,7 +177,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "profiles_users_profile",
-				Columns:    []*schema.Column{ProfilesColumns[7]},
+				Columns:    []*schema.Column{ProfilesColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

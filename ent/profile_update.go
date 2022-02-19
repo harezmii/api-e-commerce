@@ -61,6 +61,26 @@ func (pu *ProfileUpdate) ClearImage() *ProfileUpdate {
 	return pu
 }
 
+// SetURL sets the "url" field.
+func (pu *ProfileUpdate) SetURL(s string) *ProfileUpdate {
+	pu.mutation.SetURL(s)
+	return pu
+}
+
+// SetNillableURL sets the "url" field if the given value is not nil.
+func (pu *ProfileUpdate) SetNillableURL(s *string) *ProfileUpdate {
+	if s != nil {
+		pu.SetURL(*s)
+	}
+	return pu
+}
+
+// ClearURL clears the value of the "url" field.
+func (pu *ProfileUpdate) ClearURL() *ProfileUpdate {
+	pu.mutation.ClearURL()
+	return pu
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (pu *ProfileUpdate) SetCreatedAt(t time.Time) *ProfileUpdate {
 	pu.mutation.SetCreatedAt(t)
@@ -250,6 +270,19 @@ func (pu *ProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: profile.FieldImage,
 		})
 	}
+	if value, ok := pu.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: profile.FieldURL,
+		})
+	}
+	if pu.mutation.URLCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: profile.FieldURL,
+		})
+	}
 	if value, ok := pu.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -366,6 +399,26 @@ func (puo *ProfileUpdateOne) SetNillableImage(s *string) *ProfileUpdateOne {
 // ClearImage clears the value of the "image" field.
 func (puo *ProfileUpdateOne) ClearImage() *ProfileUpdateOne {
 	puo.mutation.ClearImage()
+	return puo
+}
+
+// SetURL sets the "url" field.
+func (puo *ProfileUpdateOne) SetURL(s string) *ProfileUpdateOne {
+	puo.mutation.SetURL(s)
+	return puo
+}
+
+// SetNillableURL sets the "url" field if the given value is not nil.
+func (puo *ProfileUpdateOne) SetNillableURL(s *string) *ProfileUpdateOne {
+	if s != nil {
+		puo.SetURL(*s)
+	}
+	return puo
+}
+
+// ClearURL clears the value of the "url" field.
+func (puo *ProfileUpdateOne) ClearURL() *ProfileUpdateOne {
+	puo.mutation.ClearURL()
 	return puo
 }
 
@@ -580,6 +633,19 @@ func (puo *ProfileUpdateOne) sqlSave(ctx context.Context) (_node *Profile, err e
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Column: profile.FieldImage,
+		})
+	}
+	if value, ok := puo.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: profile.FieldURL,
+		})
+	}
+	if puo.mutation.URLCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: profile.FieldURL,
 		})
 	}
 	if value, ok := puo.mutation.CreatedAt(); ok {

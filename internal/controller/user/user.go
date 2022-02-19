@@ -5,6 +5,7 @@ import (
 	"api/internal/entity"
 	"api/internal/entity/dto"
 	"api/internal/entity/response"
+	minioUpload "api/internal/infraStructure/minio"
 	"api/internal/logs"
 	"api/internal/secret/hash"
 	"api/internal/secret/jwtManage"
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	uuid2 "github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
@@ -217,19 +219,30 @@ func (u ControllerUser) Show(ctx *fiber.Ctx) error {
 // @Success      201  {object}  entity.Profile
 // @Router       /users/{id}/profiles [post]
 func (u ControllerUser) UserToProfile(ctx *fiber.Ctx) error {
+	profile := entity.Profile{}
+
+	file, errorImage := ctx.FormFile("image")
+	if errorImage != nil {
+		return errorImage
+	}
+	extension := strings.Split(file.Filename, ".")[1]
+	uuid, _ := uuid2.NewUUID()
+	profile.Image = fmt.Sprintf("%s.%s", uuid, extension)
+
 	id := ctx.Params("id")
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	profile := entity.Profile{}
+
 	parseError := ctx.BodyParser(&profile)
 	if parseError != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad request ,body parse error."})
 	}
 	err := validate.ValidateStructToTurkish(&profile)
 	if err == nil {
+		c := minioUpload.ConfigDefault("profiles", file.Header["Content-Type"][0])
 		user, _ := u.Client.User.Query().Where(func(s *sql.Selector) {
 			s.Where(sql.EQ("id", idInt))
 		}).First(u.Context)
@@ -237,16 +250,49 @@ func (u ControllerUser) UserToProfile(ctx *fiber.Ctx) error {
 			s.Where(sql.EQ("user_profiles", idInt))
 			s.Where(sql.EQ("deleted_at", nil))
 		}).First(u.Context)
+		fmt.Println("Profile error:" + profileError.Error())
 		// updating the profile, if any
 		if profileError == nil {
-			data, errCreate := u.Client.Profile.Update().SetOwner(user).SetOwnerID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).Save(u.Context)
+
+			openr, _ := file.Open()
+
+			defer openr.Close()
+
+			putError := c.PutImage(profile.Image+"/"+id, openr, file.Size)
+			if putError != nil {
+				fmt.Println("Put error: " + putError.Error())
+				return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created.Database error."})
+			}
+
+			fileImage, fileError := c.GetImage(profile.Image)
+			if fileError != nil {
+				fmt.Println("File image: " + fileError.Error())
+				return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Profile Image not created."})
+			}
+			profile.Url = fileImage.String()
+			fmt.Println(profile.Url)
+			data, errCreate := u.Client.Profile.Update().SetOwner(user).SetOwnerID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).SetURL(profile.Url).Save(u.Context)
 			if errCreate != nil {
 				fmt.Println(errCreate.Error())
 				return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Profile not created"})
 			}
 			return ctx.Status(fiber.StatusCreated).JSON(response.SuccessResponse{StatusCode: 201, Message: "Profile created", Data: data})
 		} else { // create profile
-			data, errCreate := u.Client.Profile.Create().SetOwner(user).SetOwnerID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).Save(u.Context)
+			openr, _ := file.Open()
+
+			putError := c.PutImage(profile.Image, openr, file.Size)
+			if putError != nil {
+				fmt.Println("Put error: " + putError.Error())
+				return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created.Database error."})
+			}
+
+			fileImage, fileError := c.GetImage(profile.Image)
+			if fileError != nil {
+				fmt.Println("File image: " + fileError.Error())
+				return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Profile Image not created."})
+			}
+			profile.Url = fileImage.String()
+			data, errCreate := u.Client.Profile.Create().SetOwner(user).SetOwnerID(idInt).SetPhone(profile.Phone).SetAddress(profile.Address).SetImage(profile.Image).SetURL(profile.Url).Save(u.Context)
 			if errCreate != nil {
 				fmt.Println(errCreate.Error())
 				return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Profile not created"})
