@@ -33,6 +33,7 @@ type Image struct {
 	ContentId int    `json:"contentId,omitempty" xml:"contentId"`
 	Title     string `json:"title" xml:"title" form:"title" validate:"required,min=3,max=50"`
 	Image     string `json:"image" xml:"image" form:"image"`
+	Url       string `json:"url,omitempty" xml:"url,omitempty"`
 }
 type Comment struct {
 	Comment   string  `json:"comment" xml:"comment" form:"comment" validate:"required"`

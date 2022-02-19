@@ -82,6 +82,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "image", Type: field.TypeString},
+		{Name: "url", Type: field.TypeString},
 		{Name: "status", Type: field.TypeBool},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
@@ -96,7 +97,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "images_products_images",
-				Columns:    []*schema.Column{ImagesColumns[7]},
+				Columns:    []*schema.Column{ImagesColumns[8]},
 				RefColumns: []*schema.Column{ProductsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

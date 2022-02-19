@@ -2501,6 +2501,7 @@ type ImageMutation struct {
 	id            *int
 	title         *string
 	image         *string
+	url           *string
 	status        *bool
 	created_at    *time.Time
 	updated_at    *time.Time
@@ -2681,6 +2682,42 @@ func (m *ImageMutation) OldImage(ctx context.Context) (v string, err error) {
 // ResetImage resets all changes to the "image" field.
 func (m *ImageMutation) ResetImage() {
 	m.image = nil
+}
+
+// SetURL sets the "url" field.
+func (m *ImageMutation) SetURL(s string) {
+	m.url = &s
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *ImageMutation) URL() (r string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the Image entity.
+// If the Image object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ImageMutation) OldURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *ImageMutation) ResetURL() {
+	m.url = nil
 }
 
 // SetStatus sets the "status" field.
@@ -2911,12 +2948,15 @@ func (m *ImageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ImageMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.title != nil {
 		fields = append(fields, image.FieldTitle)
 	}
 	if m.image != nil {
 		fields = append(fields, image.FieldImage)
+	}
+	if m.url != nil {
+		fields = append(fields, image.FieldURL)
 	}
 	if m.status != nil {
 		fields = append(fields, image.FieldStatus)
@@ -2942,6 +2982,8 @@ func (m *ImageMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case image.FieldImage:
 		return m.Image()
+	case image.FieldURL:
+		return m.URL()
 	case image.FieldStatus:
 		return m.Status()
 	case image.FieldCreatedAt:
@@ -2963,6 +3005,8 @@ func (m *ImageMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldTitle(ctx)
 	case image.FieldImage:
 		return m.OldImage(ctx)
+	case image.FieldURL:
+		return m.OldURL(ctx)
 	case image.FieldStatus:
 		return m.OldStatus(ctx)
 	case image.FieldCreatedAt:
@@ -2993,6 +3037,13 @@ func (m *ImageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetImage(v)
+		return nil
+	case image.FieldURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
 		return nil
 	case image.FieldStatus:
 		v, ok := value.(bool)
@@ -3091,6 +3142,9 @@ func (m *ImageMutation) ResetField(name string) error {
 		return nil
 	case image.FieldImage:
 		m.ResetImage()
+		return nil
+	case image.FieldURL:
+		m.ResetURL()
 		return nil
 	case image.FieldStatus:
 		m.ResetStatus()

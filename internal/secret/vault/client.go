@@ -6,11 +6,6 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
-/*
-token := "s.Cz26eGSOO8O854IyCzlVPGtN"
-	vaultAddr := "http://127.0.0.1:8200"
-*/
-
 type Provider struct {
 	path    string
 	client  *api.Logical

@@ -32,7 +32,7 @@ type Minio struct {
 	SecretKey string
 }
 
-func LoadEnvironment() (*viper.Viper, error) {
+func loadEnvironment() (*viper.Viper, error) {
 	v := viper.New()
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
@@ -45,7 +45,7 @@ func LoadEnvironment() (*viper.Viper, error) {
 	}
 	return v, nil
 }
-func ParseEnvironment(v *viper.Viper) (Config, error) {
+func parseEnvironment(v *viper.Viper) (Config, error) {
 	var cfg Config
 	err := v.Unmarshal(&cfg)
 	if err != nil {
@@ -55,7 +55,7 @@ func ParseEnvironment(v *viper.Viper) (Config, error) {
 }
 
 func GetConf() Config {
-	var vip, _ = LoadEnvironment()
-	var c, _ = ParseEnvironment(vip)
+	var vip, _ = loadEnvironment()
+	var c, _ = parseEnvironment(vip)
 	return c
 }

@@ -41,6 +41,12 @@ func (iu *ImageUpdate) SetImage(s string) *ImageUpdate {
 	return iu
 }
 
+// SetURL sets the "url" field.
+func (iu *ImageUpdate) SetURL(s string) *ImageUpdate {
+	iu.mutation.SetURL(s)
+	return iu
+}
+
 // SetStatus sets the "status" field.
 func (iu *ImageUpdate) SetStatus(b bool) *ImageUpdate {
 	iu.mutation.SetStatus(b)
@@ -203,6 +209,13 @@ func (iu *ImageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: image.FieldImage,
 		})
 	}
+	if value, ok := iu.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldURL,
+		})
+	}
 	if value, ok := iu.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
@@ -299,6 +312,12 @@ func (iuo *ImageUpdateOne) SetTitle(s string) *ImageUpdateOne {
 // SetImage sets the "image" field.
 func (iuo *ImageUpdateOne) SetImage(s string) *ImageUpdateOne {
 	iuo.mutation.SetImage(s)
+	return iuo
+}
+
+// SetURL sets the "url" field.
+func (iuo *ImageUpdateOne) SetURL(s string) *ImageUpdateOne {
+	iuo.mutation.SetURL(s)
 	return iuo
 }
 
@@ -486,6 +505,13 @@ func (iuo *ImageUpdateOne) sqlSave(ctx context.Context) (_node *Image, err error
 			Type:   field.TypeString,
 			Value:  value,
 			Column: image.FieldImage,
+		})
+	}
+	if value, ok := iuo.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldURL,
 		})
 	}
 	if value, ok := iuo.mutation.Status(); ok {

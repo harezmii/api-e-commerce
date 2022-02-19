@@ -33,6 +33,12 @@ func (ic *ImageCreate) SetImage(s string) *ImageCreate {
 	return ic
 }
 
+// SetURL sets the "url" field.
+func (ic *ImageCreate) SetURL(s string) *ImageCreate {
+	ic.mutation.SetURL(s)
+	return ic
+}
+
 // SetStatus sets the "status" field.
 func (ic *ImageCreate) SetStatus(b bool) *ImageCreate {
 	ic.mutation.SetStatus(b)
@@ -185,6 +191,9 @@ func (ic *ImageCreate) check() error {
 	if _, ok := ic.mutation.Image(); !ok {
 		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Image.image"`)}
 	}
+	if _, ok := ic.mutation.URL(); !ok {
+		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Image.url"`)}
+	}
 	if _, ok := ic.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Image.status"`)}
 	}
@@ -233,6 +242,14 @@ func (ic *ImageCreate) createSpec() (*Image, *sqlgraph.CreateSpec) {
 			Column: image.FieldImage,
 		})
 		_node.Image = value
+	}
+	if value, ok := ic.mutation.URL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: image.FieldURL,
+		})
+		_node.URL = value
 	}
 	if value, ok := ic.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

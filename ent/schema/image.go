@@ -17,6 +17,7 @@ func (Image) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title"),
 		field.String("image"),
+		field.String("url"),
 		field.Bool("status"),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Optional(),

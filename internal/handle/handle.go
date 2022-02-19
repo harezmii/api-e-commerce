@@ -13,7 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var connection = ent.EntConnection()
+var connection = ent.ConnectionEnt()
 var backContext = context.Background()
 
 func SetupRoutes(app fiber.Router) {

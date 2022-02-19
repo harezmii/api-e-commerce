@@ -21,6 +21,8 @@ type Image struct {
 	Title string `json:"title,omitempty"`
 	// Image holds the value of the "image" field.
 	Image string `json:"image,omitempty"`
+	// URL holds the value of the "url" field.
+	URL string `json:"url,omitempty"`
 	// Status holds the value of the "status" field.
 	Status bool `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -67,7 +69,7 @@ func (*Image) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullBool)
 		case image.FieldID:
 			values[i] = new(sql.NullInt64)
-		case image.FieldTitle, image.FieldImage:
+		case image.FieldTitle, image.FieldImage, image.FieldURL:
 			values[i] = new(sql.NullString)
 		case image.FieldCreatedAt, image.FieldUpdatedAt, image.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -105,6 +107,12 @@ func (i *Image) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field image", values[j])
 			} else if value.Valid {
 				i.Image = value.String
+			}
+		case image.FieldURL:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field url", values[j])
+			} else if value.Valid {
+				i.URL = value.String
 			}
 		case image.FieldStatus:
 			if value, ok := values[j].(*sql.NullBool); !ok {
@@ -174,6 +182,8 @@ func (i *Image) String() string {
 	builder.WriteString(i.Title)
 	builder.WriteString(", image=")
 	builder.WriteString(i.Image)
+	builder.WriteString(", url=")
+	builder.WriteString(i.URL)
 	builder.WriteString(", status=")
 	builder.WriteString(fmt.Sprintf("%v", i.Status))
 	builder.WriteString(", created_at=")

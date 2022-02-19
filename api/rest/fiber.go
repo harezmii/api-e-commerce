@@ -49,7 +49,7 @@ func RunRest(port string) {
 	// Api ping
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		seeder := seed.Seeder{
-			Client:   ent.EntConnection(),
+			Client:   ent.ConnectionEnt(),
 			Context:  context.Background(),
 			SeedInt:  20,
 			Entities: []string{"Faq", "Message"}}

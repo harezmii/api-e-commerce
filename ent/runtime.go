@@ -52,7 +52,7 @@ func init() {
 	imageFields := schema.Image{}.Fields()
 	_ = imageFields
 	// imageDescCreatedAt is the schema descriptor for created_at field.
-	imageDescCreatedAt := imageFields[3].Descriptor()
+	imageDescCreatedAt := imageFields[4].Descriptor()
 	// image.DefaultCreatedAt holds the default value on creation for the created_at field.
 	image.DefaultCreatedAt = imageDescCreatedAt.Default.(func() time.Time)
 	messageFields := schema.Message{}.Fields()
