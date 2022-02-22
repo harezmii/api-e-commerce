@@ -130,6 +130,7 @@ var (
 		{Name: "keywords", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "image", Type: field.TypeString},
+		{Name: "url", Type: field.TypeString},
 		{Name: "status", Type: field.TypeBool},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
@@ -145,13 +146,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "products_categories_products",
-				Columns:    []*schema.Column{ProductsColumns[9]},
+				Columns:    []*schema.Column{ProductsColumns[10]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "products_users_products",
-				Columns:    []*schema.Column{ProductsColumns[10]},
+				Columns:    []*schema.Column{ProductsColumns[11]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

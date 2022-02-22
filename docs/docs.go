@@ -870,6 +870,115 @@ const docTemplate_swagger = `{
                 }
             }
         },
+        "/products": {
+            "post": {
+                "description": "create products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Create Data",
+                "parameters": [
+                    {
+                        "description": "Product form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Product"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "put": {
+                "description": "update products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Update Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Product update form",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Product"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Delete Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.Product"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/profiles/{id}": {
             "get": {
                 "description": "get string by ID",
@@ -882,7 +991,7 @@ const docTemplate_swagger = `{
                 "tags": [
                     "Profiles"
                 ],
-                "summary": "Show Data",
+                "summary": "Show Profile",
                 "parameters": [
                     {
                         "type": "string",
@@ -902,7 +1011,7 @@ const docTemplate_swagger = `{
                 }
             },
             "delete": {
-                "description": "delete Profiles",
+                "description": "User Delete Profiles",
                 "consumes": [
                     "application/json"
                 ],
@@ -912,7 +1021,7 @@ const docTemplate_swagger = `{
                 "tags": [
                     "Profiles"
                 ],
-                "summary": "Delete Data",
+                "summary": "Delete Profile",
                 "parameters": [
                     {
                         "type": "string",
@@ -1084,9 +1193,9 @@ const docTemplate_swagger = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Profiles"
                 ],
-                "summary": "Profile Created or Updated Data",
+                "summary": "Profile Created or Updated Profile",
                 "parameters": [
                     {
                         "type": "string",
@@ -1096,7 +1205,7 @@ const docTemplate_swagger = `{
                         "required": true
                     },
                     {
-                        "description": "Profile update fom",
+                        "description": "Profile store or update fom",
                         "name": "body",
                         "in": "body",
                         "schema": {
@@ -1266,11 +1375,39 @@ const docTemplate_swagger = `{
                 }
             }
         },
+        "entity.Product": {
+            "type": "object",
+            "required": [
+                "description",
+                "keywords",
+                "status",
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.Profile": {
             "type": "object",
             "required": [
                 "address",
-                "image",
                 "phone"
             ],
             "properties": {

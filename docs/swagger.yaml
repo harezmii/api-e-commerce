@@ -110,6 +110,26 @@ definitions:
     - status
     - subject
     type: object
+  entity.Product:
+    properties:
+      description:
+        type: string
+      image:
+        type: string
+      keywords:
+        type: string
+      status:
+        type: boolean
+      title:
+        type: string
+      url:
+        type: string
+    required:
+    - description
+    - keywords
+    - status
+    - title
+    type: object
   entity.Profile:
     properties:
       address:
@@ -126,7 +146,6 @@ definitions:
         type: integer
     required:
     - address
-    - image
     - phone
     type: object
   entity.User:
@@ -720,11 +739,82 @@ paths:
       summary: Update Data
       tags:
       - Messages
+  /products:
+    post:
+      consumes:
+      - application/json
+      description: create products
+      parameters:
+      - description: Product form
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/entity.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/entity.Product'
+            type: array
+      summary: Create Data
+      tags:
+      - Products
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete products
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Product'
+            type: array
+      summary: Delete Data
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      description: update products
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product update form
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/entity.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Product'
+      summary: Update Data
+      tags:
+      - Products
   /profiles/{id}:
     delete:
       consumes:
       - application/json
-      description: delete Profiles
+      description: User Delete Profiles
       parameters:
       - description: Profile ID
         in: path
@@ -740,7 +830,7 @@ paths:
             items:
               $ref: '#/definitions/entity.Profile'
             type: array
-      summary: Delete Data
+      summary: Delete Profile
       tags:
       - Profiles
     get:
@@ -760,7 +850,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/entity.Profile'
-      summary: Show Data
+      summary: Show Profile
       tags:
       - Profiles
   /users:
@@ -865,7 +955,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: Profile update fom
+      - description: Profile store or update fom
         in: body
         name: body
         schema:
@@ -877,7 +967,7 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/entity.Profile'
-      summary: Profile Created or Updated Data
+      summary: Profile Created or Updated Profile
       tags:
-      - Users
+      - Profiles
 swagger: "2.0"

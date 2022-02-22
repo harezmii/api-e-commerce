@@ -56,6 +56,12 @@ func (pu *ProductUpdate) SetImage(s string) *ProductUpdate {
 	return pu
 }
 
+// SetURL sets the "url" field.
+func (pu *ProductUpdate) SetURL(s string) *ProductUpdate {
+	pu.mutation.SetURL(s)
+	return pu
+}
+
 // SetStatus sets the "status" field.
 func (pu *ProductUpdate) SetStatus(b bool) *ProductUpdate {
 	pu.mutation.SetStatus(b)
@@ -329,6 +335,13 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: product.FieldImage,
 		})
 	}
+	if value, ok := pu.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldURL,
+		})
+	}
 	if value, ok := pu.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
@@ -580,6 +593,12 @@ func (puo *ProductUpdateOne) SetDescription(s string) *ProductUpdateOne {
 // SetImage sets the "image" field.
 func (puo *ProductUpdateOne) SetImage(s string) *ProductUpdateOne {
 	puo.mutation.SetImage(s)
+	return puo
+}
+
+// SetURL sets the "url" field.
+func (puo *ProductUpdateOne) SetURL(s string) *ProductUpdateOne {
+	puo.mutation.SetURL(s)
 	return puo
 }
 
@@ -878,6 +897,13 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 			Type:   field.TypeString,
 			Value:  value,
 			Column: product.FieldImage,
+		})
+	}
+	if value, ok := puo.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldURL,
 		})
 	}
 	if value, ok := puo.mutation.Status(); ok {

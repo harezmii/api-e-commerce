@@ -64,7 +64,7 @@ func init() {
 	productFields := schema.Product{}.Fields()
 	_ = productFields
 	// productDescCreatedAt is the schema descriptor for created_at field.
-	productDescCreatedAt := productFields[5].Descriptor()
+	productDescCreatedAt := productFields[6].Descriptor()
 	// product.DefaultCreatedAt holds the default value on creation for the created_at field.
 	product.DefaultCreatedAt = productDescCreatedAt.Default.(func() time.Time)
 	profileFields := schema.Profile{}.Fields()

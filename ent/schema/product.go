@@ -19,6 +19,7 @@ func (Product) Fields() []ent.Field {
 		field.String("keywords"),
 		field.String("description"),
 		field.String("image"),
+		field.String("url"),
 		field.Bool("status"),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Optional(),

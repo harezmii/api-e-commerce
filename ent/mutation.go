@@ -4086,6 +4086,7 @@ type ProductMutation struct {
 	keywords        *string
 	description     *string
 	image           *string
+	url             *string
 	status          *bool
 	created_at      *time.Time
 	updated_at      *time.Time
@@ -4346,6 +4347,42 @@ func (m *ProductMutation) OldImage(ctx context.Context) (v string, err error) {
 // ResetImage resets all changes to the "image" field.
 func (m *ProductMutation) ResetImage() {
 	m.image = nil
+}
+
+// SetURL sets the "url" field.
+func (m *ProductMutation) SetURL(s string) {
+	m.url = &s
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *ProductMutation) URL() (r string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the Product entity.
+// If the Product object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProductMutation) OldURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *ProductMutation) ResetURL() {
+	m.url = nil
 }
 
 // SetStatus sets the "status" field.
@@ -4723,7 +4760,7 @@ func (m *ProductMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProductMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.title != nil {
 		fields = append(fields, product.FieldTitle)
 	}
@@ -4735,6 +4772,9 @@ func (m *ProductMutation) Fields() []string {
 	}
 	if m.image != nil {
 		fields = append(fields, product.FieldImage)
+	}
+	if m.url != nil {
+		fields = append(fields, product.FieldURL)
 	}
 	if m.status != nil {
 		fields = append(fields, product.FieldStatus)
@@ -4764,6 +4804,8 @@ func (m *ProductMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case product.FieldImage:
 		return m.Image()
+	case product.FieldURL:
+		return m.URL()
 	case product.FieldStatus:
 		return m.Status()
 	case product.FieldCreatedAt:
@@ -4789,6 +4831,8 @@ func (m *ProductMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDescription(ctx)
 	case product.FieldImage:
 		return m.OldImage(ctx)
+	case product.FieldURL:
+		return m.OldURL(ctx)
 	case product.FieldStatus:
 		return m.OldStatus(ctx)
 	case product.FieldCreatedAt:
@@ -4833,6 +4877,13 @@ func (m *ProductMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetImage(v)
+		return nil
+	case product.FieldURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
 		return nil
 	case product.FieldStatus:
 		v, ok := value.(bool)
@@ -4937,6 +4988,9 @@ func (m *ProductMutation) ResetField(name string) error {
 		return nil
 	case product.FieldImage:
 		m.ResetImage()
+		return nil
+	case product.FieldURL:
+		m.ResetURL()
 		return nil
 	case product.FieldStatus:
 		m.ResetStatus()

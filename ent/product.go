@@ -26,6 +26,8 @@ type Product struct {
 	Description string `json:"description,omitempty"`
 	// Image holds the value of the "image" field.
 	Image string `json:"image,omitempty"`
+	// URL holds the value of the "url" field.
+	URL string `json:"url,omitempty"`
 	// Status holds the value of the "status" field.
 	Status bool `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -111,7 +113,7 @@ func (*Product) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullBool)
 		case product.FieldID:
 			values[i] = new(sql.NullInt64)
-		case product.FieldTitle, product.FieldKeywords, product.FieldDescription, product.FieldImage:
+		case product.FieldTitle, product.FieldKeywords, product.FieldDescription, product.FieldImage, product.FieldURL:
 			values[i] = new(sql.NullString)
 		case product.FieldCreatedAt, product.FieldUpdatedAt, product.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -163,6 +165,12 @@ func (pr *Product) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field image", values[i])
 			} else if value.Valid {
 				pr.Image = value.String
+			}
+		case product.FieldURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field url", values[i])
+			} else if value.Valid {
+				pr.URL = value.String
 			}
 		case product.FieldStatus:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -258,6 +266,8 @@ func (pr *Product) String() string {
 	builder.WriteString(pr.Description)
 	builder.WriteString(", image=")
 	builder.WriteString(pr.Image)
+	builder.WriteString(", url=")
+	builder.WriteString(pr.URL)
 	builder.WriteString(", status=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Status))
 	builder.WriteString(", created_at=")

@@ -53,6 +53,16 @@ type Message struct {
 	IP      string `json:"ip" form:"ip" validate:"required"`
 	Status  *bool  `json:"status" form:"status" validate:"required"`
 }
+
+type Product struct {
+	Title       string `json:"title" xml:"title" form:"title" validate:"required"`
+	Keywords    string `json:"keywords" xml:"keywords" form:"keywords" validate:"required"`
+	Description string `json:"description" xml:"description" form:"description" validate:"required"`
+	Image       string `json:"image,omitempty" xml:"image,omitempty" form:"image"`
+	Url         string `json:"url" xml:"url" form:"url" `
+	Status      *bool  `json:"status" xml:"status" form:"status" validate:"required"`
+}
+
 type Login struct {
 	Email    string `json:"email" form:"email" validate:"required"`
 	Password string `json:"password" form:"password" validate:"required"`

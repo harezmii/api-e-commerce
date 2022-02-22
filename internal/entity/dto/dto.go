@@ -35,6 +35,14 @@ type ImageDto struct {
 	Image string `json:"image,omitempty"`
 	Url   string `json:"url,omitempty"`
 }
+type ProductDto struct {
+	Id          int    `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Keywords    string `json:"keywords,omitempty"`
+	Description string `json:"description,omitempty"`
+	Image       string `json:"image,omitempty"`
+	Url         string `json:"url,omitempty"`
+}
 type CommentDto struct {
 	Id      int     `json:"id,omitempty"`
 	Comment string  `json:"comment,omitempty"`
@@ -57,4 +65,5 @@ type ProfileDto struct {
 	Address string `json:"address,omitempty"`
 	Phone   string `json:"phone,omitempty"`
 	Image   string `json:"image,omitempty"`
+	Url     string `json:"url,omitempty" xml:"url,omitempty"`
 }

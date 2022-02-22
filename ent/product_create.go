@@ -48,6 +48,12 @@ func (pc *ProductCreate) SetImage(s string) *ProductCreate {
 	return pc
 }
 
+// SetURL sets the "url" field.
+func (pc *ProductCreate) SetURL(s string) *ProductCreate {
+	pc.mutation.SetURL(s)
+	return pc
+}
+
 // SetStatus sets the "status" field.
 func (pc *ProductCreate) SetStatus(b bool) *ProductCreate {
 	pc.mutation.SetStatus(b)
@@ -255,6 +261,9 @@ func (pc *ProductCreate) check() error {
 	if _, ok := pc.mutation.Image(); !ok {
 		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Product.image"`)}
 	}
+	if _, ok := pc.mutation.URL(); !ok {
+		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Product.url"`)}
+	}
 	if _, ok := pc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Product.status"`)}
 	}
@@ -319,6 +328,14 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 			Column: product.FieldImage,
 		})
 		_node.Image = value
+	}
+	if value, ok := pc.mutation.URL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: product.FieldURL,
+		})
+		_node.URL = value
 	}
 	if value, ok := pc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

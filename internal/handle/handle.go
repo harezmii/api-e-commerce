@@ -3,9 +3,11 @@ package handle
 import (
 	"api/ent"
 	"api/internal/controller/category"
+	"api/internal/controller/comment"
 	"api/internal/controller/faq"
 	"api/internal/controller/image"
 	"api/internal/controller/message"
+	"api/internal/controller/product"
 	"api/internal/controller/profile"
 	"api/internal/controller/user"
 	"api/internal/entity"
@@ -46,7 +48,6 @@ func SetupRoutes(app fiber.Router) {
 	app.Delete("/users/:id", u.Destroy)
 	app.Put("/users/:id", u.Update)
 	app.Post("/users/login", u.Login)
-	app.Post("/users/:id/profiles", u.UserToProfile)
 	// User Routes End
 
 	p := profile.ControllerProfile{
@@ -57,8 +58,9 @@ func SetupRoutes(app fiber.Router) {
 		}{Client: connection, Context: backContext, Entity: entity.Profile{}}}
 
 	//// Profile Routes
-	app.Get("/profiles/:id", p.Show)
-	app.Delete("/profiles/:id", p.Destroy)
+	app.Get("/users/:id/profiles", p.Show)
+	app.Post("/users/:id/profiles", p.StoreOrUpdate)
+	app.Delete("/users/:id/profiles", p.Destroy)
 	// User Routes End
 
 	m := message.ControllerMessage{
@@ -88,7 +90,7 @@ func SetupRoutes(app fiber.Router) {
 	app.Delete("/categories/:id", c.Destroy)
 	app.Put("/categories/:id", c.Update)
 
-	co := category.ControllerCategory{
+	co := comment.ControllerComment{
 		Controller: struct {
 			Client  *ent.Client
 			Context context.Context
@@ -113,4 +115,17 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/images/:id", i.Show)
 	app.Delete("/images/:id", i.Destroy)
 	app.Put("/images/:id", i.Update)
+
+	pr := product.ControllerProduct{
+		Controller: struct {
+			Client  *ent.Client
+			Context context.Context
+			Entity  interface{}
+		}{Client: connection, Context: backContext, Entity: entity.Product{}},
+	}
+	app.Post("/products", pr.Store)
+	app.Delete("/products/:id", pr.Destroy)
+	app.Get("/products/:id", pr.Show)
+	app.Put("/products/:id", pr.Update)
+	app.Get("/products", pr.Index)
 }
