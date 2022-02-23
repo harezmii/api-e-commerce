@@ -36,12 +36,12 @@ type ImageDto struct {
 	Url   string `json:"url,omitempty"`
 }
 type ProductDto struct {
-	Id          int    `json:"id,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Keywords    string `json:"keywords,omitempty"`
-	Description string `json:"description,omitempty"`
-	Image       string `json:"image,omitempty"`
-	Url         string `json:"url,omitempty"`
+	Id          int      `json:"id,omitempty"`
+	Title       string   `json:"title,omitempty"`
+	Keywords    string   `json:"keywords,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Photos      []string `json:"photos,omitempty"`
+	Urls        []string `json:"urls,omitempty"`
 }
 type CommentDto struct {
 	Id      int     `json:"id,omitempty"`

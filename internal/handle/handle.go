@@ -131,6 +131,6 @@ func SetupRoutes(app fiber.Router) {
 	app.Delete("/products/:id", pr.Destroy)
 	app.Get("/products/:id", pr.Show)
 	app.Get("/products/:id/comments", pr.CommentOwnProducts)
-	app.Put("/products/:id", pr.Update)
+	app.Put("/products/:id/images/:imageId", pr.Update)
 	app.Get("/products", pr.Index)
 }

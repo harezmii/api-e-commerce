@@ -50,15 +50,15 @@ func (pu *ProductUpdate) SetDescription(s string) *ProductUpdate {
 	return pu
 }
 
-// SetImage sets the "image" field.
-func (pu *ProductUpdate) SetImage(s string) *ProductUpdate {
-	pu.mutation.SetImage(s)
+// SetPhotos sets the "photos" field.
+func (pu *ProductUpdate) SetPhotos(s []string) *ProductUpdate {
+	pu.mutation.SetPhotos(s)
 	return pu
 }
 
-// SetURL sets the "url" field.
-func (pu *ProductUpdate) SetURL(s string) *ProductUpdate {
-	pu.mutation.SetURL(s)
+// SetUrls sets the "urls" field.
+func (pu *ProductUpdate) SetUrls(s []string) *ProductUpdate {
+	pu.mutation.SetUrls(s)
 	return pu
 }
 
@@ -328,18 +328,18 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: product.FieldDescription,
 		})
 	}
-	if value, ok := pu.mutation.Image(); ok {
+	if value, ok := pu.mutation.Photos(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeJSON,
 			Value:  value,
-			Column: product.FieldImage,
+			Column: product.FieldPhotos,
 		})
 	}
-	if value, ok := pu.mutation.URL(); ok {
+	if value, ok := pu.mutation.Urls(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeJSON,
 			Value:  value,
-			Column: product.FieldURL,
+			Column: product.FieldUrls,
 		})
 	}
 	if value, ok := pu.mutation.Status(); ok {
@@ -590,15 +590,15 @@ func (puo *ProductUpdateOne) SetDescription(s string) *ProductUpdateOne {
 	return puo
 }
 
-// SetImage sets the "image" field.
-func (puo *ProductUpdateOne) SetImage(s string) *ProductUpdateOne {
-	puo.mutation.SetImage(s)
+// SetPhotos sets the "photos" field.
+func (puo *ProductUpdateOne) SetPhotos(s []string) *ProductUpdateOne {
+	puo.mutation.SetPhotos(s)
 	return puo
 }
 
-// SetURL sets the "url" field.
-func (puo *ProductUpdateOne) SetURL(s string) *ProductUpdateOne {
-	puo.mutation.SetURL(s)
+// SetUrls sets the "urls" field.
+func (puo *ProductUpdateOne) SetUrls(s []string) *ProductUpdateOne {
+	puo.mutation.SetUrls(s)
 	return puo
 }
 
@@ -892,18 +892,18 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 			Column: product.FieldDescription,
 		})
 	}
-	if value, ok := puo.mutation.Image(); ok {
+	if value, ok := puo.mutation.Photos(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeJSON,
 			Value:  value,
-			Column: product.FieldImage,
+			Column: product.FieldPhotos,
 		})
 	}
-	if value, ok := puo.mutation.URL(); ok {
+	if value, ok := puo.mutation.Urls(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeJSON,
 			Value:  value,
-			Column: product.FieldURL,
+			Column: product.FieldUrls,
 		})
 	}
 	if value, ok := puo.mutation.Status(); ok {

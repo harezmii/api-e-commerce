@@ -25,9 +25,3 @@ func main() {
 
 	rest.RunRest(strconv.Itoa(cfg.Server.Port))
 }
-
-/*
-TODO : api genisletilecek
-TODO : private ve public route yapılacak.
-
-*/

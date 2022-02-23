@@ -32,16 +32,10 @@ type ControllerProduct struct {
 // @Success      201  {object}  []entity.Product
 // @Router       /products [post]
 func (p ControllerProduct) Store(ctx *fiber.Ctx) error {
+	images := []string{}
+	urls := []string{}
 
-	file, errorImage := ctx.FormFile("image")
-	if errorImage != nil {
-		return errorImage
-	}
-
-	extension := strings.Split(file.Filename, ".")[1]
-	uuid, _ := uuid2.NewUUID()
 	product := p.Entity.(entity.Product)
-	product.Image = fmt.Sprintf("%s.%s", uuid, extension)
 	parseError := ctx.BodyParser(&product)
 	if parseError != nil {
 		logs.Logger(ctx, "Store!Bad Request , parse error.", logs.ERROR)
@@ -50,28 +44,43 @@ func (p ControllerProduct) Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&product)
 	if err == nil {
-
-		openr, _ := file.Open()
-
-		defer openr.Close()
-
-		c := minioUpload.ConfigDefault("products", file.Header["Content-Type"][0])
-		putError := c.PutImage(product.Image, openr, file.Size)
-		if putError != nil {
-			fmt.Println("Put error: " + putError.Error())
-			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created.Database error."})
+		form, formError := ctx.MultipartForm()
+		if formError != nil {
+			return formError
 		}
+		files := form.File["image"]
 
-		fileImage, fileError := c.GetImage(product.Image)
-		if fileError != nil {
-			fmt.Println("File image: " + fileError.Error())
-			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created."})
+		for _, fileSingle := range files {
+			c := minioUpload.ConfigDefault("products", fileSingle.Header["Content-Type"][0])
+			contentType := fileSingle.Header.Get("Content-Type")
+			extension := strings.Split(fileSingle.Filename, ".")[1]
+			uuid, _ := uuid2.NewUUID()
+			product.Image = fmt.Sprintf("%s.%s", uuid, extension)
+			if p.IsOkImageType(contentType) {
+				images = append(images, product.Image)
+				openr, _ := fileSingle.Open()
+
+				defer openr.Close()
+
+				putError := c.PutImage(product.Image, openr, fileSingle.Size)
+				if putError != nil {
+					return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created.Database error."})
+				}
+
+				fileImage, fileError := c.GetImage(product.Image)
+				if fileError != nil {
+					return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created."})
+				}
+				product.Url = fileImage.String()
+				urls = append(urls, product.Url)
+			} else {
+				return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: fiber.StatusUnprocessableEntity, Message: "invalid photo format.photo format like png,jpeg,jpg"})
+			}
 		}
-		product.Url = fileImage.String()
-
-		dbError := p.Client.Product.Create().SetTitle(product.Title).SetKeywords(product.Keywords).SetDescription(product.Description).SetStatus(*product.Status).SetImage(product.Image).SetURL(product.Url).Exec(p.Context)
+		dbError := p.Client.Product.Create().SetTitle(product.Title).SetKeywords(product.Keywords).SetDescription(product.Description).SetStatus(*product.Status).SetPhotos(images).SetUrls(urls).Exec(p.Context)
 
 		if dbError != nil {
+			fmt.Println(dbError.Error())
 			logs.Logger(ctx, "Store!Product not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Product not created.Database error."})
 		}
@@ -104,6 +113,7 @@ func (p ControllerProduct) Destroy(ctx *fiber.Ctx) error {
 	// Not delete record finding
 	firstImage, err := p.Client.Product.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))
+		s.Where(sql.EQ("id", idInt))
 	}).First(p.Context)
 	if firstImage == nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Image not find.Not deleted."})
@@ -118,8 +128,10 @@ func (p ControllerProduct) Destroy(ctx *fiber.Ctx) error {
 	}
 
 	// MINIO Remove Object
-	cfg := minioUpload.ConfigDefault("products", "")
-	cfg.RemoveImage(firstImage.Image)
+	for i := 0; i < len(firstImage.Photos); i++ {
+		cfg := minioUpload.ConfigDefault("products", "")
+		cfg.RemoveImage(firstImage.Photos[i])
+	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Image deleted", Data: "Image deleted id= " + strconv.Itoa(firstImage.ID)})
 }
 
@@ -141,22 +153,26 @@ func (p ControllerProduct) Show(ctx *fiber.Ctx) error {
 		logs.Logger(ctx, "Show!Bad Request , Invalid type error. Type must int", logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
-	var responseDto []dto.ProductDto
-	err := p.Client.Product.Query().Where(func(s *sql.Selector) {
+
+	product, err := p.Client.Product.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))
 		s.Where(sql.EQ("id", idInt))
-	}).Select("id", "title", "keywords", "description", "image", "url").Scan(p.Context, &responseDto)
+	}).First(p.Context)
+
 	// Database query error
 	if err != nil {
 		//logs.Logger(ctx, "Show!Image not finding", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Image not finding"})
 	}
-
-	// Deleted record find
-	if len(responseDto) == 0 {
-		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Image not finding"})
+	var responseDto dto.ProductDto
+	responseDto = dto.ProductDto{
+		Id:          product.ID,
+		Title:       product.Title,
+		Keywords:    product.Keywords,
+		Description: product.Description,
+		Photos:      product.Photos,
+		Urls:        product.Urls,
 	}
-
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Image is finding", Data: responseDto})
 }
 
@@ -194,15 +210,6 @@ func (p ControllerProduct) Index(ctx *fiber.Ctx) error {
 	}
 	// Sort Control END
 
-	// Search Field Control
-	var selectField []string
-	if arg.SelectFields == "" {
-		selectField = []string{"id", "title", "keywords", "description", "image", "url"}
-	} else {
-		selectField = strings.Split(arg.SelectFields, ",")
-	}
-	// Search Field Control End
-
 	// Offset Control
 	var offsetInt int
 	offset := arg.Offset
@@ -223,27 +230,29 @@ func (p ControllerProduct) Index(ctx *fiber.Ctx) error {
 	}
 	// Offset Control END
 
-	var responseDto []dto.ProductDto
-	err := p.Client.Product.Query().Where(func(s *sql.Selector) {
+	products, err := p.Client.Product.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.IsNull("deleted_at"))
-	}).Limit(10).Offset(offsetInt).Order(sort).Select(selectField...).Scan(p.Context, &responseDto)
+	}).Limit(10).Offset(offsetInt).Order(sort).All(p.Context)
 
+	var responseDto []dto.ProductDto
+	for _, product := range products {
+		responseDto = append(responseDto, dto.ProductDto{
+			Id:          product.ID,
+			Title:       product.Title,
+			Keywords:    product.Keywords,
+			Description: product.Description,
+			Photos:      product.Photos,
+			Urls:        product.Urls,
+		})
+	}
 	if err != nil {
+		fmt.Println(err.Error())
 		logs.Logger(ctx, "Index!Product is empty", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Product is empty"})
 	}
 	// Deleted record find
 	if len(responseDto) == 0 {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Product not finding"})
-	}
-
-	for i := 0; i < len(responseDto); i++ {
-		cfg := minioUpload.ConfigDefault("products", "")
-		file, fileError := cfg.GetImage(responseDto[i].Image)
-		if fileError != nil {
-			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Product not created."})
-		}
-		responseDto[i].Url = file.String()
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Product is all", Data: responseDto})
 }
@@ -257,7 +266,7 @@ func (p ControllerProduct) Index(ctx *fiber.Ctx) error {
 // @Param        id path  string  true   "Product ID"
 // @Param        body body  entity.Product  false   "Product update form"
 // @Success      200  {object}  entity.Product
-// @Router       /products/{id} [put]
+// @Router       /products/{id}/images/{imagesId} [put]
 func (p ControllerProduct) Update(ctx *fiber.Ctx) error {
 	file, errorImage := ctx.FormFile("image")
 	if errorImage != nil {
@@ -273,6 +282,14 @@ func (p ControllerProduct) Update(ctx *fiber.Ctx) error {
 	idInt, convertError := strconv.Atoi(id)
 
 	if convertError != nil {
+		logs.Logger(ctx, "Update!Bad Request , Invalid type error. Type must int"+convertError.Error(), logs.ERROR)
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
+	}
+
+	imageId := ctx.Params("imageId")
+	imageIdInt, convertErrorImageId := strconv.Atoi(imageId)
+
+	if convertErrorImageId != nil {
 		logs.Logger(ctx, "Update!Bad Request , Invalid type error. Type must int"+convertError.Error(), logs.ERROR)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
 	}
@@ -297,19 +314,20 @@ func (p ControllerProduct) Update(ctx *fiber.Ctx) error {
 			defer open.Close()
 			cfg := minioUpload.ConfigDefault("products", "")
 
-			putError := cfg.PutImage(selectId.Image, open, file.Size)
+			putError := cfg.PutImage(selectId.Photos[imageIdInt], open, file.Size)
 			if putError != nil {
 				fmt.Println(putError.Error())
 				return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Product not updated"})
 			}
-			getImage, getError := cfg.GetImage(selectId.Image)
+			getImage, getError := cfg.GetImage(selectId.Photos[imageIdInt])
 			if getError != nil {
 				fmt.Println(getError.Error())
 				return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Product not updated"})
 
 			}
-			product.Url = getImage.String()
-			errt := p.Client.Product.UpdateOneID(idInt).SetTitle(product.Title).SetKeywords(product.Keywords).SetDescription(product.Description).SetStatus(*product.Status).SetImage(product.Image).SetURL(product.Url).Exec(p.Context)
+			selectId.Photos[imageIdInt] = product.Image
+			selectId.Urls[imageIdInt] = getImage.String()
+			errt := p.Client.Product.UpdateOneID(idInt).SetTitle(product.Title).SetKeywords(product.Keywords).SetDescription(product.Description).SetStatus(*product.Status).SetPhotos(selectId.Photos).SetUrls(selectId.Urls).Exec(p.Context)
 			if errt != nil {
 				return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Product not updated, " + strings.Split(errt.Error(), ":")[3]})
 			}
@@ -318,7 +336,7 @@ func (p ControllerProduct) Update(ctx *fiber.Ctx) error {
 			logs.Logger(ctx, "Update!Product not updated.", logs.ERROR)
 			return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Product not updated"})
 		}
-		product.Image = selectId.Image
+		product.Image = selectId.Photos[imageIdInt]
 		return ctx.Status(fiber.StatusOK).JSON(
 			response.SuccessResponse{StatusCode: 200, Message: "Image Updated.", Data: product},
 		)

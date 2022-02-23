@@ -31,7 +31,6 @@ type ControllerFaq struct {
 // @Router       /faqs [post]
 func (f ControllerFaq) Store(ctx *fiber.Ctx) error {
 	faq := f.Entity.(entity.Faq)
-
 	parseError := ctx.BodyParser(&faq)
 	if parseError != nil {
 		logs.Logger(ctx, "Store!Bad Request , parse error.", logs.ERROR)
@@ -108,11 +107,6 @@ func (f ControllerFaq) Update(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
-
-// TODO
-/*
-	- selectFields için hatalı alan girildiğinde hata dön
-*/
 
 // Index ShowAccount godoc
 // @Summary      All  Data

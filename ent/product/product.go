@@ -17,10 +17,10 @@ const (
 	FieldKeywords = "keywords"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldImage holds the string denoting the image field in the database.
-	FieldImage = "image"
-	// FieldURL holds the string denoting the url field in the database.
-	FieldURL = "url"
+	// FieldPhotos holds the string denoting the photos field in the database.
+	FieldPhotos = "photos"
+	// FieldUrls holds the string denoting the urls field in the database.
+	FieldUrls = "urls"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -75,8 +75,8 @@ var Columns = []string{
 	FieldTitle,
 	FieldKeywords,
 	FieldDescription,
-	FieldImage,
-	FieldURL,
+	FieldPhotos,
+	FieldUrls,
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,

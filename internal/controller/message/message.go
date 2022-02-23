@@ -16,10 +16,6 @@ import (
 	"time"
 )
 
-// TODO
-//3 Error split'i kontrol et.
-// update validate
-
 type ControllerMessage struct {
 	controller.Controller
 }

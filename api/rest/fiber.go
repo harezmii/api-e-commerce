@@ -2,15 +2,12 @@ package rest
 
 import (
 	_ "api/docs"
-	"api/ent"
 	"api/internal/entity/response"
-	"api/internal/entity/seed"
 	"api/internal/handle"
 	"api/internal/logs"
 	"api/internal/secret/middleware"
 	_ "api/internal/secret/vault"
 	"api/pkg/config"
-	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
@@ -47,14 +44,15 @@ func RunRest(port string) {
 	//app.Use(firabaseAuth.FirebaseMiddleWare)
 
 	// Api ping
-	app.Get("/", func(ctx *fiber.Ctx) error {
-		seeder := seed.Seeder{
-			Client:   ent.ConnectionEnt(),
-			Context:  context.Background(),
-			SeedInt:  20,
-			Entities: []string{"Faq", "Message"}}
-		seeder.Seed()
-		return ctx.Status(200).JSON(response.SuccessResponse{Message: "Api is Running", StatusCode: 200})
+	app.Post("/", func(ctx *fiber.Ctx) error {
+		//seeder := seed.Seeder{
+		//	Client:   ent.ConnectionEnt(),
+		//	Context:  context.Background(),
+		//	SeedInt:  20,
+		//	Entities: []string{"Faq", "Message"}}
+		//seeder.Seed()
+
+		return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{Message: "Api is Running", StatusCode: fiber.StatusOK})
 	})
 
 	// Api ping End

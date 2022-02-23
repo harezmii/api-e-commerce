@@ -22,9 +22,6 @@ type ControllerImage struct {
 	controller.Controller
 }
 
-// TODO
-// Update kısmı yapılacak. Done
-
 //Store ShowAccount godoc
 //@Summary      Create Data
 //@Description  create Image

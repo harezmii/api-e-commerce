@@ -16,9 +16,6 @@ import (
 	"time"
 )
 
-// TODO
-// User profile eklenmesini kontrol edeceğim.
-
 type ControllerUser struct {
 	controller.Controller
 }

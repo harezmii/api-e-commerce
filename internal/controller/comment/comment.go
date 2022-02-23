@@ -108,11 +108,6 @@ func (c ControllerComment) Update(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
 
-// TODO
-/*
-	- selectFields için hatalı alan girildiğinde hata dön
-*/
-
 // Index ShowAccount godoc
 // @Summary      All  Data
 // @Description  Get all comments

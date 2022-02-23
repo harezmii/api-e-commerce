@@ -6,6 +6,7 @@ import (
 	"api/ent/category"
 	"api/ent/product"
 	"api/ent/user"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -24,10 +25,10 @@ type Product struct {
 	Keywords string `json:"keywords,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// Image holds the value of the "image" field.
-	Image string `json:"image,omitempty"`
-	// URL holds the value of the "url" field.
-	URL string `json:"url,omitempty"`
+	// Photos holds the value of the "photos" field.
+	Photos []string `json:"photos,omitempty"`
+	// Urls holds the value of the "urls" field.
+	Urls []string `json:"urls,omitempty"`
 	// Status holds the value of the "status" field.
 	Status bool `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -109,11 +110,13 @@ func (*Product) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case product.FieldPhotos, product.FieldUrls:
+			values[i] = new([]byte)
 		case product.FieldStatus:
 			values[i] = new(sql.NullBool)
 		case product.FieldID:
 			values[i] = new(sql.NullInt64)
-		case product.FieldTitle, product.FieldKeywords, product.FieldDescription, product.FieldImage, product.FieldURL:
+		case product.FieldTitle, product.FieldKeywords, product.FieldDescription:
 			values[i] = new(sql.NullString)
 		case product.FieldCreatedAt, product.FieldUpdatedAt, product.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -160,17 +163,21 @@ func (pr *Product) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				pr.Description = value.String
 			}
-		case product.FieldImage:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field image", values[i])
-			} else if value.Valid {
-				pr.Image = value.String
+		case product.FieldPhotos:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field photos", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pr.Photos); err != nil {
+					return fmt.Errorf("unmarshal field photos: %w", err)
+				}
 			}
-		case product.FieldURL:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field url", values[i])
-			} else if value.Valid {
-				pr.URL = value.String
+		case product.FieldUrls:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field urls", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pr.Urls); err != nil {
+					return fmt.Errorf("unmarshal field urls: %w", err)
+				}
 			}
 		case product.FieldStatus:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -264,10 +271,10 @@ func (pr *Product) String() string {
 	builder.WriteString(pr.Keywords)
 	builder.WriteString(", description=")
 	builder.WriteString(pr.Description)
-	builder.WriteString(", image=")
-	builder.WriteString(pr.Image)
-	builder.WriteString(", url=")
-	builder.WriteString(pr.URL)
+	builder.WriteString(", photos=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Photos))
+	builder.WriteString(", urls=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Urls))
 	builder.WriteString(", status=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Status))
 	builder.WriteString(", created_at=")

@@ -42,15 +42,15 @@ func (pc *ProductCreate) SetDescription(s string) *ProductCreate {
 	return pc
 }
 
-// SetImage sets the "image" field.
-func (pc *ProductCreate) SetImage(s string) *ProductCreate {
-	pc.mutation.SetImage(s)
+// SetPhotos sets the "photos" field.
+func (pc *ProductCreate) SetPhotos(s []string) *ProductCreate {
+	pc.mutation.SetPhotos(s)
 	return pc
 }
 
-// SetURL sets the "url" field.
-func (pc *ProductCreate) SetURL(s string) *ProductCreate {
-	pc.mutation.SetURL(s)
+// SetUrls sets the "urls" field.
+func (pc *ProductCreate) SetUrls(s []string) *ProductCreate {
+	pc.mutation.SetUrls(s)
 	return pc
 }
 
@@ -258,11 +258,11 @@ func (pc *ProductCreate) check() error {
 	if _, ok := pc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Product.description"`)}
 	}
-	if _, ok := pc.mutation.Image(); !ok {
-		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Product.image"`)}
+	if _, ok := pc.mutation.Photos(); !ok {
+		return &ValidationError{Name: "photos", err: errors.New(`ent: missing required field "Product.photos"`)}
 	}
-	if _, ok := pc.mutation.URL(); !ok {
-		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Product.url"`)}
+	if _, ok := pc.mutation.Urls(); !ok {
+		return &ValidationError{Name: "urls", err: errors.New(`ent: missing required field "Product.urls"`)}
 	}
 	if _, ok := pc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Product.status"`)}
@@ -321,21 +321,21 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		})
 		_node.Description = value
 	}
-	if value, ok := pc.mutation.Image(); ok {
+	if value, ok := pc.mutation.Photos(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeJSON,
 			Value:  value,
-			Column: product.FieldImage,
+			Column: product.FieldPhotos,
 		})
-		_node.Image = value
+		_node.Photos = value
 	}
-	if value, ok := pc.mutation.URL(); ok {
+	if value, ok := pc.mutation.Urls(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeJSON,
 			Value:  value,
-			Column: product.FieldURL,
+			Column: product.FieldUrls,
 		})
-		_node.URL = value
+		_node.Urls = value
 	}
 	if value, ok := pc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

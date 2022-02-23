@@ -7,10 +7,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// TODO
-// Log mekanizması geliştirilmeli
-// Log stdout to kafka işlemini yapmalı.
-
 const (
 	DEBUG string = "DEBUG"
 	INFO  string = "INFO"
