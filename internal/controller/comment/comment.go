@@ -39,7 +39,7 @@ func (c ControllerComment) Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&comment)
 	if err == nil {
-		dbError := c.Client.Comment.Create().SetComment(comment.Comment).SetIP(comment.IP).SetRate(comment.Rate).SetStatus(*comment.Status).Exec(c.Context)
+		dbError := c.Client.Comment.Create().SetComment(comment.Comment).SetIP(ctx.IP()).SetRate(comment.Rate).SetStatus(*comment.Status).Exec(c.Context)
 
 		if dbError != nil {
 			logs.Logger(ctx, "Store!comment not created.Database error.", logs.ERROR)
@@ -262,4 +262,24 @@ func (c ControllerComment) Show(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "comment not finding"})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "comment is finding", Data: responseDto})
+}
+
+func (c ControllerComment) CommentOwnUsers(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	idInt, convertError := strconv.Atoi(id)
+
+	if convertError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
+	}
+	user, userError := c.Client.User.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.EQ("id", idInt))
+	}).First(c.Context)
+	if userError != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: fiber.StatusNotFound, Message: "Comment not finding"})
+	}
+	setError := c.Client.Comment.Update().SetOwnID(idInt).SetOwn(user).Exec(c.Context)
+	if setError != nil {
+		return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: fiber.StatusNoContent, Message: "Users own comments not creating"})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: fiber.StatusOK, Message: "User  comments create"})
 }

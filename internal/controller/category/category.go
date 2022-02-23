@@ -6,10 +6,13 @@ import (
 	"api/internal/entity"
 	"api/internal/entity/dto"
 	"api/internal/entity/response"
+	minioUpload "api/internal/infraStructure/minio"
 	"api/internal/logs"
 	"api/internal/validate"
 	"entgo.io/ent/dialect/sql"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	uuid2 "github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +32,15 @@ type ControllerCategory struct {
 // @Success      201  {object}  []entity.Category
 // @Router       /categories [post]
 func (c ControllerCategory) Store(ctx *fiber.Ctx) error {
+	file, errorImage := ctx.FormFile("image")
+	if errorImage != nil {
+		return errorImage
+	}
+
+	extension := strings.Split(file.Filename, ".")[1]
+	uuid, _ := uuid2.NewUUID()
 	category := c.Entity.(entity.Category)
+	category.Image = fmt.Sprintf("%s.%s", uuid, extension)
 
 	parseError := ctx.BodyParser(&category)
 	if parseError != nil {
@@ -39,9 +50,28 @@ func (c ControllerCategory) Store(ctx *fiber.Ctx) error {
 	}
 	err := validate.ValidateStructToTurkish(&category)
 	if err == nil {
-		dbError := c.Client.Category.Create().SetImage(category.Image).SetDescription(category.Description).SetDescription(category.Description).SetTitle(category.Title).SetStatus(*category.Status).Exec(c.Context)
+
+		open, _ := file.Open()
+		defer open.Close()
+		cfg := minioUpload.ConfigDefault("categories", "")
+
+		putError := cfg.PutImage(category.Image, open, file.Size)
+		if putError != nil {
+			fmt.Println(putError.Error())
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Category image not creating"})
+		}
+		getImage, getError := cfg.GetImage(category.Image)
+		if getError != nil {
+			fmt.Println(getError.Error())
+			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Category image not creating"})
+
+		}
+		category.Url = getImage.String()
+
+		dbError := c.Client.Category.Create().SetKeywords(category.Keywords).SetImage(category.Image).SetURL(category.Url).SetDescription(category.Description).SetDescription(category.Description).SetTitle(category.Title).SetStatus(*category.Status).Exec(c.Context)
 
 		if dbError != nil {
+			fmt.Println(dbError.Error())
 			logs.Logger(ctx, "Store!Category not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Category not created.Database error."})
 		}
@@ -262,4 +292,24 @@ func (c ControllerCategory) Show(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Category not finding"})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Category is finding", Data: responseDto})
+}
+
+func (c ControllerCategory) CategoryOwnProducts(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	idInt, convertError := strconv.Atoi(id)
+
+	if convertError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
+	}
+	category, userError := c.Client.Category.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.EQ("id", idInt))
+	}).First(c.Context)
+	if userError != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: fiber.StatusNotFound, Message: "Category not finding"})
+	}
+	setError := c.Client.Product.Update().SetOwnerID(idInt).SetOwner(category).Exec(c.Context)
+	if setError != nil {
+		return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: fiber.StatusNoContent, Message: "Category own products not creating"})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: fiber.StatusOK, Message: "Category products create"})
 }

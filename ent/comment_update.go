@@ -128,19 +128,23 @@ func (cu *CommentUpdate) SetOwner(p *Product) *CommentUpdate {
 	return cu.SetOwnerID(p.ID)
 }
 
-// AddOwnIDs adds the "own" edge to the User entity by IDs.
-func (cu *CommentUpdate) AddOwnIDs(ids ...int) *CommentUpdate {
-	cu.mutation.AddOwnIDs(ids...)
+// SetOwnID sets the "own" edge to the User entity by ID.
+func (cu *CommentUpdate) SetOwnID(id int) *CommentUpdate {
+	cu.mutation.SetOwnID(id)
 	return cu
 }
 
-// AddOwn adds the "own" edges to the User entity.
-func (cu *CommentUpdate) AddOwn(u ...*User) *CommentUpdate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// SetNillableOwnID sets the "own" edge to the User entity by ID if the given value is not nil.
+func (cu *CommentUpdate) SetNillableOwnID(id *int) *CommentUpdate {
+	if id != nil {
+		cu = cu.SetOwnID(*id)
 	}
-	return cu.AddOwnIDs(ids...)
+	return cu
+}
+
+// SetOwn sets the "own" edge to the User entity.
+func (cu *CommentUpdate) SetOwn(u *User) *CommentUpdate {
+	return cu.SetOwnID(u.ID)
 }
 
 // Mutation returns the CommentMutation object of the builder.
@@ -154,25 +158,10 @@ func (cu *CommentUpdate) ClearOwner() *CommentUpdate {
 	return cu
 }
 
-// ClearOwn clears all "own" edges to the User entity.
+// ClearOwn clears the "own" edge to the User entity.
 func (cu *CommentUpdate) ClearOwn() *CommentUpdate {
 	cu.mutation.ClearOwn()
 	return cu
-}
-
-// RemoveOwnIDs removes the "own" edge to User entities by IDs.
-func (cu *CommentUpdate) RemoveOwnIDs(ids ...int) *CommentUpdate {
-	cu.mutation.RemoveOwnIDs(ids...)
-	return cu
-}
-
-// RemoveOwn removes "own" edges to User entities.
-func (cu *CommentUpdate) RemoveOwn(u ...*User) *CommentUpdate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return cu.RemoveOwnIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -345,10 +334,10 @@ func (cu *CommentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if cu.mutation.OwnCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   comment.OwnTable,
-			Columns: comment.OwnPrimaryKey,
+			Columns: []string{comment.OwnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -356,34 +345,15 @@ func (cu *CommentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 					Column: user.FieldID,
 				},
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.RemovedOwnIDs(); len(nodes) > 0 && !cu.mutation.OwnCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   comment.OwnTable,
-			Columns: comment.OwnPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := cu.mutation.OwnIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   comment.OwnTable,
-			Columns: comment.OwnPrimaryKey,
+			Columns: []string{comment.OwnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -514,19 +484,23 @@ func (cuo *CommentUpdateOne) SetOwner(p *Product) *CommentUpdateOne {
 	return cuo.SetOwnerID(p.ID)
 }
 
-// AddOwnIDs adds the "own" edge to the User entity by IDs.
-func (cuo *CommentUpdateOne) AddOwnIDs(ids ...int) *CommentUpdateOne {
-	cuo.mutation.AddOwnIDs(ids...)
+// SetOwnID sets the "own" edge to the User entity by ID.
+func (cuo *CommentUpdateOne) SetOwnID(id int) *CommentUpdateOne {
+	cuo.mutation.SetOwnID(id)
 	return cuo
 }
 
-// AddOwn adds the "own" edges to the User entity.
-func (cuo *CommentUpdateOne) AddOwn(u ...*User) *CommentUpdateOne {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// SetNillableOwnID sets the "own" edge to the User entity by ID if the given value is not nil.
+func (cuo *CommentUpdateOne) SetNillableOwnID(id *int) *CommentUpdateOne {
+	if id != nil {
+		cuo = cuo.SetOwnID(*id)
 	}
-	return cuo.AddOwnIDs(ids...)
+	return cuo
+}
+
+// SetOwn sets the "own" edge to the User entity.
+func (cuo *CommentUpdateOne) SetOwn(u *User) *CommentUpdateOne {
+	return cuo.SetOwnID(u.ID)
 }
 
 // Mutation returns the CommentMutation object of the builder.
@@ -540,25 +514,10 @@ func (cuo *CommentUpdateOne) ClearOwner() *CommentUpdateOne {
 	return cuo
 }
 
-// ClearOwn clears all "own" edges to the User entity.
+// ClearOwn clears the "own" edge to the User entity.
 func (cuo *CommentUpdateOne) ClearOwn() *CommentUpdateOne {
 	cuo.mutation.ClearOwn()
 	return cuo
-}
-
-// RemoveOwnIDs removes the "own" edge to User entities by IDs.
-func (cuo *CommentUpdateOne) RemoveOwnIDs(ids ...int) *CommentUpdateOne {
-	cuo.mutation.RemoveOwnIDs(ids...)
-	return cuo
-}
-
-// RemoveOwn removes "own" edges to User entities.
-func (cuo *CommentUpdateOne) RemoveOwn(u ...*User) *CommentUpdateOne {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return cuo.RemoveOwnIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -755,10 +714,10 @@ func (cuo *CommentUpdateOne) sqlSave(ctx context.Context) (_node *Comment, err e
 	}
 	if cuo.mutation.OwnCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   comment.OwnTable,
-			Columns: comment.OwnPrimaryKey,
+			Columns: []string{comment.OwnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -766,34 +725,15 @@ func (cuo *CommentUpdateOne) sqlSave(ctx context.Context) (_node *Comment, err e
 					Column: user.FieldID,
 				},
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.RemovedOwnIDs(); len(nodes) > 0 && !cuo.mutation.OwnCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   comment.OwnTable,
-			Columns: comment.OwnPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := cuo.mutation.OwnIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   comment.OwnTable,
-			Columns: comment.OwnPrimaryKey,
+			Columns: []string{comment.OwnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

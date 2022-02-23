@@ -22,7 +22,7 @@ func init() {
 	categoryFields := schema.Category{}.Fields()
 	_ = categoryFields
 	// categoryDescCreatedAt is the schema descriptor for created_at field.
-	categoryDescCreatedAt := categoryFields[5].Descriptor()
+	categoryDescCreatedAt := categoryFields[6].Descriptor()
 	// category.DefaultCreatedAt holds the default value on creation for the created_at field.
 	category.DefaultCreatedAt = categoryDescCreatedAt.Default.(func() time.Time)
 	commentFields := schema.Comment{}.Fields()

@@ -5,6 +5,7 @@ package ent
 import (
 	"api/ent/comment"
 	"api/ent/product"
+	"api/ent/user"
 	"fmt"
 	"strings"
 	"time"
@@ -35,6 +36,7 @@ type Comment struct {
 	// The values are being populated by the CommentQuery when eager-loading is set.
 	Edges            CommentEdges `json:"edges"`
 	product_comments *int
+	user_comments    *int
 }
 
 // CommentEdges holds the relations/edges for other nodes in the graph.
@@ -42,7 +44,7 @@ type CommentEdges struct {
 	// Owner holds the value of the owner edge.
 	Owner *Product `json:"owner,omitempty"`
 	// Own holds the value of the own edge.
-	Own []*User `json:"own,omitempty"`
+	Own *User `json:"own,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -63,9 +65,14 @@ func (e CommentEdges) OwnerOrErr() (*Product, error) {
 }
 
 // OwnOrErr returns the Own value or an error if the edge
-// was not loaded in eager-loading.
-func (e CommentEdges) OwnOrErr() ([]*User, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CommentEdges) OwnOrErr() (*User, error) {
 	if e.loadedTypes[1] {
+		if e.Own == nil {
+			// The edge own was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
 		return e.Own, nil
 	}
 	return nil, &NotLoadedError{edge: "own"}
@@ -87,6 +94,8 @@ func (*Comment) scanValues(columns []string) ([]interface{}, error) {
 		case comment.FieldCreatedAt, comment.FieldUpdatedAt, comment.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case comment.ForeignKeys[0]: // product_comments
+			values[i] = new(sql.NullInt64)
+		case comment.ForeignKeys[1]: // user_comments
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Comment", columns[i])
@@ -157,6 +166,13 @@ func (c *Comment) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				c.product_comments = new(int)
 				*c.product_comments = int(value.Int64)
+			}
+		case comment.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field user_comments", value)
+			} else if value.Valid {
+				c.user_comments = new(int)
+				*c.user_comments = int(value.Int64)
 			}
 		}
 	}

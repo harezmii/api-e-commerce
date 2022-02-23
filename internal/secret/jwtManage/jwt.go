@@ -158,10 +158,12 @@ func (t TokenManage) TokenQuery(ctx *fiber.Ctx, key string) (string, error) {
 	}
 	return token, nil
 }
-func (t TokenManage) NewToken(ctx *fiber.Ctx, userId int) string {
+func (t TokenManage) NewToken(ctx *fiber.Ctx, userId int, role string) string {
 	claims := jwt.NewWithClaims(t.TokenAlgorithm(), jwt.MapClaims{
-		"exp": t.Expires,
-		"id":  userId,
+		"exp":   t.Expires,
+		"id":    userId,
+		"login": true,
+		"role":  role,
 	})
 	signedString, err := claims.SignedString([]byte(t.TokenKey))
 	if err != nil {

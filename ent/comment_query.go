@@ -8,7 +8,6 @@ import (
 	"api/ent/product"
 	"api/ent/user"
 	"context"
-	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -103,7 +102,7 @@ func (cq *CommentQuery) QueryOwn() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(comment.Table, comment.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, comment.OwnTable, comment.OwnPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, comment.OwnTable, comment.OwnColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -393,7 +392,7 @@ func (cq *CommentQuery) sqlAll(ctx context.Context) ([]*Comment, error) {
 			cq.withOwn != nil,
 		}
 	)
-	if cq.withOwner != nil {
+	if cq.withOwner != nil || cq.withOwn != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -449,66 +448,30 @@ func (cq *CommentQuery) sqlAll(ctx context.Context) ([]*Comment, error) {
 	}
 
 	if query := cq.withOwn; query != nil {
-		fks := make([]driver.Value, 0, len(nodes))
-		ids := make(map[int]*Comment, len(nodes))
-		for _, node := range nodes {
-			ids[node.ID] = node
-			fks = append(fks, node.ID)
-			node.Edges.Own = []*User{}
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Comment)
+		for i := range nodes {
+			if nodes[i].user_comments == nil {
+				continue
+			}
+			fk := *nodes[i].user_comments
+			if _, ok := nodeids[fk]; !ok {
+				ids = append(ids, fk)
+			}
+			nodeids[fk] = append(nodeids[fk], nodes[i])
 		}
-		var (
-			edgeids []int
-			edges   = make(map[int][]*Comment)
-		)
-		_spec := &sqlgraph.EdgeQuerySpec{
-			Edge: &sqlgraph.EdgeSpec{
-				Inverse: true,
-				Table:   comment.OwnTable,
-				Columns: comment.OwnPrimaryKey,
-			},
-			Predicate: func(s *sql.Selector) {
-				s.Where(sql.InValues(comment.OwnPrimaryKey[1], fks...))
-			},
-			ScanValues: func() [2]interface{} {
-				return [2]interface{}{new(sql.NullInt64), new(sql.NullInt64)}
-			},
-			Assign: func(out, in interface{}) error {
-				eout, ok := out.(*sql.NullInt64)
-				if !ok || eout == nil {
-					return fmt.Errorf("unexpected id value for edge-out")
-				}
-				ein, ok := in.(*sql.NullInt64)
-				if !ok || ein == nil {
-					return fmt.Errorf("unexpected id value for edge-in")
-				}
-				outValue := int(eout.Int64)
-				inValue := int(ein.Int64)
-				node, ok := ids[outValue]
-				if !ok {
-					return fmt.Errorf("unexpected node id in edges: %v", outValue)
-				}
-				if _, ok := edges[inValue]; !ok {
-					edgeids = append(edgeids, inValue)
-				}
-				edges[inValue] = append(edges[inValue], node)
-				return nil
-			},
-		}
-		if err := sqlgraph.QueryEdges(ctx, cq.driver, _spec); err != nil {
-			return nil, fmt.Errorf(`query edges "own": %w`, err)
-		}
-		query.Where(user.IDIn(edgeids...))
+		query.Where(user.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := edges[n.ID]
+			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected "own" node returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "user_comments" returned %v`, n.ID)
 			}
 			for i := range nodes {
-				nodes[i].Edges.Own = append(nodes[i].Edges.Own, n)
+				nodes[i].Edges.Own = n
 			}
 		}
 	}

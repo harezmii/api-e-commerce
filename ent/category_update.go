@@ -53,6 +53,12 @@ func (cu *CategoryUpdate) SetImage(s string) *CategoryUpdate {
 	return cu
 }
 
+// SetURL sets the "url" field.
+func (cu *CategoryUpdate) SetURL(s string) *CategoryUpdate {
+	cu.mutation.SetURL(s)
+	return cu
+}
+
 // SetStatus sets the "status" field.
 func (cu *CategoryUpdate) SetStatus(b bool) *CategoryUpdate {
 	cu.mutation.SetStatus(b)
@@ -301,6 +307,13 @@ func (cu *CategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: category.FieldImage,
 		})
 	}
+	if value, ok := cu.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: category.FieldURL,
+		})
+	}
 	if value, ok := cu.mutation.Status(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
@@ -517,6 +530,12 @@ func (cuo *CategoryUpdateOne) SetDescription(s string) *CategoryUpdateOne {
 // SetImage sets the "image" field.
 func (cuo *CategoryUpdateOne) SetImage(s string) *CategoryUpdateOne {
 	cuo.mutation.SetImage(s)
+	return cuo
+}
+
+// SetURL sets the "url" field.
+func (cuo *CategoryUpdateOne) SetURL(s string) *CategoryUpdateOne {
+	cuo.mutation.SetURL(s)
 	return cuo
 }
 
@@ -790,6 +809,13 @@ func (cuo *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err
 			Type:   field.TypeString,
 			Value:  value,
 			Column: category.FieldImage,
+		})
+	}
+	if value, ok := cuo.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: category.FieldURL,
 		})
 	}
 	if value, ok := cuo.mutation.Status(); ok {

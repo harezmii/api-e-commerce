@@ -15,6 +15,7 @@ var (
 		{Name: "keywords", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "image", Type: field.TypeString},
+		{Name: "url", Type: field.TypeString},
 		{Name: "status", Type: field.TypeBool},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
@@ -29,7 +30,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "categories_categories_children",
-				Columns:    []*schema.Column{CategoriesColumns[9]},
+				Columns:    []*schema.Column{CategoriesColumns[10]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -46,6 +47,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "product_comments", Type: field.TypeInt, Nullable: true},
+		{Name: "user_comments", Type: field.TypeInt, Nullable: true},
 	}
 	// CommentsTable holds the schema information for the "comments" table.
 	CommentsTable = &schema.Table{
@@ -57,6 +59,12 @@ var (
 				Symbol:     "comments_products_comments",
 				Columns:    []*schema.Column{CommentsColumns[8]},
 				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "comments_users_comments",
+				Columns:    []*schema.Column{CommentsColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -231,31 +239,6 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
-	// UserCommentsColumns holds the columns for the "user_comments" table.
-	UserCommentsColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeInt},
-		{Name: "comment_id", Type: field.TypeInt},
-	}
-	// UserCommentsTable holds the schema information for the "user_comments" table.
-	UserCommentsTable = &schema.Table{
-		Name:       "user_comments",
-		Columns:    UserCommentsColumns,
-		PrimaryKey: []*schema.Column{UserCommentsColumns[0], UserCommentsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_comments_user_id",
-				Columns:    []*schema.Column{UserCommentsColumns[0]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_comments_comment_id",
-				Columns:    []*schema.Column{UserCommentsColumns[1]},
-				RefColumns: []*schema.Column{CommentsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CategoriesTable,
@@ -267,17 +250,15 @@ var (
 		ProfilesTable,
 		SettingsTable,
 		UsersTable,
-		UserCommentsTable,
 	}
 )
 
 func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
 	CommentsTable.ForeignKeys[0].RefTable = ProductsTable
+	CommentsTable.ForeignKeys[1].RefTable = UsersTable
 	ImagesTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
 	ProductsTable.ForeignKeys[1].RefTable = UsersTable
 	ProfilesTable.ForeignKeys[0].RefTable = UsersTable
-	UserCommentsTable.ForeignKeys[0].RefTable = UsersTable
-	UserCommentsTable.ForeignKeys[1].RefTable = CommentsTable
 }

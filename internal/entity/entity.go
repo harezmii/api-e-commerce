@@ -4,7 +4,8 @@ type Category struct {
 	Title       string `json:"title" xml:"title" form:"title" validate:"required,min=3,max=30"`
 	Keywords    string `json:"keywords" xml:"keywords" form:"keywords" validate:"required,min=3,max=250"`
 	Description string `json:"description" xml:"description" form:"description" validate:"required,min=10,max=250"`
-	Image       string `json:"image" xml:"image" form:"image" validate:"required"`
+	Image       string `json:"image,omitempty" xml:"image,omitempty" form:"image"`
+	Url         string `json:"url,omitempty" xml:"url,omitempty"`
 	Status      *bool  `json:"status" xml:"status" form:"status" validate:"required"`
 }
 
@@ -41,7 +42,7 @@ type Comment struct {
 	Rate      float64 `json:"rate" xml:"rate" form:"rate" validate:"required"`
 	ContentId int     `json:"contentId,omitempty"`
 	UserId    int     `json:"userId,omitempty"`
-	IP        string  `json:"ip" xml:"ip" form:"ip" validate:"required"`
+	IP        string  `json:"ip" xml:"ip" form:"ip"`
 	Status    *bool   `json:"status" xml:"status" form:"status" validate:"required"`
 }
 type Message struct {

@@ -744,7 +744,7 @@ func HasOwn() predicate.Comment {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(OwnTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, OwnTable, OwnPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, OwnTable, OwnColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -756,7 +756,7 @@ func HasOwnWith(preds ...predicate.User) predicate.Comment {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(OwnInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, OwnTable, OwnPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, OwnTable, OwnColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

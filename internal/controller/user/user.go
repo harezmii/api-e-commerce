@@ -141,7 +141,7 @@ func (u ControllerUser) Update(ctx *fiber.Ctx) error {
 //	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "User is all", Data: allUser})
 //}
 
-// ShowAccount godoc
+// Destroy ShowAccount godoc
 // @Summary      Delete Data
 // @Description  delete users
 // @Tags         Users
@@ -216,7 +216,6 @@ func (u ControllerUser) Login(ctx *fiber.Ctx) error {
 	if validateError != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.SuccessResponse{StatusCode: 422, Message: "Validate error", Data: validateError})
 	}
-
 	user, err := u.Client.User.Query().Where(func(s *sql.Selector) {
 		s.Where(sql.EQ("email", login.Email))
 	}).First(u.Context)
@@ -226,8 +225,29 @@ func (u ControllerUser) Login(ctx *fiber.Ctx) error {
 	isLoginSuccess := hash.PasswordHashCompare(login.Password, user.Password)
 	if isLoginSuccess {
 		tokenManage := jwtManage.TokenManage{}.Initialize()
-		token := tokenManage.NewToken(ctx, user.ID)
+		token := tokenManage.NewToken(ctx, user.ID, "user")
+
 		return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Login success", Data: token})
 	}
 	return ctx.Status(fiber.StatusUnauthorized).JSON(response.SuccessResponse{StatusCode: 401, Message: "Unauthorized"})
+}
+
+func (u ControllerUser) UserOwnerProduct(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	idInt, convertError := strconv.Atoi(id)
+
+	if convertError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
+	}
+	user, userError := u.Client.User.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.EQ("id", idInt))
+	}).First(u.Context)
+	if userError != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: fiber.StatusNotFound, Message: "User not finding"})
+	}
+	setError := u.Client.Product.Update().SetOwner1ID(idInt).SetOwner1(user).Exec(u.Context)
+	if setError != nil {
+		return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: fiber.StatusNoContent, Message: "User own products not creating"})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: fiber.StatusOK, Message: "User products create"})
 }

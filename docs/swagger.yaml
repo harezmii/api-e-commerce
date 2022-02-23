@@ -740,6 +740,26 @@ paths:
       tags:
       - Messages
   /products:
+    get:
+      consumes:
+      - application/json
+      description: Get all products
+      parameters:
+      - description: Offset
+        in: query
+        name: offset
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Product'
+      summary: All  Data
+      tags:
+      - Products
     post:
       consumes:
       - application/json

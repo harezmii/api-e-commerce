@@ -52,6 +52,7 @@ type CategoryMutation struct {
 	keywords        *string
 	description     *string
 	image           *string
+	url             *string
 	status          *bool
 	created_at      *time.Time
 	updated_at      *time.Time
@@ -310,6 +311,42 @@ func (m *CategoryMutation) OldImage(ctx context.Context) (v string, err error) {
 // ResetImage resets all changes to the "image" field.
 func (m *CategoryMutation) ResetImage() {
 	m.image = nil
+}
+
+// SetURL sets the "url" field.
+func (m *CategoryMutation) SetURL(s string) {
+	m.url = &s
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *CategoryMutation) URL() (r string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the Category entity.
+// If the Category object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryMutation) OldURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *CategoryMutation) ResetURL() {
+	m.url = nil
 }
 
 // SetStatus sets the "status" field.
@@ -648,7 +685,7 @@ func (m *CategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CategoryMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.title != nil {
 		fields = append(fields, category.FieldTitle)
 	}
@@ -660,6 +697,9 @@ func (m *CategoryMutation) Fields() []string {
 	}
 	if m.image != nil {
 		fields = append(fields, category.FieldImage)
+	}
+	if m.url != nil {
+		fields = append(fields, category.FieldURL)
 	}
 	if m.status != nil {
 		fields = append(fields, category.FieldStatus)
@@ -689,6 +729,8 @@ func (m *CategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case category.FieldImage:
 		return m.Image()
+	case category.FieldURL:
+		return m.URL()
 	case category.FieldStatus:
 		return m.Status()
 	case category.FieldCreatedAt:
@@ -714,6 +756,8 @@ func (m *CategoryMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldDescription(ctx)
 	case category.FieldImage:
 		return m.OldImage(ctx)
+	case category.FieldURL:
+		return m.OldURL(ctx)
 	case category.FieldStatus:
 		return m.OldStatus(ctx)
 	case category.FieldCreatedAt:
@@ -758,6 +802,13 @@ func (m *CategoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetImage(v)
+		return nil
+	case category.FieldURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
 		return nil
 	case category.FieldStatus:
 		v, ok := value.(bool)
@@ -862,6 +913,9 @@ func (m *CategoryMutation) ResetField(name string) error {
 		return nil
 	case category.FieldImage:
 		m.ResetImage()
+		return nil
+	case category.FieldURL:
+		m.ResetURL()
 		return nil
 	case category.FieldStatus:
 		m.ResetStatus()
@@ -1024,8 +1078,7 @@ type CommentMutation struct {
 	clearedFields map[string]struct{}
 	owner         *int
 	clearedowner  bool
-	own           map[int]struct{}
-	removedown    map[int]struct{}
+	own           *int
 	clearedown    bool
 	done          bool
 	oldValue      func(context.Context) (*Comment, error)
@@ -1467,14 +1520,9 @@ func (m *CommentMutation) ResetOwner() {
 	m.clearedowner = false
 }
 
-// AddOwnIDs adds the "own" edge to the User entity by ids.
-func (m *CommentMutation) AddOwnIDs(ids ...int) {
-	if m.own == nil {
-		m.own = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.own[ids[i]] = struct{}{}
-	}
+// SetOwnID sets the "own" edge to the User entity by id.
+func (m *CommentMutation) SetOwnID(id int) {
+	m.own = &id
 }
 
 // ClearOwn clears the "own" edge to the User entity.
@@ -1487,29 +1535,20 @@ func (m *CommentMutation) OwnCleared() bool {
 	return m.clearedown
 }
 
-// RemoveOwnIDs removes the "own" edge to the User entity by IDs.
-func (m *CommentMutation) RemoveOwnIDs(ids ...int) {
-	if m.removedown == nil {
-		m.removedown = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.own, ids[i])
-		m.removedown[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedOwn returns the removed IDs of the "own" edge to the User entity.
-func (m *CommentMutation) RemovedOwnIDs() (ids []int) {
-	for id := range m.removedown {
-		ids = append(ids, id)
+// OwnID returns the "own" edge ID in the mutation.
+func (m *CommentMutation) OwnID() (id int, exists bool) {
+	if m.own != nil {
+		return *m.own, true
 	}
 	return
 }
 
 // OwnIDs returns the "own" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// OwnID instead. It exists only for internal usage by the builders.
 func (m *CommentMutation) OwnIDs() (ids []int) {
-	for id := range m.own {
-		ids = append(ids, id)
+	if id := m.own; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -1518,7 +1557,6 @@ func (m *CommentMutation) OwnIDs() (ids []int) {
 func (m *CommentMutation) ResetOwn() {
 	m.own = nil
 	m.clearedown = false
-	m.removedown = nil
 }
 
 // Where appends a list predicates to the CommentMutation builder.
@@ -1790,11 +1828,9 @@ func (m *CommentMutation) AddedIDs(name string) []ent.Value {
 			return []ent.Value{*id}
 		}
 	case comment.EdgeOwn:
-		ids := make([]ent.Value, 0, len(m.own))
-		for id := range m.own {
-			ids = append(ids, id)
+		if id := m.own; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -1802,9 +1838,6 @@ func (m *CommentMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CommentMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.removedown != nil {
-		edges = append(edges, comment.EdgeOwn)
-	}
 	return edges
 }
 
@@ -1812,12 +1845,6 @@ func (m *CommentMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *CommentMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case comment.EdgeOwn:
-		ids := make([]ent.Value, 0, len(m.removedown))
-		for id := range m.removedown {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
@@ -1852,6 +1879,9 @@ func (m *CommentMutation) ClearEdge(name string) error {
 	switch name {
 	case comment.EdgeOwner:
 		m.ClearOwner()
+		return nil
+	case comment.EdgeOwn:
+		m.ClearOwn()
 		return nil
 	}
 	return fmt.Errorf("unknown Comment unique edge %s", name)

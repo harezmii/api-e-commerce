@@ -24,6 +24,8 @@ type Category struct {
 	Description string `json:"description,omitempty"`
 	// Image holds the value of the "image" field.
 	Image string `json:"image,omitempty"`
+	// URL holds the value of the "url" field.
+	URL string `json:"url,omitempty"`
 	// Status holds the value of the "status" field.
 	Status bool `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -92,7 +94,7 @@ func (*Category) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullBool)
 		case category.FieldID:
 			values[i] = new(sql.NullInt64)
-		case category.FieldTitle, category.FieldKeywords, category.FieldDescription, category.FieldImage:
+		case category.FieldTitle, category.FieldKeywords, category.FieldDescription, category.FieldImage, category.FieldURL:
 			values[i] = new(sql.NullString)
 		case category.FieldCreatedAt, category.FieldUpdatedAt, category.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -142,6 +144,12 @@ func (c *Category) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field image", values[i])
 			} else if value.Valid {
 				c.Image = value.String
+			}
+		case category.FieldURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field url", values[i])
+			} else if value.Valid {
+				c.URL = value.String
 			}
 		case category.FieldStatus:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -225,6 +233,8 @@ func (c *Category) String() string {
 	builder.WriteString(c.Description)
 	builder.WriteString(", image=")
 	builder.WriteString(c.Image)
+	builder.WriteString(", url=")
+	builder.WriteString(c.URL)
 	builder.WriteString(", status=")
 	builder.WriteString(fmt.Sprintf("%v", c.Status))
 	builder.WriteString(", created_at=")

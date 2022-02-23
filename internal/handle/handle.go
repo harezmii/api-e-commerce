@@ -19,6 +19,7 @@ var connection = ent.ConnectionEnt()
 var backContext = context.Background()
 
 func SetupRoutes(app fiber.Router) {
+
 	f := faq.ControllerFaq{
 		Controller: struct {
 			Client  *ent.Client
@@ -47,6 +48,7 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/users/:id", u.Show)
 	app.Delete("/users/:id", u.Destroy)
 	app.Put("/users/:id", u.Update)
+	app.Get("/users/:id/products", u.UserOwnerProduct)
 	app.Post("/users/login", u.Login)
 	// User Routes End
 
@@ -87,6 +89,7 @@ func SetupRoutes(app fiber.Router) {
 	app.Post("/categories", c.Store)
 	app.Get("/categories", c.Index)
 	app.Get("/categories/:id", c.Show)
+	app.Get("/categories/:id/products", c.CategoryOwnProducts)
 	app.Delete("/categories/:id", c.Destroy)
 	app.Put("/categories/:id", c.Update)
 
@@ -100,6 +103,7 @@ func SetupRoutes(app fiber.Router) {
 	app.Post("/comments", co.Store)
 	app.Get("/comments", co.Index)
 	app.Get("/comments/:id", co.Show)
+	app.Get("/comments/:id/users", co.CommentOwnUsers)
 	app.Delete("/comments/:id", co.Destroy)
 	app.Put("/comments/:id", co.Update)
 
@@ -126,6 +130,7 @@ func SetupRoutes(app fiber.Router) {
 	app.Post("/products", pr.Store)
 	app.Delete("/products/:id", pr.Destroy)
 	app.Get("/products/:id", pr.Show)
+	app.Get("/products/:id/comments", pr.CommentOwnProducts)
 	app.Put("/products/:id", pr.Update)
 	app.Get("/products", pr.Index)
 }

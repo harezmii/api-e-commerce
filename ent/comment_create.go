@@ -115,19 +115,23 @@ func (cc *CommentCreate) SetOwner(p *Product) *CommentCreate {
 	return cc.SetOwnerID(p.ID)
 }
 
-// AddOwnIDs adds the "own" edge to the User entity by IDs.
-func (cc *CommentCreate) AddOwnIDs(ids ...int) *CommentCreate {
-	cc.mutation.AddOwnIDs(ids...)
+// SetOwnID sets the "own" edge to the User entity by ID.
+func (cc *CommentCreate) SetOwnID(id int) *CommentCreate {
+	cc.mutation.SetOwnID(id)
 	return cc
 }
 
-// AddOwn adds the "own" edges to the User entity.
-func (cc *CommentCreate) AddOwn(u ...*User) *CommentCreate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// SetNillableOwnID sets the "own" edge to the User entity by ID if the given value is not nil.
+func (cc *CommentCreate) SetNillableOwnID(id *int) *CommentCreate {
+	if id != nil {
+		cc = cc.SetOwnID(*id)
 	}
-	return cc.AddOwnIDs(ids...)
+	return cc
+}
+
+// SetOwn sets the "own" edge to the User entity.
+func (cc *CommentCreate) SetOwn(u *User) *CommentCreate {
+	return cc.SetOwnID(u.ID)
 }
 
 // Mutation returns the CommentMutation object of the builder.
@@ -333,10 +337,10 @@ func (cc *CommentCreate) createSpec() (*Comment, *sqlgraph.CreateSpec) {
 	}
 	if nodes := cc.mutation.OwnIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   comment.OwnTable,
-			Columns: comment.OwnPrimaryKey,
+			Columns: []string{comment.OwnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -348,6 +352,7 @@ func (cc *CommentCreate) createSpec() (*Comment, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.user_comments = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

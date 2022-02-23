@@ -45,6 +45,12 @@ func (cc *CategoryCreate) SetImage(s string) *CategoryCreate {
 	return cc
 }
 
+// SetURL sets the "url" field.
+func (cc *CategoryCreate) SetURL(s string) *CategoryCreate {
+	cc.mutation.SetURL(s)
+	return cc
+}
+
 // SetStatus sets the "status" field.
 func (cc *CategoryCreate) SetStatus(b bool) *CategoryCreate {
 	cc.mutation.SetStatus(b)
@@ -233,6 +239,9 @@ func (cc *CategoryCreate) check() error {
 	if _, ok := cc.mutation.Image(); !ok {
 		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "Category.image"`)}
 	}
+	if _, ok := cc.mutation.URL(); !ok {
+		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Category.url"`)}
+	}
 	if _, ok := cc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Category.status"`)}
 	}
@@ -297,6 +306,14 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 			Column: category.FieldImage,
 		})
 		_node.Image = value
+	}
+	if value, ok := cc.mutation.URL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: category.FieldURL,
+		})
+		_node.URL = value
 	}
 	if value, ok := cc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

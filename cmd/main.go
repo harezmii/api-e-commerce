@@ -27,7 +27,7 @@ func main() {
 }
 
 /*
-TODO
--- Jwt implementasyonu yapılacak. Done
-Veritabanı ilişkileri düzenlenecek.
+TODO : api genisletilecek
+TODO : private ve public route yapılacak.
+
 */

@@ -38,11 +38,13 @@ const (
 	OwnerInverseTable = "products"
 	// OwnerColumn is the table column denoting the owner relation/edge.
 	OwnerColumn = "product_comments"
-	// OwnTable is the table that holds the own relation/edge. The primary key declared below.
-	OwnTable = "user_comments"
+	// OwnTable is the table that holds the own relation/edge.
+	OwnTable = "comments"
 	// OwnInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	OwnInverseTable = "users"
+	// OwnColumn is the table column denoting the own relation/edge.
+	OwnColumn = "user_comments"
 )
 
 // Columns holds all SQL columns for comment fields.
@@ -61,13 +63,8 @@ var Columns = []string{
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"product_comments",
+	"user_comments",
 }
-
-var (
-	// OwnPrimaryKey and OwnColumn2 are the table columns denoting the
-	// primary key for the own relation (M2M).
-	OwnPrimaryKey = []string{"user_id", "comment_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

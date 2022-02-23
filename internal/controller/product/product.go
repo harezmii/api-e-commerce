@@ -327,3 +327,23 @@ func (p ControllerProduct) Update(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusUnprocessableEntity).JSON(response.ErrorResponse{StatusCode: 422, Message: validateError})
 }
+
+func (p ControllerProduct) CommentOwnProducts(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	idInt, convertError := strconv.Atoi(id)
+
+	if convertError != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{StatusCode: 400, Message: "Bad Request , Invalid type error. Type must int"})
+	}
+	product, userError := p.Client.Product.Query().Where(func(s *sql.Selector) {
+		s.Where(sql.EQ("id", idInt))
+	}).First(p.Context)
+	if userError != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: fiber.StatusNotFound, Message: "Comment not finding"})
+	}
+	setError := p.Client.Comment.Update().SetOwnerID(idInt).SetOwner(product).Exec(p.Context)
+	if setError != nil {
+		return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: fiber.StatusNoContent, Message: "Category own products not creating"})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: fiber.StatusOK, Message: "Category products create"})
+}
