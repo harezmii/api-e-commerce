@@ -85,32 +85,6 @@ var (
 		Columns:    FaqsColumns,
 		PrimaryKey: []*schema.Column{FaqsColumns[0]},
 	}
-	// ImagesColumns holds the columns for the "images" table.
-	ImagesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "title", Type: field.TypeString},
-		{Name: "image", Type: field.TypeString},
-		{Name: "url", Type: field.TypeString},
-		{Name: "status", Type: field.TypeBool},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "product_images", Type: field.TypeInt, Nullable: true},
-	}
-	// ImagesTable holds the schema information for the "images" table.
-	ImagesTable = &schema.Table{
-		Name:       "images",
-		Columns:    ImagesColumns,
-		PrimaryKey: []*schema.Column{ImagesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "images_products_images",
-				Columns:    []*schema.Column{ImagesColumns[8]},
-				RefColumns: []*schema.Column{ProductsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-	}
 	// MessagesColumns holds the columns for the "messages" table.
 	MessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -244,7 +218,6 @@ var (
 		CategoriesTable,
 		CommentsTable,
 		FaqsTable,
-		ImagesTable,
 		MessagesTable,
 		ProductsTable,
 		ProfilesTable,
@@ -257,7 +230,6 @@ func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = CategoriesTable
 	CommentsTable.ForeignKeys[0].RefTable = ProductsTable
 	CommentsTable.ForeignKeys[1].RefTable = UsersTable
-	ImagesTable.ForeignKeys[0].RefTable = ProductsTable
 	ProductsTable.ForeignKeys[0].RefTable = CategoriesTable
 	ProductsTable.ForeignKeys[1].RefTable = UsersTable
 	ProfilesTable.ForeignKeys[0].RefTable = UsersTable

@@ -30,7 +30,6 @@ func (Product) Fields() []ent.Field {
 // Edges of the Product.
 func (Product) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("images", Image.Type),
 		edge.From("owner", Category.Type).Ref("products").Unique(),
 		edge.From("owner1", User.Type).Ref("products").Unique(),
 		edge.To("comments", Comment.Type),

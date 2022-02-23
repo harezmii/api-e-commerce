@@ -6,7 +6,6 @@ import (
 	"api/ent/category"
 	"api/ent/comment"
 	"api/ent/faq"
-	"api/ent/image"
 	"api/ent/message"
 	"api/ent/product"
 	"api/ent/profile"
@@ -40,7 +39,6 @@ func columnChecker(table string) func(string) error {
 		category.Table: category.ValidColumn,
 		comment.Table:  comment.ValidColumn,
 		faq.Table:      faq.ValidColumn,
-		image.Table:    image.ValidColumn,
 		message.Table:  message.ValidColumn,
 		product.Table:  product.ValidColumn,
 		profile.Table:  profile.ValidColumn,

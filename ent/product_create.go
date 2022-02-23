@@ -5,7 +5,6 @@ package ent
 import (
 	"api/ent/category"
 	"api/ent/comment"
-	"api/ent/image"
 	"api/ent/product"
 	"api/ent/user"
 	"context"
@@ -100,21 +99,6 @@ func (pc *ProductCreate) SetNillableDeletedAt(t *time.Time) *ProductCreate {
 		pc.SetDeletedAt(*t)
 	}
 	return pc
-}
-
-// AddImageIDs adds the "images" edge to the Image entity by IDs.
-func (pc *ProductCreate) AddImageIDs(ids ...int) *ProductCreate {
-	pc.mutation.AddImageIDs(ids...)
-	return pc
-}
-
-// AddImages adds the "images" edges to the Image entity.
-func (pc *ProductCreate) AddImages(i ...*Image) *ProductCreate {
-	ids := make([]int, len(i))
-	for j := range i {
-		ids[j] = i[j].ID
-	}
-	return pc.AddImageIDs(ids...)
 }
 
 // SetOwnerID sets the "owner" edge to the Category entity by ID.
@@ -368,25 +352,6 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 			Column: product.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
-	}
-	if nodes := pc.mutation.ImagesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   product.ImagesTable,
-			Columns: []string{product.ImagesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: image.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := pc.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

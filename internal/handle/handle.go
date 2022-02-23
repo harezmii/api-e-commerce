@@ -5,7 +5,6 @@ import (
 	"api/internal/controller/category"
 	"api/internal/controller/comment"
 	"api/internal/controller/faq"
-	"api/internal/controller/image"
 	"api/internal/controller/message"
 	"api/internal/controller/product"
 	"api/internal/controller/profile"
@@ -106,19 +105,6 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/comments/:id/users", co.CommentOwnUsers)
 	app.Delete("/comments/:id", co.Destroy)
 	app.Put("/comments/:id", co.Update)
-
-	i := image.ControllerImage{
-		Controller: struct {
-			Client  *ent.Client
-			Context context.Context
-			Entity  interface{}
-		}{Client: connection, Context: backContext, Entity: entity.Image{}},
-	}
-	app.Post("/images", i.Store)
-	app.Get("/images", i.Index)
-	app.Get("/images/:id", i.Show)
-	app.Delete("/images/:id", i.Destroy)
-	app.Put("/images/:id", i.Update)
 
 	pr := product.ControllerProduct{
 		Controller: struct {

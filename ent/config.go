@@ -27,7 +27,6 @@ type hooks struct {
 	Category []ent.Hook
 	Comment  []ent.Hook
 	Faq      []ent.Hook
-	Image    []ent.Hook
 	Message  []ent.Hook
 	Product  []ent.Hook
 	Profile  []ent.Hook

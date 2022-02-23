@@ -29,8 +29,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// EdgeImages holds the string denoting the images edge name in mutations.
-	EdgeImages = "images"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeOwner1 holds the string denoting the owner1 edge name in mutations.
@@ -39,13 +37,6 @@ const (
 	EdgeComments = "comments"
 	// Table holds the table name of the product in the database.
 	Table = "products"
-	// ImagesTable is the table that holds the images relation/edge.
-	ImagesTable = "images"
-	// ImagesInverseTable is the table name for the Image entity.
-	// It exists in this package in order to avoid circular dependency with the "image" package.
-	ImagesInverseTable = "images"
-	// ImagesColumn is the table column denoting the images relation/edge.
-	ImagesColumn = "product_images"
 	// OwnerTable is the table that holds the owner relation/edge.
 	OwnerTable = "products"
 	// OwnerInverseTable is the table name for the Category entity.

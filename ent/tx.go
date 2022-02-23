@@ -18,8 +18,6 @@ type Tx struct {
 	Comment *CommentClient
 	// Faq is the client for interacting with the Faq builders.
 	Faq *FaqClient
-	// Image is the client for interacting with the Image builders.
-	Image *ImageClient
 	// Message is the client for interacting with the Message builders.
 	Message *MessageClient
 	// Product is the client for interacting with the Product builders.
@@ -168,7 +166,6 @@ func (tx *Tx) init() {
 	tx.Category = NewCategoryClient(tx.config)
 	tx.Comment = NewCommentClient(tx.config)
 	tx.Faq = NewFaqClient(tx.config)
-	tx.Image = NewImageClient(tx.config)
 	tx.Message = NewMessageClient(tx.config)
 	tx.Product = NewProductClient(tx.config)
 	tx.Profile = NewProfileClient(tx.config)

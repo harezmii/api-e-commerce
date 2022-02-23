@@ -15,9 +15,6 @@ type Comment func(*sql.Selector)
 // Faq is the predicate function for faq builders.
 type Faq func(*sql.Selector)
 
-// Image is the predicate function for image builders.
-type Image func(*sql.Selector)
-
 // Message is the predicate function for message builders.
 type Message func(*sql.Selector)
 

@@ -46,8 +46,6 @@ type Product struct {
 
 // ProductEdges holds the relations/edges for other nodes in the graph.
 type ProductEdges struct {
-	// Images holds the value of the images edge.
-	Images []*Image `json:"images,omitempty"`
 	// Owner holds the value of the owner edge.
 	Owner *Category `json:"owner,omitempty"`
 	// Owner1 holds the value of the owner1 edge.
@@ -56,22 +54,13 @@ type ProductEdges struct {
 	Comments []*Comment `json:"comments,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
-}
-
-// ImagesOrErr returns the Images value or an error if the edge
-// was not loaded in eager-loading.
-func (e ProductEdges) ImagesOrErr() ([]*Image, error) {
-	if e.loadedTypes[0] {
-		return e.Images, nil
-	}
-	return nil, &NotLoadedError{edge: "images"}
+	loadedTypes [3]bool
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProductEdges) OwnerOrErr() (*Category, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		if e.Owner == nil {
 			// The edge owner was loaded in eager-loading,
 			// but was not found.
@@ -85,7 +74,7 @@ func (e ProductEdges) OwnerOrErr() (*Category, error) {
 // Owner1OrErr returns the Owner1 value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ProductEdges) Owner1OrErr() (*User, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[1] {
 		if e.Owner1 == nil {
 			// The edge owner1 was loaded in eager-loading,
 			// but was not found.
@@ -99,7 +88,7 @@ func (e ProductEdges) Owner1OrErr() (*User, error) {
 // CommentsOrErr returns the Comments value or an error if the edge
 // was not loaded in eager-loading.
 func (e ProductEdges) CommentsOrErr() ([]*Comment, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[2] {
 		return e.Comments, nil
 	}
 	return nil, &NotLoadedError{edge: "comments"}
@@ -220,11 +209,6 @@ func (pr *Product) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
-}
-
-// QueryImages queries the "images" edge of the Product entity.
-func (pr *Product) QueryImages() *ImageQuery {
-	return (&ProductClient{config: pr.config}).QueryImages(pr)
 }
 
 // QueryOwner queries the "owner" edge of the Product entity.
