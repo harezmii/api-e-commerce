@@ -75,7 +75,7 @@ func (t TokenManage) Initialize() TokenManage {
 	t.CookieExpires = time.Now().Add(time.Minute * 1)
 	t.Expires = time.Now().Add(time.Minute * 1)
 
-	t.CookieSecure = false
+	t.CookieSecure = true
 	t.CookieHttpOnly = true
 	t.UnAuthorized = func(ctx *fiber.Ctx, code int, message string) error {
 		return ctx.Status(code).JSON(response.ErrorResponse{StatusCode: code, Message: message})

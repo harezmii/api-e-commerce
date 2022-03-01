@@ -532,72 +532,6 @@ const docTemplate_swagger = `{
                 }
             }
         },
-        "/images": {
-            "get": {
-                "description": "Get all images",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Images"
-                ],
-                "summary": "All  Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Offset",
-                        "name": "offset",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Image"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "create Image",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Images"
-                ],
-                "summary": "Create Data",
-                "parameters": [
-                    {
-                        "description": "Image form",
-                        "name": "body",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Image"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.Image"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/images/{id}": {
             "get": {
                 "description": "get string by ID",
@@ -624,78 +558,7 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Image"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "update images",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Images"
-                ],
-                "summary": "Update Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "images ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "image update form",
-                        "name": "body",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Image"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Image"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "delete images",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Images"
-                ],
-                "summary": "Delete Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Image ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.Image"
-                            }
+                            "$ref": "#/definitions/dto.ProductDto"
                         }
                     }
                 }
@@ -896,7 +759,10 @@ const docTemplate_swagger = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Product"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.ProductDto"
+                            }
                         }
                     }
                 }
@@ -927,16 +793,45 @@ const docTemplate_swagger = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.Product"
-                            }
+                            "$ref": "#/definitions/entity.Product"
                         }
                     }
                 }
             }
         },
         "/products/{id}": {
+            "delete": {
+                "description": "delete products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Delete Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}/images/{imagesId}": {
             "put": {
                 "description": "update products",
                 "consumes": [
@@ -971,39 +866,6 @@ const docTemplate_swagger = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/entity.Product"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "delete products",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Products"
-                ],
-                "summary": "Delete Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.Product"
-                            }
                         }
                     }
                 }
@@ -1255,11 +1117,39 @@ const docTemplate_swagger = `{
         }
     },
     "definitions": {
+        "dto.ProductDto": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "photos": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "urls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "entity.Category": {
             "type": "object",
             "required": [
                 "description",
-                "image",
                 "keywords",
                 "status",
                 "title"
@@ -1285,6 +1175,9 @@ const docTemplate_swagger = `{
                     "type": "string",
                     "maxLength": 30,
                     "minLength": 3
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         },
@@ -1292,7 +1185,6 @@ const docTemplate_swagger = `{
             "type": "object",
             "required": [
                 "comment",
-                "ip",
                 "rate",
                 "status"
             ],
@@ -1337,28 +1229,6 @@ const docTemplate_swagger = `{
                 },
                 "status": {
                     "type": "boolean"
-                }
-            }
-        },
-        "entity.Image": {
-            "type": "object",
-            "required": [
-                "title"
-            ],
-            "properties": {
-                "contentId": {
-                    "type": "integer"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "url": {
-                    "type": "string"
                 }
             }
         },
@@ -1487,6 +1357,16 @@ const docTemplate_swagger = `{
                 "surname": {
                     "type": "string",
                     "minLength": 3
+                }
+            }
+        },
+        "response.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {},
+                "statusCode": {
+                    "type": "integer"
                 }
             }
         }

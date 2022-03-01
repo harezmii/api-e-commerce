@@ -9,6 +9,8 @@ type Config struct {
 	Minio    Minio
 	Vault    Vault
 	Database Database
+	Kafka    Kafka
+	Redis    Redis
 }
 
 type Server struct {
@@ -32,13 +34,27 @@ type Minio struct {
 	SecretKey string
 }
 
+type Kafka struct {
+	Topic string
+	Conf  map[string]interface{}
+}
+type Redis struct {
+	RedisHost     string
+	RedisPort     int
+	RedisUser     string
+	RedisPass     string
+	RedisUrl      string
+	RedisDatabase int
+	RedisReset    bool
+}
+
 func loadEnvironment() (*viper.Viper, error) {
 	v := viper.New()
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
 	v.SetConfigFile("config.yaml")
 	v.AddConfigPath(".")
-	v.AutomaticEnv()
+
 	err := v.ReadInConfig()
 	if err != nil {
 		return nil, err

@@ -29,7 +29,7 @@ type ControllerCategory struct {
 // @Accept       json
 // @Produce      json
 // @Param        body body  entity.Category  false   "Category form"
-// @Success      201  {object}  []entity.Category
+// @Success      201  {object}  entity.Category
 // @Router       /categories [post]
 func (c ControllerCategory) Store(ctx *fiber.Ctx) error {
 	file, errorImage := ctx.FormFile("image")
@@ -71,7 +71,6 @@ func (c ControllerCategory) Store(ctx *fiber.Ctx) error {
 		dbError := c.Client.Category.Create().SetKeywords(category.Keywords).SetImage(category.Image).SetURL(category.Url).SetDescription(category.Description).SetDescription(category.Description).SetTitle(category.Title).SetStatus(*category.Status).Exec(c.Context)
 
 		if dbError != nil {
-			fmt.Println(dbError.Error())
 			logs.Logger(ctx, "Store!Category not created.Database error.", logs.ERROR)
 			return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Category not created.Database error."})
 		}
@@ -145,7 +144,7 @@ func (c ControllerCategory) Update(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        offset  query  string  true   "Offset"
-// @Success      200  {object}  entity.Category
+// @Success      200  {object}  []dto.CategoryDto
 // @Router       /categories [get]
 func (c ControllerCategory) Index(ctx *fiber.Ctx) error {
 	arg := controller.QueryArg{}
@@ -197,7 +196,6 @@ func (c ControllerCategory) Index(ctx *fiber.Ctx) error {
 		} else {
 			offsetInt = 0
 		}
-
 	}
 	// Offset Control END
 
@@ -224,7 +222,7 @@ func (c ControllerCategory) Index(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Category ID"
-// @Success      200  {object}  []entity.Category
+// @Success      200  {object}  response.SuccessResponse
 // @Router       /categories/{id} [delete]
 func (c ControllerCategory) Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
@@ -259,7 +257,7 @@ func (c ControllerCategory) Destroy(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Category ID"
-// @Success      200  {object}  entity.Category
+// @Success      200  {object}  response.SuccessResponse
 // @Router       /categories/{id} [get]
 func (c ControllerCategory) Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
@@ -306,5 +304,5 @@ func (c ControllerCategory) CategoryOwnProducts(ctx *fiber.Ctx) error {
 	if setError != nil {
 		return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: fiber.StatusNoContent, Message: "Category own products not creating"})
 	}
-	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: fiber.StatusOK, Message: "Category products create"})
+	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: fiber.StatusOK, Message: "Category products create", Data: category})
 }

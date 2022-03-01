@@ -6,14 +6,16 @@ import (
 	"api/internal/entity/response"
 	"api/internal/entity/seed"
 	"api/internal/handle"
-	"api/internal/logs"
 	"api/internal/secret/middleware"
 	_ "api/internal/secret/vault"
+	"api/internal/storage"
 	"api/pkg/config"
 	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
+	"time"
 )
 
 func RunRest(port string) {
@@ -25,19 +27,19 @@ func RunRest(port string) {
 	})
 	app.Static("images", "./images")
 	// Storage
-	//store := storage.RedisStore()
+	store := storage.RedisStore()
 	// Storage End
 
 	// Cache
-	//app.Use(cache.New(cache.Config{
-	//	Next: func(c *fiber.Ctx) bool {
-	//		return c.Query("refresh") == "true"
-	//	},
-	//	CacheControl: true,
-	//	Expiration:   time.Second * 8,
-	//	Storage:      store,
-	//	CacheHeader:  "Cache-Time",
-	//}))
+	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return c.Query("refresh") == "true"
+		},
+		CacheControl: true,
+		Expiration:   time.Second * 8,
+		Storage:      store,
+		CacheHeader:  "Cache-Time",
+	}))
 	// Cache End
 
 	// Fiber Internal Middleware
@@ -56,7 +58,7 @@ func RunRest(port string) {
 				Entities: []string{"Faq", "Message"}}
 			seeder.Seed()
 		}
-		return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{Message: "Api is Running", StatusCode: fiber.StatusOK})
+		return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{Message: "Api is Running", StatusCode: fiber.StatusOK, Data: ctx.GetReqHeaders()})
 	})
 
 	// Api ping End
@@ -70,7 +72,15 @@ func RunRest(port string) {
 
 	// Match Any Request
 	app.Use(func(ctx *fiber.Ctx) error {
-		logs.Logger(ctx, "Any Request!The page you are looking for could not be found.", logs.INFO)
+		c := ConfigAccept{
+			AcceptEncodings: []string{"gzip", "br"},
+			AcceptLanguages: []string{"tr", "en"},
+			AcceptCharset:   []string{"utf-8", "utf-16"},
+			Accepts:         []string{"application/json", "application/xml", "multipart/form-data", "image/png", "image/jpeg", "image/jpg"},
+		}
+		c.NewAccept(ctx)
+
+		// logs.Logger(ctx, "Any Request!The page you are looking for could not be found.", logs.INFO)
 		return ctx.Status(404).JSON(response.ErrorResponse{
 			StatusCode: 404,
 			Message:    "The page you are looking for could not be found.",
