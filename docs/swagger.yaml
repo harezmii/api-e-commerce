@@ -1,24 +1,5 @@
 basePath: /api/v1
 definitions:
-  dto.ProductDto:
-    properties:
-      description:
-        type: string
-      id:
-        type: integer
-      keywords:
-        type: string
-      photos:
-        items:
-          type: string
-        type: array
-      title:
-        type: string
-      urls:
-        items:
-          type: string
-        type: array
-    type: object
   entity.Category:
     properties:
       description:
@@ -37,10 +18,9 @@ definitions:
         maxLength: 30
         minLength: 3
         type: string
-      url:
-        type: string
     required:
     - description
+    - image
     - keywords
     - status
     - title
@@ -61,6 +41,7 @@ definitions:
         type: integer
     required:
     - comment
+    - ip
     - rate
     - status
     type: object
@@ -80,6 +61,21 @@ definitions:
     - answer
     - question
     - status
+    type: object
+  entity.Image:
+    properties:
+      contentId:
+        type: integer
+      image:
+        type: string
+      title:
+        maxLength: 50
+        minLength: 3
+        type: string
+      url:
+        type: string
+    required:
+    - title
     type: object
   entity.Message:
     properties:
@@ -173,13 +169,6 @@ definitions:
     - password
     - status
     - surname
-    type: object
-  response.SuccessResponse:
-    properties:
-      data: {}
-      message: {}
-      statusCode:
-        type: integer
     type: object
 host: localhost:3500
 info:
@@ -528,7 +517,72 @@ paths:
       summary: Update Data
       tags:
       - Faqs
+  /images:
+    get:
+      consumes:
+      - application/json
+      description: Get all images
+      parameters:
+      - description: Offset
+        in: query
+        name: offset
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Image'
+      summary: All  Data
+      tags:
+      - Images
+    post:
+      consumes:
+      - application/json
+      description: create Image
+      parameters:
+      - description: Image form
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/entity.Image'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/entity.Image'
+            type: array
+      summary: Create Data
+      tags:
+      - Images
   /images/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete images
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Image'
+            type: array
+      summary: Delete Data
+      tags:
+      - Images
     get:
       consumes:
       - application/json
@@ -545,8 +599,33 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.ProductDto'
+            $ref: '#/definitions/entity.Image'
       summary: Show Data
+      tags:
+      - Images
+    put:
+      consumes:
+      - application/json
+      description: update images
+      parameters:
+      - description: images ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: image update form
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/entity.Image'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Image'
+      summary: Update Data
       tags:
       - Images
   /messages:
@@ -677,9 +756,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.ProductDto'
-            type: array
+            $ref: '#/definitions/entity.Product'
       summary: All  Data
       tags:
       - Products
@@ -699,7 +776,9 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/entity.Product'
+            items:
+              $ref: '#/definitions/entity.Product'
+            type: array
       summary: Create Data
       tags:
       - Products
@@ -720,11 +799,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.SuccessResponse'
+            items:
+              $ref: '#/definitions/entity.Product'
+            type: array
       summary: Delete Data
       tags:
       - Products
-  /products/{id}/images/{imagesId}:
     put:
       consumes:
       - application/json

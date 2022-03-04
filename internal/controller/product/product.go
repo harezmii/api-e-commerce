@@ -22,16 +22,6 @@ type ControllerProduct struct {
 	controller.Controller
 }
 
-func (ControllerProduct) IsOkImageType(contentType string) bool {
-	okImageType := []string{"image/png", "image/jpeg", "image/jpg"}
-	for _, imageType := range okImageType {
-		if imageType == contentType {
-			return true
-		}
-	}
-	return false
-}
-
 // Store ShowAccount godoc
 // @Summary      Create Data
 // @Description  create products
@@ -39,7 +29,7 @@ func (ControllerProduct) IsOkImageType(contentType string) bool {
 // @Accept       json
 // @Produce      json
 // @Param        body body  entity.Product  false   "Product form"
-// @Success      201  {object}  entity.Product
+// @Success      201  {object}  []entity.Product
 // @Router       /products [post]
 func (p ControllerProduct) Store(ctx *fiber.Ctx) error {
 	images := []string{}
@@ -79,7 +69,6 @@ func (p ControllerProduct) Store(ctx *fiber.Ctx) error {
 
 				fileImage, fileError := c.GetImage(product.Image)
 				if fileError != nil {
-					fmt.Println(fileError.Error())
 					return ctx.Status(fiber.StatusNoContent).JSON(response.ErrorResponse{StatusCode: 204, Message: "Image not created."})
 				}
 				product.Url = fileImage.String()
@@ -110,7 +99,7 @@ func (p ControllerProduct) Store(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Product ID"
-// @Success      200  {object}  response.SuccessResponse
+// @Success      200  {object}  []entity.Product
 // @Router       /products/{id} [delete]
 func (p ControllerProduct) Destroy(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
@@ -153,7 +142,7 @@ func (p ControllerProduct) Destroy(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true   "Image ID"
-// @Success      200  {object}  dto.ProductDto
+// @Success      200  {object}  entity.Image
 // @Router       /images/{id} [get]
 func (p ControllerProduct) Show(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
@@ -194,7 +183,7 @@ func (p ControllerProduct) Show(ctx *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param        offset  query  string  true   "Offset"
-// @Success      200  {object}  []dto.ProductDto
+// @Success      200  {object}  entity.Product
 // @Router       /products [get]
 func (p ControllerProduct) Index(ctx *fiber.Ctx) error {
 	arg := controller.QueryArg{}
@@ -265,7 +254,6 @@ func (p ControllerProduct) Index(ctx *fiber.Ctx) error {
 	if len(responseDto) == 0 {
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Product not finding"})
 	}
-
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Product is all", Data: responseDto})
 }
 

@@ -56,6 +56,11 @@ func Logger(ctx *fiber.Ctx, errorMessage string, logLevel string) {
 		}
 	}(logger)
 
+	// ECS Zap Log
+	//encoderConfig := ecszap.NewDefaultEncoderConfig()
+	//core := ecszap.NewCore(encoderConfig, os.Stdout, zap.DebugLevel)
+	//logger := zap.New(core, zap.AddCaller())
+
 	switch logLevel {
 	case DEBUG:
 		{

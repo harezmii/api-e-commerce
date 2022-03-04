@@ -8,10 +8,9 @@ import (
 )
 
 func NewKafkaProducer() entity.Kafka {
-	cfg := config.GetConf()
 	k := entity.Kafka{
-		Topic:  cfg.Kafka.Topic,
-		Config: cfg.Kafka.Conf,
+		Topic:  config.GetEnvironment("topic", config.STRING).(string),
+		Config: config.GetEnvironment("config", config.MAP).(map[string]interface{}),
 	}
 
 	return k
@@ -21,12 +20,12 @@ func Producer(key string, message string) {
 	c := k.Config
 
 	configKafka := &kafka.ConfigMap{
-		"bootstrap.servers": c["bootstrap\\servers"].(string),
-		"security.protocol": c["security\\protocol"].(string),
-		"sasl.mechanisms":   c["sasl\\mechanisms"].(string),
-		"sasl.username":     c["sasl\\username"].(string),
-		"sasl.password":     c["sasl\\password"].(string),
-		"client.id":         c["client\\id"].(string),
+		"bootstrap.servers": c["bootstrap.servers"].(string),
+		"security.protocol": c["security.protocol"].(string),
+		"sasl.mechanisms":   c["sasl.mechanisms"].(string),
+		"sasl.username":     c["sasl.username"].(string),
+		"sasl.password":     c["sasl.password"].(string),
+		"client.id":         c["client.id"].(string),
 	}
 	producer, producerError := kafka.NewProducer(configKafka)
 	if producerError != nil {

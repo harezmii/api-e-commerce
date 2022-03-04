@@ -22,5 +22,6 @@ import (
 // @BasePath /api/v1
 func main() {
 	cfg := config.GetConf()
+
 	rest.RunRest(strconv.Itoa(cfg.Server.Port))
 }
