@@ -1,0 +1,14 @@
+## Todo list
+"main": { ## api todo list
+  TODO:
+    private and public routes will be made
+    github actions will be added
+    kubernetes deployment will be added
+}
+"controller": { ## controller todo list
+
+}
+"log": { ## log todo list
+  TODO:
+    log output will be sent to kafka
+}

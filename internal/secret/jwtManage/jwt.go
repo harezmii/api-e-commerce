@@ -10,7 +10,7 @@ import (
 )
 
 type TokenManager interface {
-	NewToken(ctx *fiber.Ctx, userId int) string
+	NewToken(ctx *fiber.Ctx, userId int, role string) string
 	ParseToken(ctx *fiber.Ctx, token string) (jwt.Claims, error)
 	RefreshToken()
 }
