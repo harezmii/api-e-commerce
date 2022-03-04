@@ -14,9 +14,11 @@ type Config struct {
 }
 
 type Server struct {
-	AppName   string
-	BodyLimit int
-	Port      int
+	AppName       string
+	BodyLimit     int
+	Port          int
+	ServerHeader  string
+	CaseSensitive bool
 }
 type Database struct {
 	DatabaseUrl    string

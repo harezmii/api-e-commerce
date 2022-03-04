@@ -13,6 +13,7 @@ func NewKafkaProducer() entity.Kafka {
 		Topic:  cfg.Kafka.Topic,
 		Config: cfg.Kafka.Conf,
 	}
+
 	return k
 }
 func Producer(key string, message string) {

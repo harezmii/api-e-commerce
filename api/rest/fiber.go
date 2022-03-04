@@ -22,10 +22,11 @@ func RunRest(port string) {
 	cfg := config.GetConf()
 
 	app := fiber.New(fiber.Config{
-		AppName: cfg.Server.AppName,
-		//BodyLimit: config.GetEnvironment("BODY_LİMİT", config.INTEGER).(int),
+		AppName:       cfg.Server.AppName,
+		ServerHeader:  cfg.Server.ServerHeader,
+		CaseSensitive: cfg.Server.CaseSensitive,
+		BodyLimit:     cfg.Server.BodyLimit,
 	})
-	app.Static("images", "./images")
 	// Storage
 	store := storage.RedisStore()
 	// Storage End
