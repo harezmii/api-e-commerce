@@ -17,8 +17,7 @@ import (
 var connection = ent.ConnectionEnt()
 var backContext = context.Background()
 
-func SetupRoutes(app fiber.Router) {
-
+func faqRoutes(app fiber.Router) {
 	f := faq.ControllerFaq{
 		Controller: struct {
 			Client  *ent.Client
@@ -34,7 +33,9 @@ func SetupRoutes(app fiber.Router) {
 	app.Delete("/faqs/:id", f.Destroy)
 	app.Put("/faqs/:id", f.Update)
 	// faqs Routes End
+}
 
+func userRoutes(app fiber.Router) {
 	u := user.ControllerUser{
 		Controller: struct {
 			Client  *ent.Client
@@ -50,7 +51,9 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/users/:id/products", u.UserOwnerProduct)
 	app.Post("/users/login", u.Login)
 	// User Routes End
+}
 
+func profileRoutes(app fiber.Router) {
 	p := profile.ControllerProfile{
 		Controller: struct {
 			Client  *ent.Client
@@ -62,8 +65,10 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/users/:id/profiles", p.Show)
 	app.Post("/users/:id/profiles", p.StoreOrUpdate)
 	app.Delete("/users/:id/profiles", p.Destroy)
-	// User Routes End
+	// Profile Routes End
+}
 
+func messageRoutes(app fiber.Router) {
 	m := message.ControllerMessage{
 		Controller: struct {
 			Client  *ent.Client
@@ -77,7 +82,9 @@ func SetupRoutes(app fiber.Router) {
 	app.Delete("/messages/:id", m.Destroy)
 	app.Put("/messages/:id", m.Update)
 	// Message Routes End
+}
 
+func categoryRoutes(app fiber.Router) {
 	c := category.ControllerCategory{
 		Controller: struct {
 			Client  *ent.Client
@@ -91,7 +98,9 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/categories/:id/products", c.CategoryOwnProducts)
 	app.Delete("/categories/:id", c.Destroy)
 	app.Put("/categories/:id", c.Update)
+}
 
+func commentRoutes(app fiber.Router) {
 	co := comment.ControllerComment{
 		Controller: struct {
 			Client  *ent.Client
@@ -105,7 +114,9 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/comments/:id/users", co.CommentOwnUsers)
 	app.Delete("/comments/:id", co.Destroy)
 	app.Put("/comments/:id", co.Update)
+}
 
+func productRoutes(app fiber.Router) {
 	pr := product.ControllerProduct{
 		Controller: struct {
 			Client  *ent.Client
@@ -119,4 +130,13 @@ func SetupRoutes(app fiber.Router) {
 	app.Get("/products/:id/comments", pr.CommentOwnProducts)
 	app.Put("/products/:id/images/:imageId", pr.Update)
 	app.Get("/products", pr.Index)
+}
+func SetupRoutes(app fiber.Router) {
+	faqRoutes(app)
+	userRoutes(app)
+	profileRoutes(app)
+	messageRoutes(app)
+	categoryRoutes(app)
+	commentRoutes(app)
+	productRoutes(app)
 }
