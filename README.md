@@ -3,6 +3,7 @@
 # Application Stack
 - <font color="cyan">Golang v1.17.5</font>
 - <font color="cyan">Fiber v2.27.0</font>
+- <font color="cyan">Minio latest</font>
 - <font color="cyan">Validation v10 (Turkish Translate)</font>
 - <font color="cyan">Hashicorp Vault  v1.3.1</font>
 - <font color="cyan">Viper Env v1.10</font>
@@ -13,7 +14,6 @@
 - <font color="cyan">Confluent kafka v1.8.2</font>
 - <font color="cyan">Firebase Auth</font>
 - <font color="cyan">Postgres pq v1.10.4 </font>
-- 
 ## Directory Structure
 ```
 ├───api - Api initialize
