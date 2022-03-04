@@ -182,6 +182,7 @@ func (f ControllerFaq) Index(ctx *fiber.Ctx) error {
 	}
 	// Deleted record find
 	if len(responseDto) == 0 {
+		logs.Logger(ctx, "Index!Faq is not finding", logs.ERROR)
 		return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{StatusCode: 404, Message: "Faq not finding"})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(response.SuccessResponse{StatusCode: 200, Message: "Faq is all", Data: responseDto})

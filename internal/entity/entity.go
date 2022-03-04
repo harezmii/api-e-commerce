@@ -73,7 +73,7 @@ type Login struct {
 
 type Kafka struct {
 	Topic  string
-	Config map[string]interface{}
+	Config map[string]string
 }
 type LogToKafka struct {
 	LogLevel   string

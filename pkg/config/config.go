@@ -9,6 +9,8 @@ type Config struct {
 	Minio    Minio
 	Vault    Vault
 	Database Database
+	Kafka    Kafka
+	Redis    Redis
 }
 
 type Server struct {
@@ -32,6 +34,19 @@ type Minio struct {
 	EndPoint  string
 	AccessKey string
 	SecretKey string
+}
+type Kafka struct {
+	Topic string
+	Conf  map[string]string
+}
+type Redis struct {
+	RedisHost     string
+	RedisPort     int
+	RedisUser     string
+	RedisPassword string
+	RedisUrl      string
+	RedisDatabase int
+	RedisReset    bool
 }
 
 func loadEnvironment() (*viper.Viper, error) {

@@ -23,7 +23,6 @@ func (lumberjackSink) Sync() error {
 	return nil
 }
 func Logger(ctx *fiber.Ctx, errorMessage string, logLevel string) {
-
 	w := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   "logs.json",
 		MaxSize:    500, // megabytes
@@ -55,11 +54,6 @@ func Logger(ctx *fiber.Ctx, errorMessage string, logLevel string) {
 
 		}
 	}(logger)
-
-	// ECS Zap Log
-	//encoderConfig := ecszap.NewDefaultEncoderConfig()
-	//core := ecszap.NewCore(encoderConfig, os.Stdout, zap.DebugLevel)
-	//logger := zap.New(core, zap.AddCaller())
 
 	switch logLevel {
 	case DEBUG:
